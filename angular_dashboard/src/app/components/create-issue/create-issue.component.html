@@ -1,0 +1,16 @@
+<div class="form-container">
+  <div class="header">
+    <h2>📝 Submit New Issue</h2>
+    <button (click)="router.navigate(['/dashboard'])">🔙 Back to Dashboard</button>
+  </div>
+
+  <form (ngSubmit)="handleSubmit()">
+    <label>Title</label>
+    <input [(ngModel)]="form.title" name="title" required />
+
+    <label>Description</label>
+    <textarea [(ngModel)]="form.description" name="description" required></textarea>
+
+    <button type="submit">📩 Submit Issue</button>
+  </form>
+</div>

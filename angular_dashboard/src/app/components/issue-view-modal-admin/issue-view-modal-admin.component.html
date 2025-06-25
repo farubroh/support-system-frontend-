@@ -1,9 +1,25 @@
 <div class="modal-backdrop">
   <div class="modal-content">
-    <h3>Issue Details</h3>
-    <p><strong>Serial ID:</strong> {{ issue.serialId }}</p>
-    <p><strong>Status:</strong> {{ issue.status }}</p>
-    <!-- Add more fields here as needed -->
-    <button (click)="onClose()" class="btn-close">Close</button>
+    <h2>📄 Issue Details</h2>
+    <div class="modal-body">
+      <p><strong>Serial ID:</strong> {{ issue.serialId }}</p>
+      <p><strong>Title:</strong> {{ issue.title }}</p>
+      <p><strong>Description:</strong></p>
+      <p class="description-box">{{ issue.description }}</p>
+
+      <div *ngIf="issue.status === 'COMPLETED'" class="status-box completed">
+        <p><strong>✅ Resolution:</strong></p>
+        <p>{{ issue.completedReason || 'No reason provided' }}</p>
+      </div>
+
+      <div *ngIf="issue.status === 'REJECTED'" class="status-box rejected">
+        <p><strong>❌ Rejection Reason:</strong></p>
+        <p>{{ issue.rejectionReason || 'No reason provided' }}</p>
+      </div>
+    </div>
+
+    <div class="modal-buttons">
+      <button (click)="onCloseModal()">Close</button>
+    </div>
   </div>
 </div>

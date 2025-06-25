@@ -1,0 +1,78 @@
+.dashboard-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+}
+.tabs {
+  margin: 1rem 0;
+  display: flex;
+  gap: 10px;
+}
+.tabs button {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tabs button.active {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  font-weight: bold;
+}
+.loading {
+  text-align: center;
+  font-size: 1rem;
+  margin: 1rem 0;
+}
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+th, td {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  text-align: left;
+  border-top: 1px solid #eee;
+}
+tr.stripe {
+  background-color: #f9f9f9;
+}
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.85rem;
+}
+.btn-view {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-view:hover {
+  background-color: #0056b3;
+}
+.create-button-wrapper {
+  text-align: center;
+  margin-top: 2rem;
+}
+.create-button-wrapper button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

@@ -11,7 +11,7 @@ interface Issue {
   id: number;
   serialId: string;
   status: string;
-  // add other fields as needed
+  
 }
 
 @Component({
@@ -32,7 +32,7 @@ interface Issue {
 export class AdminDashboardComponent implements OnInit {
   http = inject(HttpClient);
 
-  user = { username: 'Admin', role: 'ADMIN' }; // Replace with real auth
+  user = { username: 'Admin', role: 'ADMIN' }; 
   issues: Issue[] = [];
   activeTab: string = 'PENDING';
   loading: boolean = true;
