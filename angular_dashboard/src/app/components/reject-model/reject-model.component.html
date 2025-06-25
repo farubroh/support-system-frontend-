@@ -1,1 +1,17 @@
-<p>reject-model works!</p>
+<div class="overlay">
+  <div class="modal">
+    <div class="header">
+      <h3>Reject Issue</h3>
+      <button (click)="onClose.emit()">❌</button>
+    </div>
+
+    <div class="body">
+      <p>{{ issue?.title }}</p>
+      <textarea [(ngModel)]="reason" rows="5" placeholder="Enter rejection reason..."></textarea>
+      <div class="footer">
+        <button (click)="reject()">Reject</button>
+        <button (click)="onClose.emit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
