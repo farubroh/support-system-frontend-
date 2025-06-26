@@ -1,32 +1,23 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { IssueViewModalAdminComponent } from '../issue-view-modal-admin/issue-view-modal-admin.component';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
-interface Issue {
-  id: number;
-  serialId: string;
-  status: string;
-}
+import { getStatusColor } from '../utils/get-status-color';
 
 @Component({
-  selector: 'app-user-dashboard',
+  selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, HttpClientModule, IssueViewModalAdminComponent],
+  imports: [CommonModule, HttpClientModule, RouterModule],
   templateUrl: './user-dashboard.component.html',
-  styleUrls: ['./user-dashboard.component.css'],
+  styleUrls: ['./user-dashboard.component.css']
 })
-export class UserDashboardComponent implements OnInit {
-  @Input() user!: { id: number; username: string; role: string };
-
-  issues: Issue[] = [];
-  activeTab = 'PENDING';
-  loading = true;
-  selectedIssue: Issue | null = null;
-
-  http = inject(HttpClient);
-  router = inject(Router);
+export class DashboardComponent implements OnInit {
+  issues: any[] = [];
+  activeTab: string = 'PENDING';
+  loading: boolean = true;
+  selectedIssue: any = null;
+  user = { id: 1, username: 'User', role: 'User' }; // Replace with actual session user
 
   statusTabs = [
     { key: 'PENDING', label: 'Pending' },
@@ -35,47 +26,27 @@ export class UserDashboardComponent implements OnInit {
     { key: 'REJECTED', label: 'Rejected' }
   ];
 
+  constructor(private http: HttpClient) {}
+
   ngOnInit() {
     this.fetchIssues();
   }
 
   fetchIssues() {
     this.loading = true;
-    this.http.get<Issue[]>(`http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`)
+    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
+    this.http.get(url)
       .subscribe({
-        next: (data) => this.issues = data,
-        error: (err) => {
-          console.error('Error fetching issues:', err);
-          this.issues = [];
-        },
+        next: (res: any) => this.issues = res,
+        error: err => { console.error(err); this.issues = []; },
         complete: () => this.loading = false
       });
   }
 
-  onTabClick(tab: string) {
-    this.activeTab = tab;
+  onTabClick(status: string) {
+    this.activeTab = status;
     this.fetchIssues();
   }
 
-  openModal(issue: Issue) {
-    this.selectedIssue = issue;
-  }
-
-  closeModal() {
-    this.selectedIssue = null;
-  }
-
-  createNewIssue() {
-    this.router.navigate(['/create-issue']);
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'PENDING': return '#ffc107';
-      case 'INPROGRESS': return '#17a2b8';
-      case 'COMPLETED': return '#28a745';
-      case 'REJECTED': return '#dc3545';
-      default: return '#6c757d';
-    }
-  }
+  getStatusColor = getStatusColor;
 }

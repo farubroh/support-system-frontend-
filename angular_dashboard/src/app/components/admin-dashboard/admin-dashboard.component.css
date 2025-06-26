@@ -1,80 +1,74 @@
 .container {
   max-width: 900px;
-  margin: 2rem auto;
+  margin: auto;
   padding: 2rem;
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-h2 {
-  margin-bottom: 0.5rem;
-}
-.tabs {
+
+.tab-container {
   margin: 1rem 0;
   display: flex;
   gap: 10px;
 }
-.tabs button {
-  padding: 0.6rem 1.2rem;
+
+.tab-container button {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  color: black;
   border: 1px solid #ccc;
-  background: #f0f0f0;
   border-radius: 5px;
   cursor: pointer;
-  font-weight: normal;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
-.tabs button.active {
+
+.tab-container .active-tab {
   background-color: #007bff;
   color: white;
-  border-color: #007bff;
+  border: 1px solid #007bff;
   font-weight: bold;
 }
-.loading {
-  text-align: center;
-  padding: 1rem;
-  font-size: 1.1rem;
-}
-.table-wrapper {
+
+.table-container {
   overflow-x: auto;
   margin-top: 1rem;
 }
+
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   border-radius: 8px;
-  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow: hidden;
 }
-th {
+
+thead {
   background-color: #4c9900;
   color: white;
   text-align: left;
+}
+
+th, td {
   padding: 12px 16px;
   font-size: 0.95rem;
-}
-td {
-  padding: 12px 16px;
-  font-size: 0.9rem;
   border-top: 1px solid #eee;
 }
-tr.stripe {
+
+tr:nth-child(even) {
   background-color: #f9f9f9;
 }
-.badge {
+
+.status-badge {
   padding: 4px 8px;
   border-radius: 12px;
   color: #fff;
   font-size: 0.85rem;
 }
-.btn-view {
+
+.view-btn {
   background-color: #007bff;
   color: white;
   padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-view:hover {
-  background-color: #0056b3;
 }

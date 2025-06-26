@@ -1,25 +1,18 @@
-<div class="container" [@fadeIn]>
-  <h2> Admin Issue Dashboard</h2>
-  <p>
-    Welcome, <strong>{{user.username}}</strong> | Role:
-    <strong>{{user.role}}</strong>
-  </p>
+<div class="container">
+  <h2>🛠 Admin Issue Dashboard</h2>
+  <p>Welcome, <strong>{{ user.username }}</strong> | Role: <strong>{{ user.role }}</strong></p>
 
-  <div class="tabs">
-    <button
-      *ngFor="let tab of statusTabs"
-      (click)="onTabClick(tab.key)"
-      [class.active]="activeTab === tab.key"
-    >
+  <div class="tab-container">
+    <button *ngFor="let tab of statusTabs"
+            [ngClass]="{ 'active-tab': activeTab === tab.key }"
+            (click)="onTabClick(tab.key)">
       {{ tab.label }}
     </button>
   </div>
 
-  <div *ngIf="loading" class="loading">
-    🔄 Loading {{activeTab | lowercase}} issues...
-  </div>
+  <div *ngIf="loading">🔄 Loading {{ activeTab.replace('_', ' ') }} issues...</div>
 
-  <div *ngIf="!loading" class="table-wrapper">
+  <div class="table-container" *ngIf="!loading">
     <table>
       <thead>
         <tr>
@@ -30,34 +23,24 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          *ngFor="let issue of issues; index as i"
-          [class.stripe]="i % 2 === 0"
-        >
+        <tr *ngFor="let issue of issues; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ issue.serialId }}</td>
           <td>
-            <span
-              class="badge"
-              [ngStyle]="{ 'background-color': getStatusColor(issue.status) }"
-            >
+            <span class="status-badge" [ngStyle]="{ 'background-color': getStatusColor(issue.status) }">
               {{ issue.status }}
             </span>
           </td>
           <td>
-            <button class="btn-view" (click)="openModal(issue)">View</button>
+            <button class="view-btn" (click)="selectedIssue = issue">View</button>
           </td>
         </tr>
         <tr *ngIf="issues.length === 0">
-          <td colspan="4">No {{activeTab | lowercase}} issues found.</td>
+          <td colspan="4">No {{ activeTab.replace('_', ' ') }} issues found.</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <app-issue-view-modal-admin
-    *ngIf="selectedIssue"
-    [issue]="selectedIssue"
-    (close)="closeModal()"
-  ></app-issue-view-modal-admin>
+  <app-issue-view-modal-admin *ngIf="selectedIssue" [issue]="selectedIssue" (close)="selectedIssue = null" (refresh)="fetchIssues()"></app-issue-view-modal-admin>
 </div>

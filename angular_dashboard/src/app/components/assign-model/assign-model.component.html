@@ -1,30 +1,24 @@
-<div class="overlay">
-  <div class="modal">
-    <div class="header">
-      <h3>Assign Issue: #{{ issue?.serialId }}</h3>
-      <button (click)="onClose.emit()">❌</button>
+<div class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Assign Issue: #{{ issue.serialId }}</h3>
+      <button (click)="close.emit()">❌</button>
     </div>
-
-    <div class="body">
+    <div class="modal-body">
       <table>
         <thead>
           <tr>
             <th>#</th>
             <th>Name</th>
-            <th>Designation</th>
             <th>Status</th>
             <th>Task Count</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="developers.length === 0">
-            <td colspan="6">No developers found.</td>
-          </tr>
           <tr *ngFor="let dev of developers; let i = index">
             <td>{{ i + 1 }}</td>
             <td>{{ dev.user.username }}</td>
-            <td>{{ dev.user.designation }}</td>
             <td [style.color]="dev.online ? 'green' : 'red'">
               {{ dev.online ? 'Online' : 'Offline' }}
             </td>
@@ -35,9 +29,6 @@
           </tr>
         </tbody>
       </table>
-      <div class="footer">
-        <button (click)="onClose.emit()">Cancel</button>
-      </div>
     </div>
   </div>
 </div>

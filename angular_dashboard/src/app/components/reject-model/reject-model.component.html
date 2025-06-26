@@ -1,16 +1,15 @@
-<div class="overlay">
-  <div class="modal">
-    <div class="header">
+<div class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header">
       <h3>Reject Issue</h3>
-      <button (click)="onClose.emit()">❌</button>
+      <button (click)="close.emit()">❌</button>
     </div>
-
-    <div class="body">
-      <p>{{ issue?.title }}</p>
+    <div class="modal-body">
+      <p><strong>{{ issue.title }}</strong></p>
       <textarea [(ngModel)]="reason" rows="5" placeholder="Enter rejection reason..."></textarea>
-      <div class="footer">
-        <button (click)="reject()">Reject</button>
-        <button (click)="onClose.emit()">Cancel</button>
+      <div class="modal-footer">
+        <button (click)="rejectIssue()">Reject</button>
+        <button (click)="close.emit()">Cancel</button>
       </div>
     </div>
   </div>

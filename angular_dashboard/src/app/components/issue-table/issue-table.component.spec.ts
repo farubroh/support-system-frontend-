@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AssignModalComponent } from './assign-model.component';
+import { IssueTableComponent } from './issue-table.component';
 
-
-describe('AssignModelComponent', () => {
-  let component: AssignModalComponent;
-  let fixture: ComponentFixture<AssignModalComponent>;
+describe('IssueTableComponent', () => {
+  let component: IssueTableComponent;
+  let fixture: ComponentFixture<IssueTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AssignModalComponent]
+      imports: [IssueTableComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AssignModalComponent);
+    fixture = TestBed.createComponent(IssueTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
