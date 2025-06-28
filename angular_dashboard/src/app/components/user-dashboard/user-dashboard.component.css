@@ -1,44 +1,103 @@
-.container {
-  max-width: 900px;
+/* Overall container styling */
+.dashboard-container {
+  max-width: 1200px;
   margin: auto;
-  padding: 2rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.tab-container {
-  margin: 1rem 0;
+/* Header styling */
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #333;
+}
+
+p {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Tab container styling */
+.tabs-container {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
-.tab-container button {
-  padding: 10px 20px;
-  background-color: #f0f0f0;
-  color: black;
+.tabs {
+  display: flex;
+  gap: 12px;
+}
+
+button {
+  padding: 12px 20px;
+  background-color: #f1f1f1;
+  color: #333;
   border: 1px solid #ccc;
   border-radius: 5px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  transition: background-color 0.3s;
 }
 
-.tab-container .active-tab {
+button .tab-icon {
+  font-size: 1.3rem;
+}
+
+button:hover {
   background-color: #007bff;
   color: white;
-  border: 1px solid #007bff;
+}
+
+.active-tab {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
   font-weight: bold;
 }
 
+/* Loading indicator */
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Table styling */
 .table-container {
   overflow-x: auto;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  overflow: hidden;
+  border-collapse: collapse;
 }
 
 thead {
@@ -48,42 +107,78 @@ thead {
 }
 
 th, td {
-  padding: 12px 16px;
-  font-size: 0.95rem;
-  border-top: 1px solid #eee;
+  padding: 14px 20px;
+  font-size: 1rem;
+  text-align: left;
 }
 
 tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #f7f7f7;
 }
 
 .status-badge {
-  padding: 4px 8px;
+  padding: 6px 12px;
   border-radius: 12px;
-  color: #fff;
-  font-size: 0.85rem;
+  color: white;
+  font-size: 0.9rem;
 }
 
 .view-btn {
   background-color: #007bff;
   color: white;
-  padding: 6px 12px;
-  border: none;
+  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  border: none;
+  font-size: 1rem;
 }
 
+.view-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Create new issue button */
 .create-button {
   text-align: center;
   margin-top: 2rem;
 }
 
-.create-button a {
+.create-btn {
   background-color: #28a745;
   color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 25px;
+  border-radius: 6px;
   text-decoration: none;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 1.2rem;
+}
+
+.create-btn:hover {
+  background-color: #218838;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tabs button {
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  .view-btn, .create-btn {
+    width: 100%;
+    text-align: center;
+  }
 }

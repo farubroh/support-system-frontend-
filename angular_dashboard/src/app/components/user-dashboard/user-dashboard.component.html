@@ -1,18 +1,30 @@
-<div class="container">
-  <h2>📊 Issue Dashboard</h2>
-  <p>Welcome, <strong>{{ user.username }}</strong> | Role: <strong>{{ user.role }}</strong></p>
-
-  <div class="tab-container">
-    <button *ngFor="let tab of statusTabs"
-            [ngClass]="{ 'active-tab': activeTab === tab.key }"
-            (click)="onTabClick(tab.key)">
-      {{ tab.label }}
-    </button>
+<div class="dashboard-container">
+  <div class="header">
+    <h2>📊 Issue Dashboard</h2>
+    <p>Welcome, <strong>{{ user.username }}</strong> | Role: <strong>{{ user.role }}</strong></p>
   </div>
 
-  <div *ngIf="loading">🔄 Loading {{ activeTab.replace('_', ' ') }} issues...</div>
+  <div class="tabs-container">
+    <div class="tabs">
+      <button *ngFor="let tab of statusTabs" 
+              [ngClass]="{ 'active-tab': activeTab === tab.key }"
+              (click)="onTabClick(tab.key)">
+        <!-- Adding simple icons based on the status -->
+        <span *ngIf="tab.key === 'PENDING'">⏳</span>
+        <span *ngIf="tab.key === 'INPROGRESS'">🔄</span>
+        <span *ngIf="tab.key === 'COMPLETED'">✔️</span>
+        <span *ngIf="tab.key === 'REJECTED'">❌</span>
+        {{ tab.label }}
+      </button>
+    </div>
+  </div>
 
-  <div class="table-container" *ngIf="!loading">
+  <div *ngIf="loading" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Loading {{ activeTab.replace('_', ' ') }} issues...</p>
+  </div>
+
+  <div *ngIf="!loading" class="table-container">
     <table>
       <thead>
         <tr>
@@ -43,9 +55,6 @@
   </div>
 
   <div class="create-button">
-    <a routerLink="/create-issue">➕ Create New Issue</a>
+    <a routerLink="/create-issue" class="create-btn">➕ Create New Issue</a>
   </div>
-
-  <!-- Placeholder for Modal -->
-  <!-- <app-issue-view-modal *ngIf="selectedIssue" [issue]="selectedIssue" (close)="selectedIssue = null"></app-issue-view-modal> -->
 </div>

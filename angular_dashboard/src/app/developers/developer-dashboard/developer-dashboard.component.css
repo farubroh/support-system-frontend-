@@ -1,0 +1,12 @@
+.developer-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .developer-dashboard {
+    flex-direction: column;
+  }
+}

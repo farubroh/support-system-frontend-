@@ -10,7 +10,9 @@
     </button>
   </div>
 
-  <div *ngIf="loading">🔄 Loading {{ activeTab.replace('_', ' ') }} issues...</div>
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div> Loading {{ activeTab.replace('_', ' ') }} issues...
+  </div>
 
   <div class="table-container" *ngIf="!loading">
     <table>

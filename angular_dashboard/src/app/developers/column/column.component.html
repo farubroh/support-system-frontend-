@@ -1,0 +1,17 @@
+<div class="column">
+  <h3>{{ statusTitle[status] }}</h3>
+  <div
+    cdkDropList
+    [cdkDropListData]="issues"
+    [cdkDropListConnectedTo]="connectedTo"
+    (cdkDropListDropped)="onDrop($event)"
+    class="column-drop-area"
+    [id]="status"
+  >
+    <app-issue-card
+      *ngFor="let issue of issues"
+      [issue]="issue"
+      cdkDrag
+    ></app-issue-card>
+  </div>
+</div>

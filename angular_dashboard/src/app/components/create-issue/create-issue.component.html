@@ -9,19 +9,19 @@
 
     <form (ngSubmit)="handleSubmit()">
       <div class="form-group">
-        <label>Title</label>
-        <input type="text" [(ngModel)]="form.title" name="title" required placeholder="Enter issue title" />
+        <label for="title">Title</label>
+        <input type="text" [(ngModel)]="form.title" name="title" required id="title" placeholder="Enter issue title" />
       </div>
 
       <div class="form-group">
-        <label>Description</label>
-        <textarea [(ngModel)]="form.description" name="description" required rows="5" placeholder="Describe the issue in detail..."></textarea>
+        <label for="description">Description</label>
+        <textarea [(ngModel)]="form.description" name="description" required id="description" rows="5" placeholder="Describe the issue in detail..."></textarea>
       </div>
 
-      <div class="form-group">
-        <label>Upload File (PDF, PNG, JPG)</label>
-        <input type="file" (change)="onFileSelected($event)" accept=".pdf,.png,.jpg,.jpeg" />
-      </div>
+      <!-- <div class="form-group">
+        <label for="file">Upload File (Optional)</label>
+        <input type="file" (change)="onFileSelected($event)" accept=".pdf,.png,.jpg,.jpeg" id="file" />
+      </div> -->
 
       <button type="submit" class="submit-btn">🚀 Submit Issue</button>
     </form>

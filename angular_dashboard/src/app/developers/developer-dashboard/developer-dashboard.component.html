@@ -1,0 +1,11 @@
+<div class="developer-dashboard">
+  <h2>Developer Dashboard Loaded ✅</h2>
+
+  <app-column
+    *ngFor="let status of statusOrder"
+    [status]="status"
+    [issues]="issuesByStatus[status]"
+    [connectedTo]="statusOrder"
+    [onDrop]="getDropHandler(status)"
+  ></app-column>
+</div>

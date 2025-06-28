@@ -26,26 +26,50 @@ export class CreateIssueComponent {
     this.form.file = event.target.files[0];
   }
 
-  handleSubmit() {
-    const formData = new FormData();
-    formData.append('title', this.form.title);
-    formData.append('description', this.form.description);
-    formData.append('userId', this.user.id.toString());
-    if (this.form.file) {
-      formData.append('file', this.form.file);
-    }
+  // handleSubmit() {
+  //   const formData = new FormData();
+  //   formData.append('title', this.form.title);
+  //   formData.append('description', this.form.description);
+  //   formData.append('userId', this.user.id.toString());
+  //   if (this.form.file) {
+  //     formData.append('file', this.form.file);
+  //   }
 
-    this.http.post('http://localhost:8085/api/issues', formData).subscribe({
-      next: () => {
-        this.form.title = '';
-        this.form.description = '';
-        this.form.file = null;
-        this.router.navigate(['/dashboard']);
-      },
-      error: err => {
-        console.error('Error submitting issue:', err);
-        alert('❌ Could not submit issue.');
-      }
-    });
+  //   this.http.post('http://localhost:8085/api/issues', formData).subscribe({
+  //     next: () => {
+  //       this.form.title = '';
+  //       this.form.description = '';
+  //       this.form.file = null;
+  //       this.router.navigate(['/dashboard']);
+  //     },
+  //     error: err => {
+  //       console.error('Error submitting issue:', err);
+  //       alert('❌ Could not submit issue.');
+  //     }
+  //   });
+  // }
+
+  handleSubmit() {
+  const formData = new FormData();
+  formData.append('title', this.form.title);
+  formData.append('description', this.form.description);
+  formData.append('userId', this.user.id.toString());
+  if (this.form.file) {
+    formData.append('file', this.form.file);
   }
+
+  this.http.post('http://localhost:8085/api/issues', formData).subscribe({
+    next: () => {
+      this.form.title = '';
+      this.form.description = '';
+      this.form.file = null;
+      this.router.navigate(['/dashboard']);
+    },
+    error: err => {
+      console.error('Error submitting issue:', err);
+      alert('❌ Could not submit issue. Please try again later.');
+    }
+  });
+}
+
 }
