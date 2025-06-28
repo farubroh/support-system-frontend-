@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
 import { getStatusColor } from '../utils/get-status-color';
 
 @Component({
@@ -18,6 +17,7 @@ export class DashboardComponent implements OnInit {
   loading: boolean = true;
   selectedIssue: any = null;
   user = { id: 1, username: 'User', role: 'User' }; // Replace with actual session user
+  
 
   statusTabs = [
     { key: 'PENDING', label: 'Pending' },
@@ -29,18 +29,19 @@ export class DashboardComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.fetchIssues();
+    this.fetchIssues();  // Fetch issues when the component loads
   }
 
+  // Fetch issues based on the status
   fetchIssues() {
     this.loading = true;
     const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
-    this.http.get(url)
-      .subscribe({
-        next: (res: any) => this.issues = res,
-        error: err => { console.error(err); this.issues = []; },
-        complete: () => this.loading = false
-      });
+    
+    this.http.get(url).subscribe({
+      next: (res: any) => this.issues = res,
+      error: err => { console.error(err); this.issues = []; },
+      complete: () => this.loading = false
+    });
   }
 
   onTabClick(status: string) {
@@ -49,4 +50,9 @@ export class DashboardComponent implements OnInit {
   }
 
   getStatusColor = getStatusColor;
+
+  // Handle the event when a new issue is created
+  handleIssueCreated() {
+    this.fetchIssues();  // Refresh the issue list after creating a new issue
+  }
 }
