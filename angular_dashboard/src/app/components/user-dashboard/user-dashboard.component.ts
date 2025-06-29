@@ -16,8 +16,9 @@ export class DashboardComponent implements OnInit {
   activeTab: string = 'PENDING';
   loading: boolean = true;
   selectedIssue: any = null;
-  user = { id: 1, username: 'User', role: 'User' }; // Replace with actual session user
-  
+  //user = { id: 1, username: 'User', role: 'User' }; // Replace with actual session user
+  user: any;
+
 
   statusTabs = [
     { key: 'PENDING', label: 'Pending' },
@@ -29,8 +30,16 @@ export class DashboardComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.fetchIssues();  // Fetch issues when the component loads
+  const storedUser = sessionStorage.getItem('helpdeskUser');
+  if (storedUser) {
+    this.user = JSON.parse(storedUser);
+    this.fetchIssues();  // Fetch issues for the logged-in user
+  } else {
+    console.error('No user found in sessionStorage');
+    // Optional: redirect to login page if not logged in
+    // this.router.navigate(['/login']);
   }
+}
 
   // Fetch issues based on the status
   fetchIssues() {

@@ -20,7 +20,9 @@ export class LoginComponent {
   handleSubmit(event: Event) {
     event.preventDefault();
     this.error = '';  // Reset error message
+    //this.http.post('http://localhost:4200/api/login', this.credentials)
     this.http.post('http://localhost:8085/api/login', this.credentials)
+
       .subscribe({
         next: (res: any) => {
           // Store user info in sessionStorage
@@ -30,8 +32,9 @@ export class LoginComponent {
           const role = res.role;
           if (role === 'Admin') {
             this.router.navigate(['/admin']);
-          } else if (role === 'User') {
+          } else if (role === 'Student') {
             this.router.navigate(['/dashboard']);
+            console.log('User logged in successfully');
           } else if (role === 'Developer') {
             this.router.navigate(['/developer']);
           }
