@@ -54,6 +54,20 @@ export class AdminDashboardComponent implements OnInit {
     this.activeTab = status;
     this.fetchIssues();
   }
+   assignDeveloper(developerId: number) {
+    this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, { developerId: developerId })
+      .subscribe({
+        next: () => {
+          this.selectedIssue.status = 'INPROGRESS';  // Update status in the frontend
+          this.refreshIssueList();
+        },
+        error: (err) => alert('Failed to assign developer')
+      });
+  }
+
+  refreshIssueList() {
+    this.fetchIssues();  // Refresh issues to update the list in the "INPROGRESS" tab
+  }
 
   getStatusColor = getStatusColor;
 }

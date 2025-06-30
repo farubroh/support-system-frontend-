@@ -18,7 +18,7 @@
         <tbody>
           <tr *ngFor="let dev of developers; let i = index">
             <td>{{ i + 1 }}</td>
-            <td>{{ dev.user.username }}</td>
+            <td>{{ dev.username }}</td>
             <td [style.color]="dev.online ? 'green' : 'red'">
               {{ dev.online ? 'Online' : 'Offline' }}
             </td>

@@ -1,11 +1,17 @@
 .modal-backdrop {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.4);
-  display: flex; justify-content: center; align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
+
 .modal-content {
   background: #fff;
   padding: 24px;
@@ -13,31 +19,41 @@
   width: 500px;
   max-width: 90%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+  color: #333; /* Make text color darker */
 }
+
 .modal-body p {
   margin-bottom: 10px;
 }
+
 .description-box {
   background: #f9f9f9;
   padding: 10px;
   border-radius: 6px;
+  color: #333; /* Ensure text in description is dark enough */
 }
+
 .status-box {
   margin-top: 1rem;
   padding: 10px;
   border-radius: 6px;
 }
+
 .status-box.completed {
   background-color: #e8f5e9;
 }
+
 .status-box.rejected {
   background-color: #ffebee;
 }
+
 .modal-buttons {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }
+
 .modal-buttons button {
   background: #007bff;
   color: white;
@@ -45,4 +61,73 @@
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.assign-developer-section {
+  margin-top: 20px;
+  animation: fadeInSection 0.5s ease-out;
+}
+
+.assign-developer-section label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+  color: #333; /* Label text color */
+}
+
+.assign-developer-section select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  color: #333; /* Dropdown font color */
+}
+
+.assign-developer-section .assign-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.assign-developer-section .assign-btn:hover {
+  background-color: #218838;
+}
+
+.assignee-text {
+  font-weight: bold;
+  color: #333; /* Ensure the assignee's name is readable */
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(-50px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInSection {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
