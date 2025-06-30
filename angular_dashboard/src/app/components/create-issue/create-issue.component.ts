@@ -14,14 +14,26 @@ import { FormsModule } from '@angular/forms';
 export class CreateIssueComponent {
   @Output() issueCreated = new EventEmitter<void>(); // Event emitter to notify the parent component
 
-  user = { id: 1, username: 'User', role: 'User' }; // Replace with actual session user
+user: any;
+
+constructor(private http: HttpClient, private router: Router) {
+  const storedUser = sessionStorage.getItem('helpdeskUser');
+  if (storedUser) {
+    this.user = JSON.parse(storedUser);
+  } else {
+    console.error('No logged-in user found in sessionStorage');
+    // Optional: redirect to login
+    this.router.navigate(['/login']);
+  }
+}
+
 
   form = {
     title: '',
     description: ''
   };
 
-  constructor(private http: HttpClient, private router: Router) {}
+  
 
   handleSubmit() {
     const requestBody = {

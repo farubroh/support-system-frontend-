@@ -3,11 +3,13 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { getStatusColor } from '../utils/get-status-color';
+import { IssueViewModalUserComponent } from "../issue-view-modal-user/issue-view-modal-user.component";
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, HttpClientModule, RouterModule, IssueViewModalUserComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.css']
 })
@@ -17,6 +19,8 @@ export class DashboardComponent implements OnInit {
   loading: boolean = true;
   selectedIssue: any = null;
   //user = { id: 1, username: 'User', role: 'User' }; // Replace with actual session user
+
+  
   user: any;
 
 
@@ -43,15 +47,21 @@ export class DashboardComponent implements OnInit {
 
   // Fetch issues based on the status
   fetchIssues() {
-    this.loading = true;
-    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
-    
-    this.http.get(url).subscribe({
-      next: (res: any) => this.issues = res,
-      error: err => { console.error(err); this.issues = []; },
-      complete: () => this.loading = false
-    });
-  }
+  this.loading = true;
+  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
+  this.http.get<any[]>(url).subscribe({
+    next: (res) => {
+      console.log("Received issues:", res); // You confirmed it's correct ✅
+      this.issues = res;
+    },
+    error: (err) => {
+      console.error("Fetch error:", err);
+      this.issues = [];
+    },
+    complete: () => (this.loading = false)
+  });
+}
+
 
   onTabClick(status: string) {
     this.activeTab = status;

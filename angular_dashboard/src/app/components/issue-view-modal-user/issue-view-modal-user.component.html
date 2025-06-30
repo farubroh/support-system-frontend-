@@ -7,6 +7,9 @@
       <p><strong>Description:</strong></p>
       <p class="description-box">{{ issue.description }}</p>
 
+      <p><strong>Status:</strong> {{ issue.status }}</p>
+      <p><strong>{{ developerLabel }}:</strong> {{ developerValue }}</p>
+
       <div *ngIf="issue.status === 'COMPLETED'" class="status-box completed">
         <p><strong>✅ Resolution:</strong></p>
         <p>{{ issue.completedReason || 'No reason provided' }}</p>
@@ -14,7 +17,7 @@
 
       <div *ngIf="issue.status === 'REJECTED'" class="status-box rejected">
         <p><strong>❌ Rejection Reason:</strong></p>
-        <p>{{ issue.rejectionReason || 'No reason provided' }}</p>
+        <p>{{ issue.rejectedReason || 'No reason provided' }}</p>
       </div>
     </div>
 
@@ -22,14 +25,4 @@
       <button (click)="onCloseModal()">Close</button>
     </div>
   </div>
-
-  <div *ngIf="issue.status === 'PENDING'">
-  <label for="developer">Assign to Developer:</label>
-  <select [(ngModel)]="selectedDeveloperId">
-    <option [value]="null">-- Select Developer --</option>
-    <option *ngFor="let dev of developers" [value]="dev.id">{{ dev.username }}</option>
-  </select>
-  <button (click)="assignToDeveloper()">Assign</button>
-</div>
-
 </div>

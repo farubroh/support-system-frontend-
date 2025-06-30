@@ -57,4 +57,14 @@
   <div class="create-button">
     <a routerLink="/create-issue" class="create-btn">➕ Create New Issue</a>
   </div>
+
+<app-issue-view-modal-user 
+  *ngIf="selectedIssue" 
+  [issue]="selectedIssue" 
+  (close)="selectedIssue = null">
+</app-issue-view-modal-user>
+<app-issue-view-modal-user *ngIf="selectedIssue" [issue]="selectedIssue" (close)="selectedIssue = null">
+</app-issue-view-modal-user>
+
+  
 </div>
