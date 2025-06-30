@@ -23,6 +23,9 @@ export class IssueViewModalAdminComponent {
   assignOpen = false;
   rejectOpen = false;
   user = JSON.parse(sessionStorage.getItem('helpdeskUser') || '{}');
+  assigned: any;
+
+  
 
   get assigneeLabel(): string {
     switch (this.issue?.status) {
@@ -44,32 +47,27 @@ export class IssueViewModalAdminComponent {
 
   constructor(private http: HttpClient) {}
 
-  selectedDeveloperId: number | null = null;
+  selectedDeveloperId: number = 0;
 developers: any[] = [];
 
 ngOnInit() {
-  // Fetch developer list from backend
-  this.http.get<any[]>('http://localhost:8085/api/users/developers').subscribe((res: any[]) => {
-    this.developers = res;
+  this.http.get('http://localhost:8085/api/developers').subscribe({
+    next: (res: any) => this.developers = res,
+    error: () => alert('Failed to load developers')
   });
 }
 
 assignToDeveloper() {
-  if (!this.selectedDeveloperId) {
-    alert('Please select a developer');
-    return;
-  }
-
-  this.http.post(`http://localhost:8085/api/issues/${this.issue.id}/assign`, {
-    developerId: this.selectedDeveloperId
-  }).subscribe({
+  const payload = { developerId: this.selectedDeveloperId };
+  this.http.post(`http://localhost:8085/api/issues/${this.issue.id}/assign`, payload).subscribe({
     next: () => {
-      alert('✅ Issue assigned successfully');
-      this.refresh.emit(); // refresh admin dashboard if needed
-      this.close.emit();
+      alert('Assigned successfully');
+      this.issue.status = 'INPROGRESS';  // update UI
+      this.assigned.emit();              // notify parent to refresh
     },
-    error: () => alert('❌ Failed to assign issue')
+    error: () => alert('Assignment failed')
   });
 }
+
 
 }

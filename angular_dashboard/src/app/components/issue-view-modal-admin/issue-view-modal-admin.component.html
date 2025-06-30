@@ -31,5 +31,9 @@
   </select>
   <button (click)="assignToDeveloper()">Assign</button>
 </div>
+<select [(ngModel)]="selectedDeveloperId">
+  <option *ngFor="let dev of developers" [value]="dev.id">{{ dev.user.username }}</option>
+</select>
+<button (click)="assignToDeveloper()">Assign</button>
 
 </div>
