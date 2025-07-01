@@ -4,7 +4,9 @@
   cdkDrag
   [cdkDragData]="issue"
 >
-  <strong>{{ issue?.title }}</strong>
-  <p>{{ issue?.description }}</p>
-  <small>📅 {{ issue?.createdAt | date }}</small>
+  <div cdkDragHandle>
+    <strong>{{ issue?.title }}</strong>
+    <p>{{ issue?.description }}</p>
+    <small>📅 {{ issue?.createdAt | date }}</small>
+  </div>
 </div>

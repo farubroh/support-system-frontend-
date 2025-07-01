@@ -79,8 +79,11 @@ export class DeveloperDashboardComponent implements OnInit {
   getDropHandler(targetStatus: string) {
   return (event: CdkDragDrop<any[]>) => {
     console.log('📦 Drop Event Fired!', event);
-    console.log('💥 Dragged item data:', event.item.data);
-    console.log('🧾 Full event:', event);
+
+    // ✅ ADD THESE DEBUG LINES
+    console.log('All Issues By Status:', this.issuesByStatus);
+    console.log('Current Container:', event.container.id);
+    console.log('Previous Container:', event.previousContainer.id);
 
     const movedIssue = event.item.data; // ✅ Safely access the issue via cdkDragData
 
@@ -115,4 +118,20 @@ export class DeveloperDashboardComponent implements OnInit {
         error: (err) => console.error('Status update failed:', err),
       });
   }
+
+  handleDrop(data: { event: CdkDragDrop<any[]>, targetStatus: string }) {
+  const { event, targetStatus } = data;
+
+  if (event.previousContainer === event.container) return;
+
+  const movedIssue = event.item.data;
+
+  if (movedIssue?.issueId) {
+    console.log('✅ Moving issue:', movedIssue);
+    this.updateIssueStatus(movedIssue.issueId, targetStatus);
+  } else {
+    console.error('❌ Invalid moved issue structure:', movedIssue);
+  }
+}
+
 }

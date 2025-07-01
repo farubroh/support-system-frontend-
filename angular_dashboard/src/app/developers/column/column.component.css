@@ -11,6 +11,13 @@
   font-size: 1.2rem;
   color: #333;
 }
+.column-drop-area {
+  min-height: 200px; /* 🧱 Ensure area exists */
+  border: 2px dashed #ccc;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
 
 .column-drop-area {
   min-height: 400px;

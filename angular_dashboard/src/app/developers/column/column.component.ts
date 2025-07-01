@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDropList, CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { IssueCardComponent } from '../issue-card/issue-card.component';
 
 @Component({
@@ -14,7 +14,7 @@ export class ColumnComponent {
   @Input() status!: string;
   @Input() issues: any[] = [];
   @Input() connectedTo: string[] = [];
-  @Input() onDrop: Function = () => {};
+  @Output() issueDropped = new EventEmitter<{ event: CdkDragDrop<any[]>, targetStatus: string }>();
 
   statusTitle: Record<string, string> = {
     PENDING: '🕒 Pending',
@@ -22,10 +22,10 @@ export class ColumnComponent {
     COMPLETED: '✅ Completed',
     REJECTED: '❌ Rejected'
   };
-  onDropWrapper(event: any) {
-  if (this.onDrop) {
-    this.onDrop(event);
-  }
+
+  onDropWrapper(event: CdkDragDrop<any[]>) {
+  console.log('🔥 Drop triggered in column:', this.status); // ✅ Add this
+  this.issueDropped.emit({ event, targetStatus: this.status });
 }
 
 }

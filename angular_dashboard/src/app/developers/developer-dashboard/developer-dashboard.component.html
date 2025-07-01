@@ -5,7 +5,8 @@
   [status]="status"
   [issues]="issuesByStatus[status]"
   [connectedTo]="statusOrder"
-  [onDrop]="getDropHandler(status)"
+  (issueDropped)="handleDrop($event)"
 ></app-column>
+
 
 </div>
