@@ -22,4 +22,10 @@ export class ColumnComponent {
     COMPLETED: '✅ Completed',
     REJECTED: '❌ Rejected'
   };
+  onDropWrapper(event: any) {
+  if (this.onDrop) {
+    this.onDrop(event);
+  }
+}
+
 }

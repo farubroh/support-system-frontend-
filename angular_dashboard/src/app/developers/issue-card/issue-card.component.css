@@ -1,15 +1,68 @@
+/* Base card style */
 .issue-card {
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  color: #000;
+  transition: all 0.35s ease;
+  animation: slideUp 0.4s ease;
+  cursor: grab;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform-origin: center;
+  font-weight: 500;
 }
 
+/* Enhanced hover effect */
+.issue-card:hover {
+  transform: scale(1.07) translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+/* 🎨 Status Colors */
+
+/* Pending - Yellow */
+.issue-card.pending {
+  background-color: #FFD54F;
+}
+.issue-card.pending:hover {
+  background-color: #FFCA28;
+}
+
+/* In Progress - Blue */
+.issue-card.in-progress {
+  background-color: #42A5F5;
+}
+.issue-card.in-progress:hover {
+  background-color: #2196F3;
+}
+
+/* Resolved (Completed) - Green */
+.issue-card.resolved {
+  background-color: #66BB6A;
+}
+.issue-card.resolved:hover {
+  background-color: #43A047;
+}
+
+/* Rejected - Red */
+.issue-card.rejected {
+  background-color: #EF5350;
+}
+.issue-card.rejected:hover {
+  background-color: #E53935;
+}
+
+/* Fade-in animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive tweak */
 @media (max-width: 768px) {
   .issue-card {
-    font-size: 0.9rem;
-    padding: 0.75rem;
+    font-size: 0.95rem;
+    padding: 0.8rem;
   }
 }

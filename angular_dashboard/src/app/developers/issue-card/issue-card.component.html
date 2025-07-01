@@ -1,5 +1,10 @@
-<div class="issue-card" cdkDrag>
-  <strong>{{ issue?.issue.title }}</strong>
-  <p>{{ issue?.issue.description }}</p>
-  <small>📅 {{ issue?.issue.createdAt | date }}</small>
+<div
+  class="issue-card"
+  [ngClass]="getStatusClass(issue?.status)"
+  cdkDrag
+  [cdkDragData]="issue"
+>
+  <strong>{{ issue?.title }}</strong>
+  <p>{{ issue?.description }}</p>
+  <small>📅 {{ issue?.createdAt | date }}</small>
 </div>

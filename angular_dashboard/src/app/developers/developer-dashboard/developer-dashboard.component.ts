@@ -20,48 +20,87 @@ export class DeveloperDashboardComponent implements OnInit {
     COMPLETED: [],
     REJECTED: [],
   };
+    
 
   statusOrder = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    const storedUser = sessionStorage.getItem('helpdeskUser');
-    if (storedUser) {
-      this.user = JSON.parse(storedUser);
-      this.fetchIssues();
-    } else {
-      console.error('No user found in sessionStorage');
-    }
+  const storedUser = sessionStorage.getItem('helpdeskUser');
+  console.log("Session User:", storedUser); // 👈 Add this line
+
+  if (storedUser) {
+    this.user = JSON.parse(storedUser);
+    console.log("Parsed User Object:", this.user); // 👈 Add this line
+
+    this.fetchIssues();
+  } else {
+    console.error('No user found in sessionStorage');
   }
+}
+
 
   fetchIssues() {
-    const developerId = this.user.id;
-    const url = `http://localhost:8085/api/developers/${developerId}/issues`;
-    this.http.get<any>(url).subscribe({
-      next: (res) => {
-        this.issuesByStatus['PENDING'] = res.pendingIssues;
-        this.issuesByStatus['INPROGRESS'] = res.ongoingIssues;
-        this.issuesByStatus['COMPLETED'] = res.completedIssues;
-        this.issuesByStatus['REJECTED'] = res.rejectedIssues;
-      },
-      error: (err) => {
-        console.error('Failed to load developer issues:', err);
-      },
-    });
-  }
+  const developerId = this.user.id;
+  const url = `http://localhost:8085/api/developers/${developerId}/issues`;
+  console.log("Calling developer issue API:", url); // 👈 Add this
+
+  this.http.get<any>(url).subscribe({
+    next: (res) => {
+      console.log("API Response:", res); // 👈 Add this
+
+      // this.issuesByStatus['PENDING'] = res.PENDING;
+      // this.issuesByStatus['INPROGRESS'] = res.INPROGRESS;
+      // this.issuesByStatus['COMPLETED'] = res.COMPLETED;
+      // this.issuesByStatus['REJECTED'] = res.REJECTED;
+      this.issuesByStatus['PENDING'] = res.PENDING.map((d: any) => d.issue);
+      this.issuesByStatus['INPROGRESS'] = res.INPROGRESS.map((d: any) => d.issue);
+      this.issuesByStatus['COMPLETED'] = res.COMPLETED.map((d: any) => d.issue);
+      this.issuesByStatus['REJECTED'] = res.REJECTED.map((d: any) => d.issue);
+
+    },
+    error: (err) => {
+      console.error('Failed to load developer issues:', err);
+    },
+  });
+}
+
 
   // Drag and drop handler to update status when an issue is moved
-  getDropHandler(targetStatus: string) {
-    return (event: CdkDragDrop<any[]>) => {
-      if (event.previousContainer === event.container) return;
+  // getDropHandler(targetStatus: string) {
+  //   return (event: CdkDragDrop<any[]>) => {
+  //     if (event.previousContainer === event.container) return;
 
-      const movedIssue = event.previousContainer.data[event.previousIndex];
-      this.updateIssueStatus(movedIssue.issue.issueId, targetStatus);
-    };
-  }
+  //     const movedIssue = event.previousContainer.data[event.previousIndex];
+  //     this.updateIssueStatus(movedIssue.issue.issueId, targetStatus);
+  //   };
+  // }
+  getDropHandler(targetStatus: string) {
+  return (event: CdkDragDrop<any[]>) => {
+    console.log('📦 Drop Event Fired!', event);
+    console.log('💥 Dragged item data:', event.item.data);
+    console.log('🧾 Full event:', event);
+
+    const movedIssue = event.item.data; // ✅ Safely access the issue via cdkDragData
+
+    if (movedIssue?.issueId) {
+      console.log('✅ Moving issue:', movedIssue);
+      this.updateIssueStatus(movedIssue.issueId, targetStatus);
+    } else {
+      console.error('❌ Invalid moved issue structure:', movedIssue);
+    }
+  };
+}
+
+
+
+
+
+
 
   updateIssueStatus(issueId: number, newStatus: string) {
+    console.log(`🛠 Updating Issue ID ${issueId} to ${newStatus}`);
     const payload = {
       toStatus: newStatus,
       workedBy: this.user.id,
