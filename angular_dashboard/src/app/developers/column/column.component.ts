@@ -24,7 +24,8 @@ export class ColumnComponent {
   };
 
   onDropWrapper(event: CdkDragDrop<any[]>) {
-  console.log('🔥 Drop triggered in column:', this.status); // ✅ Add this
+  console.log('🔥 Drop triggered in column:', this.status);
+  console.log('📤 Event Payload:', event);
   this.issueDropped.emit({ event, targetStatus: this.status });
 }
 

@@ -76,25 +76,25 @@ export class DeveloperDashboardComponent implements OnInit {
   //     this.updateIssueStatus(movedIssue.issue.issueId, targetStatus);
   //   };
   // }
-  getDropHandler(targetStatus: string) {
-  return (event: CdkDragDrop<any[]>) => {
-    console.log('📦 Drop Event Fired!', event);
+//   getDropHandler(targetStatus: string) {
+//   return (event: CdkDragDrop<any[]>) => {
+//     console.log('📦 Drop Event Fired!', event);
 
-    // ✅ ADD THESE DEBUG LINES
-    console.log('All Issues By Status:', this.issuesByStatus);
-    console.log('Current Container:', event.container.id);
-    console.log('Previous Container:', event.previousContainer.id);
+//     // ✅ ADD THESE DEBUG LINES
+//     console.log('All Issues By Status:', this.issuesByStatus);
+//     console.log('Current Container:', event.container.id);
+//     console.log('Previous Container:', event.previousContainer.id);
 
-    const movedIssue = event.item.data; // ✅ Safely access the issue via cdkDragData
+//     const movedIssue = event.item.data; // ✅ Safely access the issue via cdkDragData
 
-    if (movedIssue?.issueId) {
-      console.log('✅ Moving issue:', movedIssue);
-      this.updateIssueStatus(movedIssue.issueId, targetStatus);
-    } else {
-      console.error('❌ Invalid moved issue structure:', movedIssue);
-    }
-  };
-}
+//     if (movedIssue?.issueId) {
+//       console.log('✅ Moving issue:', movedIssue);
+//       this.updateIssueStatus(movedIssue.issueId, targetStatus);
+//     } else {
+//       console.error('❌ Invalid moved issue structure:', movedIssue);
+//     }
+//   };
+// }
 
 
 
@@ -114,7 +114,11 @@ export class DeveloperDashboardComponent implements OnInit {
     this.http
       .put(`http://localhost:8085/api/issues/${issueId}/status`, payload)
       .subscribe({
-        next: () => this.fetchIssues(),
+        next: () => {
+        console.log('✅ Issue status updated successfully. Fetching updated list...');
+        this.fetchIssues();
+      },
+
         error: (err) => console.error('Status update failed:', err),
       });
   }
@@ -126,12 +130,14 @@ export class DeveloperDashboardComponent implements OnInit {
 
   const movedIssue = event.item.data;
 
+  console.log('📦 Dragged Issue:', movedIssue);  // ✅ Add this line
+
   if (movedIssue?.issueId) {
-    console.log('✅ Moving issue:', movedIssue);
     this.updateIssueStatus(movedIssue.issueId, targetStatus);
   } else {
     console.error('❌ Invalid moved issue structure:', movedIssue);
   }
 }
+
 
 }

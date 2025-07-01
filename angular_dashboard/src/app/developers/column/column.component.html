@@ -12,6 +12,7 @@
     *ngFor="let issue of issues"
     [issue]="issue"
     cdkDrag
+      [cdkDragData]="issue"
   ></app-issue-card>
 </div>
 
