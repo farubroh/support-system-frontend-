@@ -61,27 +61,50 @@ export class DeveloperIssueModalComponent implements OnInit {
     });
   }
 
+  // markCompleted() {
+  //   if (!this.completionReason.trim()) {
+  //     alert('Please provide a resolution note.');
+  //     return;
+  //   }
+
+  //   const payload = {
+  //     toStatus: 'COMPLETED',
+  //     workedBy: this.currentDeveloperId,
+  //     completedAnalysis: this.completionReason
+  //   };
+
+  //   this.http.put(`http://localhost:8085/api/issues/${this.issue.id}/status`, payload).subscribe({
+  //     next: () => {
+  //       alert('Marked as Completed');
+  //       this.refresh.emit();
+  //       this.close.emit();
+  //     },
+  //     error: () => alert('Failed to mark as completed')
+  //   });
+  // }
   markCompleted() {
-    if (!this.completionReason.trim()) {
-      alert('Please provide a resolution note.');
-      return;
-    }
-
-    const payload = {
-      toStatus: 'COMPLETED',
-      workedBy: this.currentDeveloperId,
-      completedAnalysis: this.completionReason
-    };
-
-    this.http.put(`http://localhost:8085/api/issues/${this.issue.id}/status`, payload).subscribe({
-      next: () => {
-        alert('Marked as Completed');
-        this.refresh.emit();
-        this.close.emit();
-      },
-      error: () => alert('Failed to mark as completed')
-    });
+  if (!this.completionReason.trim()) {
+    alert('Please provide a resolution note.');
+    return;
   }
+
+  const payload = {
+    toStatus: 'COMPLETED',
+    workedBy: this.currentDeveloperId,
+    completedAnalysis: this.completionReason,
+    fromStatus: this.issue.status // 👈 You can pass this too if needed
+  };
+
+  this.http.put(`http://localhost:8085/api/issues/${this.issue.issueId}/status`, payload).subscribe({
+    next: () => {
+      alert('Marked as Completed');
+      this.refresh.emit();
+      this.close.emit();
+    },
+    error: () => alert('Failed to mark as completed')
+  });
+}
+
 
   reject() {
     if (!this.rejectionReason.trim()) {

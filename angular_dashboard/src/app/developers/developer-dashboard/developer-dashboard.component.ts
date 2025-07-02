@@ -59,24 +59,47 @@ export class DeveloperDashboardComponent implements OnInit {
     });
   }
 
-  handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
+//   handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
+//   const prevContainer = event.previousContainer;
+//   const currContainer = event.container;
+
+//   if (prevContainer === currContainer) {
+//     moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
+//   } else {
+//     const movedIssue = prevContainer.data[event.previousIndex];
+
+//     // ✅ Move issue correctly between arrays
+//     transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
+
+//     // ✅ Update backend
+//     if (movedIssue?.issueId) {
+//       this.updateIssueStatus(movedIssue.issueId, targetStatus);
+//     }
+//   }
+// }
+handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
   const prevContainer = event.previousContainer;
   const currContainer = event.container;
+
+  const movedIssue = prevContainer.data[event.previousIndex];
+
+  // 🛑 Block illegal drag-drop to COMPLETED or REJECTED
+  if (['COMPLETED', 'REJECTED'].includes(targetStatus)) {
+    // Instead of drag-drop, open the modal
+    this.selectedIssue = movedIssue;
+    return;
+  }
 
   if (prevContainer === currContainer) {
     moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
   } else {
-    const movedIssue = prevContainer.data[event.previousIndex];
-
-    // ✅ Move issue correctly between arrays
     transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
-
-    // ✅ Update backend
     if (movedIssue?.issueId) {
       this.updateIssueStatus(movedIssue.issueId, targetStatus);
     }
   }
 }
+
 
 
   updateIssueStatus(issueId: number, newStatus: string) {
