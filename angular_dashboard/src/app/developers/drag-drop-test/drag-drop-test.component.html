@@ -1,0 +1,41 @@
+<div cdkDropListGroup class="test-drag-container">
+  <div class="test-column">
+    <h3>To Do</h3>
+    <div
+      cdkDropList
+      [cdkDropListData]="todo"
+      [cdkDropListConnectedTo]="['doneList']"
+      id="todoList"
+      (cdkDropListDropped)="drop($event)"
+      class="test-list"
+    >
+      <div
+        *ngFor="let item of todo"
+        cdkDrag
+        class="test-box"
+      >
+        {{ item }}
+      </div>
+    </div>
+  </div>
+
+  <div class="test-column">
+    <h3>Done</h3>
+    <div
+      cdkDropList
+      [cdkDropListData]="done"
+      [cdkDropListConnectedTo]="['todoList']"
+      id="doneList"
+      (cdkDropListDropped)="drop($event)"
+      class="test-list"
+    >
+      <div
+        *ngFor="let item of done"
+        cdkDrag
+        class="test-box"
+      >
+        {{ item }}
+      </div>
+    </div>
+  </div>
+</div>

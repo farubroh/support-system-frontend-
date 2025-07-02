@@ -1,0 +1,36 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-box animate-in">
+    <h2>📄 Issue Details</h2>
+    <div class="info-row"><strong>Serial ID:</strong> {{ issue.serialId }}</div>
+    <div class="info-row"><strong>Title:</strong> {{ issue.title }}</div>
+    <div class="info-row"><strong>Description:</strong></div>
+    <div class="description-box">{{ issue.description }}</div>
+
+    <div class="info-row"><strong>Status:</strong> {{ issue.status }}</div>
+    <div class="info-row"><strong>Created By:</strong> {{ issue.createdBy?.username || '-' }}</div>
+
+    <!-- Action buttons (Complete / Reject / Reassign) -->
+    <div class="action-section" *ngIf="issue.status === 'INPROGRESS'">
+      <label>Reassign Developer:</label>
+      <select [(ngModel)]="selectedDeveloperId">
+        <option [value]="null">-- Select Developer --</option>
+        <option *ngFor="let dev of developers" [value]="dev.id" [disabled]="dev.id === currentDeveloperId">
+          {{ dev.username }} <span *ngIf="dev.id === currentDeveloperId">(You)</span>
+        </option>
+      </select>
+      <button (click)="reassign()">Reassign</button>
+
+      <hr>
+
+      <textarea [(ngModel)]="completionReason" placeholder="Write resolution note..."></textarea>
+      <button class="complete-btn" (click)="markCompleted()">Mark as Completed</button>
+
+      <textarea [(ngModel)]="rejectionReason" placeholder="Write rejection reason..."></textarea>
+      <button class="reject-btn" (click)="reject()">Reject</button>
+    </div>
+
+    <div class="button-row">
+      <button class="close-btn" (click)="close.emit()">Close</button>
+    </div>
+  </div>
+</div>

@@ -1,68 +1,46 @@
-/* Base card style */
+/* Base card */
 .issue-card {
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 12px;
-  color: #000;
-  transition: all 0.35s ease;
-  animation: slideUp 0.4s ease;
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 8px;
+  color: black;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   cursor: grab;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease-in-out;
   transform-origin: center;
-  font-weight: 500;
 }
 
-/* Enhanced hover effect */
+/* Hover effect */
 .issue-card:hover {
-  transform: scale(1.07) translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  z-index: 2;
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05);
 }
 
-/* 🎨 Status Colors */
-
-/* Pending - Yellow */
-.issue-card.pending {
-  background-color: #FFD54F;
-}
-.issue-card.pending:hover {
-  background-color: #FFCA28;
+/* Pending */
+.pending {
+  background-color: #ff9800;
+  border-left: 6px solid #e65100;
 }
 
-/* In Progress - Blue */
-.issue-card.in-progress {
-  background-color: #42A5F5;
-}
-.issue-card.in-progress:hover {
-  background-color: #2196F3;
+/* In Progress */
+.inprogress {
+  background-color: #f5d442;
+  border-left: 6px solid #c9b037;
 }
 
-/* Resolved (Completed) - Green */
-.issue-card.resolved {
-  background-color: #66BB6A;
-}
-.issue-card.resolved:hover {
-  background-color: #43A047;
+/* Completed */
+.completed {
+  background-color: #4caf50;
+  border-left: 6px solid #1b5e20;
 }
 
-/* Rejected - Red */
-.issue-card.rejected {
-  background-color: #EF5350;
+/* Rejected */
+.rejected {
+  background-color: #f44336;
+  border-left: 6px solid #b71c1c;
 }
-.issue-card.rejected:hover {
-  background-color: #E53935;
-}
-
-/* Fade-in animation */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive tweak */
-@media (max-width: 768px) {
-  .issue-card {
-    font-size: 0.95rem;
-    padding: 0.8rem;
-  }
-}
+.issue-card.pending:hover { box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4); }
+.issue-card.inprogress:hover { box-shadow: 0 4px 12px rgba(245, 212, 66, 0.4); }
+.issue-card.completed:hover { box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4); }
+.issue-card.rejected:hover { box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4); }

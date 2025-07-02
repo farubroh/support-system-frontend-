@@ -12,12 +12,13 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 export class IssueCardComponent {
   @Input() issue: any;
   ngOnInit() {
-  console.log('✅ IssueCard loaded with:', this.issue);
+  console.log('🧪 Issue status:', this.issue?.status);
 }
 
 
+
   getStatusClass(status: string): string {
-    console.log('Status:', status);
-    return status?.toLowerCase().replace(/\s+/g, '-');
-  }
+  return status?.toLowerCase().replace(/\s+/g, '-'); // e.g., "INPROGRESS" -> "inprogress"
+}
+
 }

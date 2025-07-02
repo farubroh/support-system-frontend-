@@ -1,14 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  transferArrayItem
+} from '@angular/cdk/drag-drop';
 import { ColumnComponent } from '../column/column.component';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DeveloperIssueModalComponent } from '../developer-issue-modal/developer-issue-modal.component';
 
 @Component({
   selector: 'app-developer-dashboard',
   standalone: true,
-  imports: [CommonModule, DragDropModule, ColumnComponent],
+  imports: [CommonModule, DragDropModule, ColumnComponent,DeveloperIssueModalComponent],
   templateUrl: './developer-dashboard.component.html',
   styleUrls: ['./developer-dashboard.component.css'],
 })
@@ -20,124 +28,84 @@ export class DeveloperDashboardComponent implements OnInit {
     COMPLETED: [],
     REJECTED: [],
   };
-    
+  selectedIssue: any = null;
 
   statusOrder = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-  const storedUser = sessionStorage.getItem('helpdeskUser');
-  console.log("Session User:", storedUser); // 👈 Add this line
+    const storedUser = sessionStorage.getItem('helpdeskUser');
+    if (storedUser) {
+      this.user = JSON.parse(storedUser);
+      this.fetchIssues();
+    } else {
+      console.error('No user found in sessionStorage');
+    }
+  }
 
-  if (storedUser) {
-    this.user = JSON.parse(storedUser);
-    console.log("Parsed User Object:", this.user); // 👈 Add this line
+  fetchIssues() {
+    const developerId = this.user.id;
+    const url = `http://localhost:8085/api/developers/${developerId}/issues`;
 
-    this.fetchIssues();
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        this.issuesByStatus['PENDING'] = res.INPROGRESS.map((d: any) => ({ ...d.issue }));
+        this.issuesByStatus['INPROGRESS'] = [];
+        this.issuesByStatus['COMPLETED'] = res.COMPLETED.map((d: any) => ({ ...d.issue }));
+        this.issuesByStatus['REJECTED'] = res.REJECTED.map((d: any) => ({ ...d.issue }));
+      },
+      error: (err) => console.error('Failed to load developer issues:', err),
+    });
+  }
+
+  handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
+  const prevContainer = event.previousContainer;
+  const currContainer = event.container;
+
+  if (prevContainer === currContainer) {
+    moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
   } else {
-    console.error('No user found in sessionStorage');
+    const movedIssue = prevContainer.data[event.previousIndex];
+
+    // ✅ Move issue correctly between arrays
+    transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
+
+    // ✅ Update backend
+    if (movedIssue?.issueId) {
+      this.updateIssueStatus(movedIssue.issueId, targetStatus);
+    }
   }
 }
 
 
-  fetchIssues() {
-  const developerId = this.user.id;
-  const url = `http://localhost:8085/api/developers/${developerId}/issues`;
-  console.log("Calling developer issue API:", url); // 👈 Add this
-
-  this.http.get<any>(url).subscribe({
-    next: (res) => {
-      console.log("API Response:", res); // 👈 Add this
-
-      // this.issuesByStatus['PENDING'] = res.PENDING;
-      // this.issuesByStatus['INPROGRESS'] = res.INPROGRESS;
-      // this.issuesByStatus['COMPLETED'] = res.COMPLETED;
-      // this.issuesByStatus['REJECTED'] = res.REJECTED;
-      this.issuesByStatus['PENDING'] = res.PENDING.map((d: any) => d.issue);
-      this.issuesByStatus['INPROGRESS'] = res.INPROGRESS.map((d: any) => d.issue);
-      this.issuesByStatus['COMPLETED'] = res.COMPLETED.map((d: any) => d.issue);
-      this.issuesByStatus['REJECTED'] = res.REJECTED.map((d: any) => d.issue);
-
-    },
-    error: (err) => {
-      console.error('Failed to load developer issues:', err);
-    },
-  });
-}
-
-
-  // Drag and drop handler to update status when an issue is moved
-  // getDropHandler(targetStatus: string) {
-  //   return (event: CdkDragDrop<any[]>) => {
-  //     if (event.previousContainer === event.container) return;
-
-  //     const movedIssue = event.previousContainer.data[event.previousIndex];
-  //     this.updateIssueStatus(movedIssue.issue.issueId, targetStatus);
-  //   };
-  // }
-//   getDropHandler(targetStatus: string) {
-//   return (event: CdkDragDrop<any[]>) => {
-//     console.log('📦 Drop Event Fired!', event);
-
-//     // ✅ ADD THESE DEBUG LINES
-//     console.log('All Issues By Status:', this.issuesByStatus);
-//     console.log('Current Container:', event.container.id);
-//     console.log('Previous Container:', event.previousContainer.id);
-
-//     const movedIssue = event.item.data; // ✅ Safely access the issue via cdkDragData
-
-//     if (movedIssue?.issueId) {
-//       console.log('✅ Moving issue:', movedIssue);
-//       this.updateIssueStatus(movedIssue.issueId, targetStatus);
-//     } else {
-//       console.error('❌ Invalid moved issue structure:', movedIssue);
-//     }
-//   };
-// }
-
-
-
-
-
-
-
   updateIssueStatus(issueId: number, newStatus: string) {
-    console.log(`🛠 Updating Issue ID ${issueId} to ${newStatus}`);
     const payload = {
       toStatus: newStatus,
       workedBy: this.user.id,
-      completedAnalysis: 'Marked as completed by developer',
-      rejectionReason: 'Marked as rejected by developer',
+      completedAnalysis: 'Completed by developer',
+      rejectionReason: 'Rejected by developer'
     };
 
     this.http
       .put(`http://localhost:8085/api/issues/${issueId}/status`, payload)
       .subscribe({
         next: () => {
-        console.log('✅ Issue status updated successfully. Fetching updated list...');
-        this.fetchIssues();
-      },
-
-        error: (err) => console.error('Status update failed:', err),
+          console.log('✅ Status updated to', newStatus);
+        },
+        error: (err) => console.error('❌ Failed to update status:', err),
       });
   }
-
-  handleDrop(data: { event: CdkDragDrop<any[]>, targetStatus: string }) {
-  const { event, targetStatus } = data;
-
-  if (event.previousContainer === event.container) return;
-
-  const movedIssue = event.item.data;
-
-  console.log('📦 Dragged Issue:', movedIssue);  // ✅ Add this line
-
-  if (movedIssue?.issueId) {
-    this.updateIssueStatus(movedIssue.issueId, targetStatus);
-  } else {
-    console.error('❌ Invalid moved issue structure:', movedIssue);
-  }
+  openIssueModal(issue: any) {
+  this.selectedIssue = issue;
 }
 
+closeModal() {
+  this.selectedIssue = null;
+}
+
+refreshAfterAction() {
+  this.fetchIssues();
+}
 
 }

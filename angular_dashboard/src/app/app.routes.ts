@@ -5,6 +5,7 @@ import { CreateIssueComponent } from './components/create-issue/create-issue.com
 import { IssueTableComponent } from './components/issue-table/issue-table.component';
 import {DeveloperDashboardComponent} from './developers/developer-dashboard/developer-dashboard.component';  
 import { LoginComponent } from './components/login/login.component';
+import { DragDropTestComponent } from './developers/drag-drop-test/drag-drop-test.component';
 export const routes: Routes = [
   //{ path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -14,6 +15,10 @@ export const routes: Routes = [
   { path: 'create-issue', component: CreateIssueComponent },
   { path: 'table-test', component: IssueTableComponent },
   {path: 'developer', component: DeveloperDashboardComponent },
+  {
+    path: 'test-drag',
+    component: DragDropTestComponent,
+  },
 
 
  

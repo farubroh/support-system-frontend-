@@ -13,18 +13,22 @@ export class IssueViewModalUserComponent {
   @Output() close = new EventEmitter<void>();
 
   get developerLabel(): string {
-    switch (this.issue?.status) {
-      case 'PENDING': return 'Assigned To';
-      case 'INPROGRESS': return 'Working On';
-      case 'COMPLETED': return 'Resolved By';
-      case 'REJECTED': return 'Rejected By';
-      default: return 'Developer';
-    }
+  if (!this.issue) return 'Developer';
+  switch (this.issue.status) {
+    case 'INPROGRESS': return 'Working On';
+    case 'COMPLETED': return 'Resolved By';
+    case 'REJECTED': return 'Rejected By';
+    default: return '';  // Hide label in PENDING
   }
+}
 
-  get developerValue(): string {
-    return this.issue?.developerName ?? '-';
-  }
+get developerValue(): string {
+  if (!this.issue) return '';
+  return ['INPROGRESS', 'COMPLETED', 'REJECTED'].includes(this.issue.status)
+    ? this.issue.developerName ?? '-'
+    : '';
+}
+
 
   onCloseModal() {
     this.close.emit();

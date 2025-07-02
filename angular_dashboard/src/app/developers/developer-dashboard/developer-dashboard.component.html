@@ -1,12 +1,20 @@
-<div class="developer-dashboard">
-  <!-- <h2>Developer Dashboard</h2> -->
-  <app-column
-  *ngFor="let status of statusOrder"
-  [status]="status"
-  [issues]="issuesByStatus[status]"
-  [connectedTo]="statusOrder"
-  (issueDropped)="handleDrop($event)"
-></app-column>
+<div class="developer-dashboard" cdkDropListGroup>
+<app-column
+*ngFor="let status of statusOrder"
+[status]="status"
+[issues]="issuesByStatus[status]"
+[connectedTo]="statusOrder"
+(issueDropped)="handleDrop($event)"
+(issueClicked)="openIssueModal($event)">
+</app-column>
 
+<!-- Issue modal component -->
+<app-developer-issue-modal
+  *ngIf="selectedIssue"
+  [issue]="selectedIssue"
+  [currentDeveloperId]="user.id"
+  (close)="closeModal()"
+  (refresh)="refreshAfterAction()"
+/>
 
 </div>

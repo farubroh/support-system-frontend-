@@ -1,0 +1,29 @@
+/* drag-drop-test.component.css */
+.test-drag-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.test-column {
+  background: #f1f1f1;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 250px;
+}
+
+.test-list {
+  min-height: 150px;
+  border: 2px dashed #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.test-box {
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  cursor: grab;
+}
