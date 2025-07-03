@@ -49,9 +49,10 @@ export class DeveloperIssueModalComponent implements OnInit {
       return;
     }
 
+    const issueId = this.issue.issueId ?? this.issue.id;
     const payload = { developerId: this.selectedDeveloperId };
 
-    this.http.post(`http://localhost:8085/api/issues/${this.issue.id}/assign`, payload).subscribe({
+    this.http.post(`http://localhost:8085/api/issues/${issueId}/assign`, payload).subscribe({
       next: () => {
         alert('Reassigned successfully');
         this.refresh.emit();
@@ -61,50 +62,29 @@ export class DeveloperIssueModalComponent implements OnInit {
     });
   }
 
-  // markCompleted() {
-  //   if (!this.completionReason.trim()) {
-  //     alert('Please provide a resolution note.');
-  //     return;
-  //   }
-
-  //   const payload = {
-  //     toStatus: 'COMPLETED',
-  //     workedBy: this.currentDeveloperId,
-  //     completedAnalysis: this.completionReason
-  //   };
-
-  //   this.http.put(`http://localhost:8085/api/issues/${this.issue.id}/status`, payload).subscribe({
-  //     next: () => {
-  //       alert('Marked as Completed');
-  //       this.refresh.emit();
-  //       this.close.emit();
-  //     },
-  //     error: () => alert('Failed to mark as completed')
-  //   });
-  // }
   markCompleted() {
-  if (!this.completionReason.trim()) {
-    alert('Please provide a resolution note.');
-    return;
+    if (!this.completionReason.trim()) {
+      alert('Please provide a resolution note.');
+      return;
+    }
+
+    const issueId = this.issue.issueId ?? this.issue.id;
+    const payload = {
+      toStatus: 'COMPLETED',
+      workedBy: this.currentDeveloperId,
+      completedAnalysis: this.completionReason,
+      fromStatus: this.issue.status
+    };
+
+    this.http.put(`http://localhost:8085/api/issues/${issueId}/status`, payload).subscribe({
+      next: () => {
+        alert('Marked as Completed');
+        this.refresh.emit();
+        this.close.emit();
+      },
+      error: () => alert('Failed to mark as completed')
+    });
   }
-
-  const payload = {
-    toStatus: 'COMPLETED',
-    workedBy: this.currentDeveloperId,
-    completedAnalysis: this.completionReason,
-    fromStatus: this.issue.status // 👈 You can pass this too if needed
-  };
-
-  this.http.put(`http://localhost:8085/api/issues/${this.issue.issueId}/status`, payload).subscribe({
-    next: () => {
-      alert('Marked as Completed');
-      this.refresh.emit();
-      this.close.emit();
-    },
-    error: () => alert('Failed to mark as completed')
-  });
-}
-
 
   reject() {
     if (!this.rejectionReason.trim()) {
@@ -112,13 +92,15 @@ export class DeveloperIssueModalComponent implements OnInit {
       return;
     }
 
+    const issueId = this.issue.issueId ?? this.issue.id;
     const payload = {
       toStatus: 'REJECTED',
       workedBy: this.currentDeveloperId,
-      rejectionReason: this.rejectionReason
+      rejectionReason: this.rejectionReason,
+      fromStatus: this.issue.status
     };
 
-    this.http.put(`http://localhost:8085/api/issues/${this.issue.id}/status`, payload).subscribe({
+    this.http.put(`http://localhost:8085/api/issues/${issueId}/status`, payload).subscribe({
       next: () => {
         alert('Issue Rejected');
         this.refresh.emit();

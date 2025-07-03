@@ -17,9 +17,12 @@ export class AssignModalComponent {
   developers: any[] = [];
   assigning = false;
 
-  constructor(private http: HttpClient) {
-    this.fetchDevelopers();
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.fetchDevelopers();  // ✅ Ensure latest data on every open
   }
+
 
   fetchDevelopers() {
     this.http.get<any[]>('http://localhost:8085/api/developers')
