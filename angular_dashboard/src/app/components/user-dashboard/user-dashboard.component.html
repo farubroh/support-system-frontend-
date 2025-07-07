@@ -37,7 +37,7 @@
       <tbody>
         <tr *ngFor="let issue of issues; let i = index">
           <td>{{ i + 1 }}</td>
-          <td>{{ issue.serialId }}</td>
+          <td>{{ issue.title }}</td>
           <td>
             <span class="status-badge" [ngStyle]="{ 'background-color': getStatusColor(issue.status) }">
               {{ issue.status }}

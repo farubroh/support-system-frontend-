@@ -1,48 +1,127 @@
-<div class="container">
-  <h2>🛠 Admin Issue Dashboard</h2>
-  <p>Welcome, <strong>{{ user.username }}</strong> | Role: <strong>{{ user.role }}</strong></p>
+<div class="dashboard-wrapper">
+  <!-- 🔵 KPI Column: Pending / Completed / Rejected -->
+  <div class="kpi-column">
+    <div class="kpi-box pending">
+      <div class="kpi-label">🕐 Pending</div>
+      <circle-progress
+        [percent]="pendingPercent"
+        [radius]="24"
+        [outerStrokeWidth]="6"
+        [innerStrokeWidth]="2"
+        [outerStrokeColor]="'#2196f3'"
+        [innerStrokeColor]="'#e6e6e6'"
+        [animation]="true"
+        [animationDuration]="1000"
+        [showSubtitle]="false"
+        [title]="pendingPercent + '%'"
+        [showUnits]="false">
+      </circle-progress>
+    </div>
 
-  <div class="tab-container">
-    <button *ngFor="let tab of statusTabs"
-            [ngClass]="{ 'active-tab': activeTab === tab.key }"
-            (click)="onTabClick(tab.key)">
-      {{ tab.label }}
-    </button>
+    <div class="kpi-box completed">
+      <div class="kpi-label">✅ Completed</div>
+      <circle-progress
+        [percent]="completedPercent"
+        [radius]="24"
+        [outerStrokeWidth]="6"
+        [innerStrokeWidth]="2"
+        [outerStrokeColor]="'#4caf50'"
+        [innerStrokeColor]="'#e6e6e6'"
+        [animation]="true"
+        [animationDuration]="1000"
+        [showSubtitle]="false"
+        [title]="completedPercent + '%'"
+        [showUnits]="false">
+      </circle-progress>
+    </div>
+
+    <div class="kpi-box rejected">
+      <div class="kpi-label">❌ Rejected</div>
+      <circle-progress
+        [percent]="rejectedPercent"
+        [radius]="24"
+        [outerStrokeWidth]="6"
+        [innerStrokeWidth]="2"
+        [outerStrokeColor]="'#f44336'"
+        [innerStrokeColor]="'#e6e6e6'"
+        [animation]="true"
+        [animationDuration]="1000"
+        [showSubtitle]="false"
+        [title]="rejectedPercent + '%'"
+        [showUnits]="false">
+      </circle-progress>
+    </div>
   </div>
 
-  <div *ngIf="loading" class="loading">
-    <div class="spinner"></div> Loading {{ activeTab.replace('_', ' ') }} issues...
+  <!-- 📦 Summary Stats -->
+  <div class="summary-column">
+    <div class="summary-box">📄 <strong>Total Issues:</strong> {{ totalIssuesCount }}</div>
+    <div class="summary-box">👥 <strong>Total Users:</strong> {{ totalUsersIssued }}</div>
   </div>
 
-  <div class="table-container" *ngIf="!loading">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Serial ID</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let issue of issues; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ issue.serialId }}</td>
-          <td>
-            <span class="status-badge" [ngStyle]="{ 'background-color': getStatusColor(issue.status) }">
-              {{ issue.status }}
-            </span>
-          </td>
-          <td>
-            <button class="view-btn" (click)="selectedIssue = issue">View</button>
-          </td>
-        </tr>
-        <tr *ngIf="issues.length === 0">
-          <td colspan="4">No {{ activeTab.replace('_', ' ') }} issues found.</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- 📅 Calendar Column -->
+  <div class="calendar-column">
+    <div class="calendar-header">📅 {{ currentMonthName }} {{ currentYear }}</div>
+    <div class="calendar-box" [innerHTML]="calendarHtml"></div>
   </div>
-
-  <app-issue-view-modal-admin *ngIf="selectedIssue" [issue]="selectedIssue" (close)="selectedIssue = null" (refresh)="fetchIssues()"></app-issue-view-modal-admin>
 </div>
+
+<!-- 🧭 Tab Filter -->
+<div class="tab-container">
+  <button *ngFor="let tab of statusTabs"
+          [ngClass]="{ 'active-tab': activeTab === tab.key }"
+          (click)="onTabClick(tab.key)">
+    {{ tab.label }}
+  </button>
+</div>
+
+<!-- ⏳ Loading Spinner -->
+<div *ngIf="loading" class="loading">
+  <div class="spinner"></div> Loading {{ activeTab.replace('_', ' ') }} issues...
+</div>
+
+<!-- 📋 Issues Table -->
+<div class="table-wrapper" *ngIf="!loading">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Assigned Developer</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let issue of issues; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ issue.title }}</td>
+        <td>
+          <span class="status-pill" [ngStyle]="{ 'background-color': getStatusColor(issue.status) }">
+            {{ issue.status }}
+          </span>
+        </td>
+        <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
+        <td>
+          <span *ngIf="issue.developer">{{ issue.developer.username }}</span>
+          <span *ngIf="!issue.developer" class="unassigned">Unassigned</span>
+        </td>
+        <td>
+          <button class="view-btn" (click)="selectedIssue = issue">👁 View</button>
+        </td>
+      </tr>
+      <tr *ngIf="issues.length === 0">
+        <td colspan="6">No {{ activeTab.replace('_', ' ') }} issues found.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 🔍 Issue View Modal -->
+<app-issue-view-modal-admin
+  *ngIf="selectedIssue"
+  [issue]="selectedIssue"
+  (close)="selectedIssue = null"
+  (refresh)="fetchIssues()">
+</app-issue-view-modal-admin>
