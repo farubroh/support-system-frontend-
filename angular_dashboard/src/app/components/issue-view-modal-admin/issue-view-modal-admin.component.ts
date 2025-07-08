@@ -52,4 +52,13 @@ export class IssueViewModalAdminComponent {
       error: () => alert('Assignment failed')
     });
   }
+  extractFileName(path: string): string {
+  return path.split('/').pop() ?? '';
+}
+
+extractUserId(path: string): string {
+  const parts = path.split('/');
+  return parts.length > 2 ? parts[parts.length - 2] : '';
+}
+
 }

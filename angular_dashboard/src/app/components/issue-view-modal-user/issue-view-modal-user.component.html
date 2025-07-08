@@ -24,5 +24,16 @@
     <div class="modal-buttons">
       <button (click)="onCloseModal()">Close</button>
     </div>
+    <div *ngIf="issue.filePaths?.length">
+  <h4>📎 Attached Files:</h4>
+  <ul>
+    <li *ngFor="let path of issue.filePaths">
+      <a [href]="'http://localhost:8085/api/issues/files/' + extractUserId(path) + '/' + extractFileName(path)" target="_blank">
+        {{ extractFileName(path) }}
+      </a>
+    </li>
+  </ul>
+</div>
+
   </div>
 </div>
