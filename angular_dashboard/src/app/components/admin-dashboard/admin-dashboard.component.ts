@@ -39,6 +39,7 @@ export class AdminDashboardComponent implements OnInit {
     { key: 'COMPLETED', label: 'Completed' },
     { key: 'REJECTED', label: 'Rejected' }
   ];
+Array: any;
 
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
 
@@ -46,6 +47,13 @@ export class AdminDashboardComponent implements OnInit {
     this.fetchIssues();
     this.fetchAllIssuesForKPI();
     this.generateCalendar();
+
+    setInterval(() => {
+    this.fetchIssues();
+    this.fetchAllIssuesForKPI();
+  }, 30000);
+
+    
   }
 
   fetchIssues() {
@@ -53,6 +61,7 @@ export class AdminDashboardComponent implements OnInit {
     this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
       (res) => {
         this.issues = res;
+        console.log("Fetched Issues:", res);
         this.loading = false;
       },
       (err) => {
@@ -64,7 +73,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   fetchAllIssuesForKPI() {
-    this.http.get<any[]>(`http://localhost:8085/api/issues/all`).subscribe(
+    this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
       (res) => {
         this.allIssues = res;
         this.calculateKPIFromAll();
@@ -157,4 +166,17 @@ export class AdminDashboardComponent implements OnInit {
     html += '</tbody></table>';
     this.calendarHtml = this.sanitizer.bypassSecurityTrustHtml(html);
   }
+
+
+  getCategoryColor(category: string): string {
+  switch ((category || '').toLowerCase()) {
+    case 'edu mail problem': return '#f48fb1';     // pink
+    case 'payment problem': return '#ffb74d';      // orange
+    case 'quota problem': return '#81c784';        // green
+    case 'result problem': return '#64b5f6';        // blue
+    case 'login issue': return '#9575cd';           // purple
+    default: return '#cfd8dc';                     // grey (default)
+  }
+}
+
 }

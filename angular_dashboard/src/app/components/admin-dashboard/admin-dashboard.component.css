@@ -28,17 +28,6 @@
   font-size: 18px;
 }
 
-.kpi-box .badge {
-  width: 48px;
-  height: 48px;
-  border: 2px solid #000;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-}
-
 .kpi-box.pending { border-color: #2196f3; }
 .kpi-box.completed { border-color: #4caf50; }
 .kpi-box.rejected { border-color: #f44336; }
@@ -108,7 +97,31 @@
   font-weight: bold;
 }
 
-/* 📊 Issues Table */
+/* ⏳ Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ccc;
+  border-top: 3px solid #2196f3;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* 📋 Scrollable Table */
+.scroll-container {
+  max-height: 400px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* 📋 Table Layout */
 .table-wrapper table {
   width: 100%;
   border-collapse: collapse;
@@ -130,17 +143,65 @@
   font-size: 0.8rem;
 }
 
-/* ⏳ Spinner */
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid #ccc;
-  border-top: 3px solid #2196f3;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: inline-block;
+/* 🔁 Smooth Scrollbar for Webkit */
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-@keyframes spin {
-  100% { transform: rotate(360deg); }
+.scroll-container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #2196f3;
+  border-radius: 8px;
+}
+
+/* 🖱️ Hover Zoom + Glow Effect */
+.issue-row {
+  transform: translateY(10px);
+  opacity: 0;
+  animation: fadeInUp 0.4s ease forwards;
+  animation-delay: calc(0.05s * var(--i));
+  transition: transform 0.35s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.issue-row:hover {
+  background-color: #e0f7fa;
+  transform: scale(1.07);
+  box-shadow: 0 6px 16px rgba(0, 150, 136, 0.3);
+  z-index: 5;
+  position: relative;
+  border-radius: 10px;
+}
+
+/* ⭐ Selected Row Highlight (still higher than hover) */
+.issue-row.selected {
+  background-color: #e3f2fd;
+  transform: scale(1.09);
+  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+  z-index: 10;
+  position: relative;
+  border-radius: 10px;
+}
+
+.category-badge {
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  display: inline-block;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+
+/* Entry animation */
+@keyframes fadeInUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

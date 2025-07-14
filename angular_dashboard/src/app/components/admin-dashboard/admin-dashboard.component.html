@@ -82,40 +82,47 @@
 
 <!-- 📋 Issues Table -->
 <div class="table-wrapper" *ngIf="!loading">
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Title</th>
-        <th>Status</th>
-        <th>Created</th>
-        <th>Assigned Developer</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let issue of issues; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ issue.title }}</td>
-        <td>
-          <span class="status-pill" [ngStyle]="{ 'background-color': getStatusColor(issue.status) }">
-            {{ issue.status }}
-          </span>
-        </td>
-        <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
-        <td>
-          <span *ngIf="issue.developer">{{ issue.developer.username }}</span>
-          <span *ngIf="!issue.developer" class="unassigned">Unassigned</span>
-        </td>
-        <td>
-          <button class="view-btn" (click)="selectedIssue = issue">👁 View</button>
-        </td>
-      </tr>
-      <tr *ngIf="issues.length === 0">
-        <td colspan="6">No {{ activeTab.replace('_', ' ') }} issues found.</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="scroll-container">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Created At</th>
+          <th>Assigned Developer</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let issue of issues; let i = index"
+            class="issue-row"
+            [ngStyle]="{ '--i': i }"
+            [ngClass]="{ 'selected': selectedIssue?.id === issue.id }">
+          <td>{{ i + 1 }}</td>
+          <td>{{ issue.title }}</td>
+                <span class="category-badge"
+      [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }">
+  {{ issue.category || 'No Category' }}
+</span>
+
+
+
+          <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
+          <td>
+            <span *ngIf="issue.developer">{{ issue.developer.username }}</span>
+            <span *ngIf="!issue.developer" class="unassigned">Unassigned</span>
+          </td>
+          <td>
+            <button class="view-btn" (click)="selectedIssue = issue">👁 View</button>
+          </td>
+        </tr>
+        <tr *ngIf="issues.length === 0">
+          <td colspan="6">No {{ activeTab.replace('_', ' ') }} issues found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- 🔍 Issue View Modal -->

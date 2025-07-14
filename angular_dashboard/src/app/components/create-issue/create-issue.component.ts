@@ -21,9 +21,6 @@ export class CreateIssueComponent {
   form = {
     title: '',
     description: '',
-    contact: '',
-    status: 'LOW',
-    availability: [] as string[],
     category: ''
   };
 
@@ -45,11 +42,11 @@ export class CreateIssueComponent {
     }
   }
 
-  toggleDay(day: string) {
-    const index = this.form.availability.indexOf(day);
-    if (index > -1) this.form.availability.splice(index, 1);
-    else this.form.availability.push(day);
-  }
+  // toggleDay(day: string) {
+  //   const index = this.form.availability.indexOf(day);
+  //   if (index > -1) this.form.availability.splice(index, 1);
+  //   else this.form.availability.push(day);
+  // }
 
   onFileSelected(event: any) {
     const maxFileCount = 5;
@@ -105,36 +102,35 @@ export class CreateIssueComponent {
     this.uploadSummary = this.filePreviews.length > 0 ? `${this.filePreviews.length} file(s) selected.` : '';
   }
 
-  handleSubmit() {
-    const formData = new FormData();
-    formData.append('title', this.form.title);
-    formData.append('description', this.form.description);
-    formData.append('contact', this.form.contact);
-    formData.append('status', this.form.status);
-    formData.append('userId', this.user.id.toString());
-    formData.append('availability', this.form.availability.join(','));
-    formData.append('category', this.form.category);
+ handleSubmit() {
+  const formData = new FormData();
+  formData.append('title', this.form.title);
+  formData.append('description', this.form.description);
+  formData.append('userId', this.user.id.toString());
+  formData.append('category', this.form.category);
 
-    if (this.files.length > 0) {
-      this.files.forEach(file => formData.append('files', file));
-    }
-
-    this.http.post('http://localhost:8085/api/issues/with-files', formData, {
-      reportProgress: true,
-      observe: 'events'
-    }).subscribe({
-      next: (event: any) => {
-        if (event.type === HttpEventType.UploadProgress && event.total) {
-          this.uploadProgress = Math.round((event.loaded / event.total) * 100);
-        } else if (event.type === HttpEventType.Response) {
-          this.issueCreated.emit();
-          alert('✅ Ticket submitted successfully!');
-          this.router.navigate(['/dashboard']);
-        }
-      },
-      error: () => {
-        alert('❌ Submission failed. Try again.');
-      }
-    });
+  if (this.files.length > 0) {
+    this.files.forEach(file => formData.append('files', file));
   }
+
+  this.http.post('http://localhost:8085/api/issues/with-files', formData, {
+    reportProgress: true,
+    observe: 'events'
+  }).subscribe({
+    next: (event: any) => {
+      if (event.type === HttpEventType.UploadProgress && event.total) {
+        this.uploadProgress = Math.round((event.loaded / event.total) * 100);
+      } else if (event.type === HttpEventType.Response) {
+        this.issueCreated.emit();
+        alert('✅ Ticket submitted successfully!');
+        this.router.navigate(['/dashboard']);
+      }
+    },
+    error: (err) => {
+      alert('❌ Submission failed. Check logs.');
+      console.error(err);
+    }
+  });
+}
+
 }
