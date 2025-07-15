@@ -18,13 +18,32 @@ export class IssueViewModalAdminComponent {
   selectedDeveloperId: number = 0;
   developers: any[] = [];
 
+  // Checklist items
+  checklistItems = [
+    { label: 'Check user ID', done: false },
+    { label: 'Verify contact info', done: false },
+    { label: 'Review previous issues', done: false }
+  ];
+
+  // Comments (static demo)
+  newComment = '';
+  comments: { author: string; message: string }[] = [
+    {
+      author: 'Md. Younus Hossain Ahsan',
+      message: 'Please check the mail address recovery issue with registrar.'
+    },
+    {
+      author: 'Omar Faruk',
+      message: 'Added this card to PENDING.'
+    }
+  ];
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    // Fetch developers from the backend
     this.http.get('http://localhost:8085/api/developers').subscribe({
       next: (res: any) => {
-        this.developers = res;  // Developers will have 'id' and 'username' properties
+        this.developers = res;
       },
       error: () => alert('Failed to load developers')
     });
@@ -42,23 +61,32 @@ export class IssueViewModalAdminComponent {
 
     const payload = { developerId: this.selectedDeveloperId };
 
-    // API call to assign the issue to the developer
     this.http.post(`http://localhost:8085/api/issues/${this.issue.id}/assign`, payload).subscribe({
       next: () => {
         alert('Assigned successfully');
-        this.issue.status = 'INPROGRESS';  // Update UI to reflect the new status
-        this.refresh.emit();              // Notify parent to refresh the issue list
+        this.issue.status = 'INPROGRESS';
+        this.refresh.emit();
+        this.close.emit();
       },
       error: () => alert('Assignment failed')
     });
   }
+
   extractFileName(path: string): string {
-  return path.split('/').pop() ?? '';
-}
+    return path.split('/').pop() ?? '';
+  }
 
-extractUserId(path: string): string {
-  const parts = path.split('/');
-  return parts.length > 2 ? parts[parts.length - 2] : '';
-}
+  extractUserId(path: string): string {
+    const parts = path.split('/');
+    return parts.length > 2 ? parts[parts.length - 2] : '';
+  }
 
+  submitComment() {
+    if (!this.newComment.trim()) return;
+    this.comments.unshift({
+      author: 'Admin',
+      message: this.newComment.trim()
+    });
+    this.newComment = '';
+  }
 }

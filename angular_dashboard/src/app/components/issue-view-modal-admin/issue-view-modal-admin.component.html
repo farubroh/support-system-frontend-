@@ -1,46 +1,92 @@
-<div class="modal-backdrop">
-  <div class="modal-content">
-    <h2>📄 Issue Details</h2>
-    <div class="modal-body">
-      <p><strong>Serial ID:</strong> {{ issue.serialId }}</p>
-      <p><strong>Title:</strong> {{ issue.title }}</p>
-      <p><strong>Description:</strong></p>
-      <p class="description-box">{{ issue.description }}</p>
+<div class="modal-overlay">
+  <div class="modal-box animate-in">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>{{ issue.title }} [{{ issue.serialId }}]</h2>
+      <button class="close-btn" (click)="onCloseModal()">×</button>
+    </div>
 
-      <div *ngIf="issue.status === 'COMPLETED'" class="status-box completed">
-        <p><strong>✅ Resolution:</strong></p>
-        <p>{{ issue.completedReason || 'No reason provided' }}</p>
-      </div>
+    <!-- Controls -->
+    <div class="control-row">
+      <button class="control-btn">+ Add</button>
+      <button class="control-btn">📌 Labels</button>
+      <button class="control-btn">📅 Dates</button>
+      <button class="control-btn">☑ Checklist</button>
+      <button class="control-btn">📎 Attachment</button>
+    </div>
 
-      <div *ngIf="issue.status === 'REJECTED'" class="status-box rejected">
-        <p><strong>❌ Rejection Reason:</strong></p>
-        <p>{{ issue.rejectionReason || 'No reason provided' }}</p>
-      </div>
-
-      <!-- Assign Developer section -->
-      <div *ngIf="issue.status === 'PENDING'" class="assign-developer-section">
-        <label for="developer">Assign to Developer:</label>
-        <select [(ngModel)]="selectedDeveloperId" id="developer">
-          <option [value]="null">-- Select Developer --</option>
-          <option *ngFor="let dev of developers" [value]="dev.id">{{ dev.username }}</option>
-        </select>
-        <button class="assign-btn" (click)="assignToDeveloper()">Assign</button>
+    <!-- Members -->
+    <div class="members-section">
+      <strong>👥 Members</strong>
+      <div class="member-list">
+        <img src="/assets/images/male.jpg" alt="User Avatar" class="avatar" />
+        <button class="assign-btn">＋</button>
       </div>
     </div>
 
-    <div class="modal-buttons">
-      <button (click)="onCloseModal()">Close</button>
+    <!-- Description -->
+    <div class="section">
+      <strong>📝 Description</strong>
+      <div class="description-box">{{ issue.description }}</div>
+      <button class="edit-btn">Edit</button>
     </div>
-    <div *ngIf="issue.filePaths?.length">
-  <h4>📎 Attached Files:</h4>
-  <ul>
-    <li *ngFor="let path of issue.filePaths">
-      <a [href]="'http://localhost:8085/api/issues/files/' + extractUserId(path) + '/' + extractFileName(path)" target="_blank">
-        {{ extractFileName(path) }}
-      </a>
-    </li>
-  </ul>
-</div>
 
+    <!-- Attachments -->
+    <div *ngIf="issue.filePaths?.length" class="section">
+      <strong>📎 Attachments</strong>
+      <ul>
+        <li *ngFor="let path of issue.filePaths">
+          <a
+            [href]="'http://localhost:8085/api/issues/files/' + extractUserId(path) + '/' + extractFileName(path)"
+            target="_blank"
+          >
+            {{ extractFileName(path) }}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Status Reason Boxes -->
+    <div *ngIf="issue.status === 'COMPLETED'" class="status-box completed">
+      ✅ {{ issue.completedReason || 'No reason provided' }}
+    </div>
+    <div *ngIf="issue.status === 'REJECTED'" class="status-box rejected">
+      ❌ {{ issue.rejectionReason || 'No reason provided' }}
+    </div>
+
+    <!-- Assign Developer -->
+    <div *ngIf="issue.status === 'PENDING'" class="assign-developer-section">
+      <label for="developer">Assign to Developer:</label>
+      <select [(ngModel)]="selectedDeveloperId" id="developer">
+        <option [value]="null">-- Select Developer --</option>
+        <option *ngFor="let dev of developers" [value]="dev.id">{{ dev.username }}</option>
+      </select>
+      <button class="assign-btn" (click)="assignToDeveloper()">Assign</button>
+    </div>
+
+    <!-- Checklist -->
+    <div class="checklist">
+      <strong>☑ Checklist</strong>
+      <div class="checklist-item" *ngFor="let item of checklistItems">
+        <input type="checkbox" [(ngModel)]="item.done" />
+        <span [class.checked]="item.done">{{ item.label }}</span>
+      </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="comment-section">
+      <strong>💬 Comments and Activity</strong>
+      <div class="comment-box">
+        <textarea placeholder="Write a comment..." [(ngModel)]="newComment"></textarea>
+        <button (click)="submitComment()">Comment</button>
+      </div>
+      <div *ngFor="let cmt of comments" class="comment">
+        <img src="/assets/images/male.jpg" class="avatar" />
+        <div>
+          <strong>{{ cmt.author }}</strong>
+          <p>{{ cmt.message }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
