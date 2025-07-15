@@ -29,6 +29,14 @@ export class AdminDashboardComponent implements OnInit {
   totalUsersIssued = 0;
   totalIssuesCount = 0;
 
+  pendingCount: number = 0;
+  inProgressCount: number = 0;
+  completedCount: number = 0;
+  rejectedCount: number = 0;
+
+  isDarkMode = false;
+  filterStatus: string = 'PENDING'; // Used for table filtering
+
   calendarHtml: SafeHtml = '';
   currentMonthName = '';
   currentYear = 0;
@@ -39,21 +47,25 @@ export class AdminDashboardComponent implements OnInit {
     { key: 'COMPLETED', label: 'Completed' },
     { key: 'REJECTED', label: 'Rejected' }
   ];
-Array: any;
 
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
+  isDesktopView = true;
 
   ngOnInit() {
     this.fetchIssues();
     this.fetchAllIssuesForKPI();
     this.generateCalendar();
-
-    setInterval(() => {
-    this.fetchIssues();
-    this.fetchAllIssuesForKPI();
-  }, 30000);
+    
+    this.isDesktopView = window.innerWidth >= 768;
+    window.addEventListener('resize', () => {
+      this.isDesktopView = window.innerWidth >= 768;
+    });
 
     
+    setInterval(() => {
+      this.fetchIssues();
+      this.fetchAllIssuesForKPI();
+    }, 30000);
   }
 
   fetchIssues() {
@@ -61,7 +73,7 @@ Array: any;
     this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
       (res) => {
         this.issues = res;
-        console.log("Fetched Issues:", res);
+        this.updateStatusCounts(); // Only for currently viewed tab
         this.loading = false;
       },
       (err) => {
@@ -83,6 +95,39 @@ Array: any;
         this.allIssues = [];
       }
     );
+  }
+
+  calculateKPIFromAll() {
+    const total = this.allIssues.length || 1;
+    this.totalIssuesCount = total;
+
+    const pending = this.allIssues.filter(i => i.status === 'PENDING').length;
+    const completed = this.allIssues.filter(i => i.status === 'COMPLETED').length;
+    const rejected = this.allIssues.filter(i => i.status === 'REJECTED').length;
+    const inprogress = this.allIssues.filter(i => i.status === 'INPROGRESS').length;
+
+    this.pendingCount = pending;
+    this.completedCount = completed;
+    this.rejectedCount = rejected;
+    this.inProgressCount = inprogress;
+
+    this.pendingPercent = Math.round((pending / total) * 100);
+    this.completedPercent = Math.round((completed / total) * 100);
+    this.rejectedPercent = Math.round((rejected / total) * 100);
+
+    const userSet = new Set<number>();
+    for (let issue of this.allIssues) {
+      if (issue.user?.id) userSet.add(issue.user.id);
+    }
+    this.totalUsersIssued = userSet.size;
+  }
+
+  get filteredIssues(): any[] {
+    return this.allIssues.filter(i => i.status === this.filterStatus);
+  }
+
+  setFilterStatus(status: string) {
+    this.filterStatus = status;
   }
 
   onTabClick(status: string) {
@@ -108,25 +153,6 @@ Array: any;
 
   getStatusColor = getStatusColor;
 
-  calculateKPIFromAll() {
-    const total = this.allIssues.length || 1;
-    this.totalIssuesCount = this.allIssues.length;
-
-    const pending = this.allIssues.filter(i => i.status === 'PENDING').length;
-    const completed = this.allIssues.filter(i => i.status === 'COMPLETED').length;
-    const rejected = this.allIssues.filter(i => i.status === 'REJECTED').length;
-
-    this.pendingPercent = Math.round((pending / total) * 100);
-    this.completedPercent = Math.round((completed / total) * 100);
-    this.rejectedPercent = Math.round((rejected / total) * 100);
-
-    const userSet = new Set<number>();
-    for (let issue of this.allIssues) {
-      if (issue.user?.id) userSet.add(issue.user.id);
-    }
-    this.totalUsersIssued = userSet.size;
-  }
-
   generateCalendar() {
     const now = new Date();
     const year = now.getFullYear();
@@ -135,7 +161,7 @@ Array: any;
     this.currentMonthName = now.toLocaleString('default', { month: 'long' });
     this.currentYear = year;
 
-    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const firstDay = new Date(year, month, 1).getDay();
     const numDays = new Date(year, month + 1, 0).getDate();
 
@@ -167,16 +193,25 @@ Array: any;
     this.calendarHtml = this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-
   getCategoryColor(category: string): string {
-  switch ((category || '').toLowerCase()) {
-    case 'edu mail problem': return '#f48fb1';     // pink
-    case 'payment problem': return '#ffb74d';      // orange
-    case 'quota problem': return '#81c784';        // green
-    case 'result problem': return '#64b5f6';        // blue
-    case 'login issue': return '#9575cd';           // purple
-    default: return '#cfd8dc';                     // grey (default)
+    switch ((category || '').toLowerCase()) {
+      case 'edu mail problem': return '#f48fb1';
+      case 'payment problem': return '#ffb74d';
+      case 'quota problem': return '#81c784';
+      case 'result problem': return '#64b5f6';
+      case 'login issue': return '#9575cd';
+      default: return '#cfd8dc';
+    }
   }
-}
 
+  toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+  }
+
+  updateStatusCounts() {
+    this.pendingCount = this.issues.filter(i => i.status === 'PENDING').length;
+    this.inProgressCount = this.issues.filter(i => i.status === 'INPROGRESS').length;
+    this.completedCount = this.issues.filter(i => i.status === 'COMPLETED').length;
+    this.rejectedCount = this.issues.filter(i => i.status === 'REJECTED').length;
+  }
 }

@@ -1,128 +1,183 @@
-<div class="dashboard-wrapper">
-  <!-- 🔵 KPI Column: Pending / Completed / Rejected -->
-  <div class="kpi-column">
-    <div class="kpi-box pending">
-      <div class="kpi-label">🕐 Pending</div>
-      <circle-progress
-        [percent]="pendingPercent"
-        [radius]="24"
-        [outerStrokeWidth]="6"
-        [innerStrokeWidth]="2"
-        [outerStrokeColor]="'#2196f3'"
-        [innerStrokeColor]="'#e6e6e6'"
-        [animation]="true"
-        [animationDuration]="1000"
-        [showSubtitle]="false"
-        [title]="pendingPercent + '%'"
-        [showUnits]="false">
-      </circle-progress>
+<div class="crm-wrapper">
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">sugarcrm</div>
+    <ul class="sidebar-icons">
+      <li><img src="assets/icons/star.svg" alt="star" /></li>
+      <li><img src="assets/icons/plus.svg" alt="plus" /></li>
+      <li><img src="assets/icons/grid.svg" alt="grid" /></li>
+      <li><img src="assets/icons/users.svg" alt="users" /></li>
+      <li><img src="assets/icons/check.svg" alt="check" /></li>
+      <li><img src="assets/icons/calendar.svg" alt="calendar" /></li>
+      <li><img src="assets/icons/box.svg" alt="box" /></li>
+      <li><img src="assets/icons/send.svg" alt="send" /></li>
+      <li><img src="assets/icons/triangle.svg" alt="triangle" /></li>
+      <li><img src="assets/icons/moon.svg" alt="moon" /></li>
+      <li><img src="assets/icons/sun.svg" alt="sun" /></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+    <!-- Top Navigation -->
+    <header class="nav-header">
+      <h2>Customer Journeys</h2>
+      <nav class="top-menu">
+        <a href="#">Relationship</a>
+        <a href="#">Opportunities</a>
+        <a href="#">Leads</a>
+        <a href="#">Calendar</a>
+        <a class="active" href="#">Cases</a>
+        <a href="#">Reports</a>
+        <a href="#">Quotes</a>
+      </nav>
+      <div class="top-actions">
+        <input type="text" value="https://www.sugarcrm.com/" readonly />
+        <div class="circle-icon">🔍</div>
+        <div class="circle-icon">📷</div>
+        <div class="circle-icon">📤</div>
+        <img src="assets/images/user.jpg" class="avatar" />
+      </div>
+    </header>
+
+    <!-- Profile Avatars -->
+    <div class="avatar-bar">
+      <img src="assets/images/u1.jpg" class="avatar" />
+      <img src="assets/images/u2.jpg" class="avatar" />
+      <img src="assets/images/u3.jpg" class="avatar" />
+      <img src="assets/images/u4.jpg" class="avatar" />
+      <img src="assets/images/u5.jpg" class="avatar" />
+      <img src="assets/images/u6.jpg" class="avatar" />
+      <img src="assets/images/u7.jpg" class="avatar" />
     </div>
 
-    <div class="kpi-box completed">
-      <div class="kpi-label">✅ Completed</div>
-      <circle-progress
-        [percent]="completedPercent"
-        [radius]="24"
-        [outerStrokeWidth]="6"
-        [innerStrokeWidth]="2"
-        [outerStrokeColor]="'#4caf50'"
-        [innerStrokeColor]="'#e6e6e6'"
-        [animation]="true"
-        [animationDuration]="1000"
-        [showSubtitle]="false"
-        [title]="completedPercent + '%'"
-        [showUnits]="false">
-      </circle-progress>
+    <!-- Case Columns -->
+    <section class="case-columns">
+      <!-- New Case Management -->
+      <div class="case-section">
+        <h3>Problem Status</h3>
+        <div class="case-card" [class.highlighted]="filterStatus === 'PENDING'" (click)="setFilterStatus('PENDING')">
+          Pending - {{ pendingCount }}
+        </div>
+        <div class="case-card" [class.highlighted]="filterStatus === 'INPROGRESS'" (click)="setFilterStatus('INPROGRESS')">
+          In Progress - {{ inProgressCount }}
+        </div>
+        <div class="case-card" [class.highlighted]="filterStatus === 'COMPLETED'" (click)="setFilterStatus('COMPLETED')">
+          Completed - {{ completedCount }}
+        </div>
+        <div class="case-card" [class.highlighted]="filterStatus === 'REJECTED'" (click)="setFilterStatus('REJECTED')">
+          Rejected - {{ rejectedCount }}
+        </div>
+      </div>
+
+      <!-- Issue Identification -->
+      <div class="case-section">
+        <h3>Issue Identification</h3>
+        <div class="case-card">Identify Issue Category</div>
+        <div class="case-card">Identify Issue Severity</div>
+        <div class="case-card">Identify Issue Impact</div>
+        <div class="case-card">Allocate to Resolution Team</div>
+        <div class="case-card">Advise Customer of Resolution Estimate</div>
+      </div>
+
+      <!-- Technical Resolution -->
+      <div class="case-section">
+        <h3>Technical Resolution</h3>
+        <div class="case-card">Identify Issue Dependencies</div>
+        <div class="case-card">Identify Issue Resolution</div>
+        <div class="case-card">Estimate Resolution Time</div>
+        <div class="case-card">Advise Customer of Resolution Estimate</div>
+        <div class="case-card">Advise Customer Issue Resolved</div>
+      </div>
+
+      <!-- Request Processing -->
+      <div class="case-section">
+        <h3>Request Processing</h3>
+        <div class="case-card highlighted">Request Processing</div>
+        <div class="case-card">Problem Resolution</div>
+        <div class="case-card">Customer Communication</div>
+        <div class="case-card">Testing and Verification</div>
+        <div class="case-card">Customer Notification</div>
+        <div class="case-card">Customer Satisfaction</div>
+      </div>
+    </section>
+
+    <!-- Knowledge and Ticket Tables -->
+    <div class="lower-panels">
+      <div class="panel-box wide">
+  <h4>{{ filterStatus | titlecase }} Issues</h4>
+
+  <!-- 📱 Mobile Card Layout -->
+  <ng-container *ngIf="!isDesktopView">
+    <div class="issue-card" *ngFor="let issue of filteredIssues; let i = index">
+      <div class="card-row"><strong>Issue No.:</strong> {{ i + 1 }}</div>
+      <div class="card-row"><strong>Title:</strong> {{ issue.title }}</div>
+      <div class="card-row"><strong>Category:</strong>
+        <span class="category-badge"
+              [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }">
+          {{ issue.category || 'No Category' }}
+        </span>
+      </div>
+      <div class="card-row"><strong>Issue Date:</strong> {{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</div>
+      <div class="card-row"><strong>Developer:</strong>
+        <button class="view-btn" (click)="selectedIssue = issue">View</button>
+      </div>
     </div>
+    <div *ngIf="filteredIssues.length === 0">No {{ filterStatus | lowercase }} issues found.</div>
+  </ng-container>
 
-    <div class="kpi-box rejected">
-      <div class="kpi-label">❌ Rejected</div>
-      <circle-progress
-        [percent]="rejectedPercent"
-        [radius]="24"
-        [outerStrokeWidth]="6"
-        [innerStrokeWidth]="2"
-        [outerStrokeColor]="'#f44336'"
-        [innerStrokeColor]="'#e6e6e6'"
-        [animation]="true"
-        [animationDuration]="1000"
-        [showSubtitle]="false"
-        [title]="rejectedPercent + '%'"
-        [showUnits]="false">
-      </circle-progress>
-    </div>
-  </div>
-
-  <!-- 📦 Summary Stats -->
-  <div class="summary-column">
-    <div class="summary-box">📄 <strong>Total Issues:</strong> {{ totalIssuesCount }}</div>
-    <div class="summary-box">👥 <strong>Total Users:</strong> {{ totalUsersIssued }}</div>
-  </div>
-
-  <!-- 📅 Calendar Column -->
-  <div class="calendar-column">
-    <div class="calendar-header">📅 {{ currentMonthName }} {{ currentYear }}</div>
-    <div class="calendar-box" [innerHTML]="calendarHtml"></div>
-  </div>
-</div>
-
-<!-- 🧭 Tab Filter -->
-<div class="tab-container">
-  <button *ngFor="let tab of statusTabs"
-          [ngClass]="{ 'active-tab': activeTab === tab.key }"
-          (click)="onTabClick(tab.key)">
-    {{ tab.label }}
-  </button>
-</div>
-
-<!-- ⏳ Loading Spinner -->
-<div *ngIf="loading" class="loading">
-  <div class="spinner"></div> Loading {{ activeTab.replace('_', ' ') }} issues...
-</div>
-
-<!-- 📋 Issues Table -->
-<div class="table-wrapper" *ngIf="!loading">
-  <div class="scroll-container">
-    <table>
+  <!-- 💻 Desktop Table Layout -->
+  <ng-container *ngIf="isDesktopView">
+    <table *ngIf="filteredIssues.length > 0">
       <thead>
         <tr>
-          <th>#</th>
+          <th>Issue No.</th>
           <th>Title</th>
           <th>Category</th>
-          <th>Created At</th>
+          <th>Issue Date</th>
           <th>Assigned Developer</th>
-          <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let issue of issues; let i = index"
-            class="issue-row"
-            [ngStyle]="{ '--i': i }"
-            [ngClass]="{ 'selected': selectedIssue?.id === issue.id }">
+        <tr *ngFor="let issue of filteredIssues; let i = index">
           <td>{{ i + 1 }}</td>
           <td>{{ issue.title }}</td>
-                <span class="category-badge"
-      [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }">
-  {{ issue.category || 'No Category' }}
-</span>
-
-
-
+          <td>
+            <span class="category-badge"
+                  [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }">
+              {{ issue.category || 'No Category' }}
+            </span>
+          </td>
           <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
           <td>
-            <span *ngIf="issue.developer">{{ issue.developer.username }}</span>
-            <span *ngIf="!issue.developer" class="unassigned">Unassigned</span>
+            <button class="view-btn" (click)="selectedIssue = issue">View</button>
           </td>
-          <td>
-            <button class="view-btn" (click)="selectedIssue = issue">👁 View</button>
-          </td>
-        </tr>
-        <tr *ngIf="issues.length === 0">
-          <td colspan="6">No {{ activeTab.replace('_', ' ') }} issues found.</td>
         </tr>
       </tbody>
     </table>
-  </div>
+    <div *ngIf="filteredIssues.length === 0">No {{ filterStatus | lowercase }} issues found.</div>
+  </ng-container>
+</div>
+
+
+      <div class="panel-box narrow">
+        <h4>Support Ticket Journeys</h4>
+        <table>
+          <thead>
+            <tr><th>Task</th><th>Start</th><th>End</th><th>Assigned</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Resolve login issue</td>
+              <td>2023-09-15</td>
+              <td>2023-09-17</td>
+              <td>John</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 </div>
 
 <!-- 🔍 Issue View Modal -->
