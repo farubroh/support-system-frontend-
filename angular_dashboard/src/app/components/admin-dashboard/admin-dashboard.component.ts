@@ -65,7 +65,7 @@ export class AdminDashboardComponent implements OnInit {
     setInterval(() => {
       this.fetchIssues();
       this.fetchAllIssuesForKPI();
-    }, 30000);
+    }, 10000);
   }
 
   fetchIssues() {
