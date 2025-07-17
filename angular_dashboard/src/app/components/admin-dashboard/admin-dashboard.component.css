@@ -14,6 +14,8 @@ body, html {
 }
 
 .sidebar {
+  margin-top: 100px;
+  margin-bottom: 300px;
   width: 72px;
   background: #ffffff;
   display: flex;
@@ -22,6 +24,8 @@ body, html {
   padding: 10px 0;
   border-right: 1px solid #e0e0e0;
   gap: 12px;
+  border-radius: 20px;
+
 }
 
 .logo {
@@ -31,6 +35,7 @@ body, html {
 }
 
 .sidebar-icons {
+  margin-top: 100px;
   list-style: none;
   padding: 0;
   display: flex;
@@ -440,4 +445,16 @@ body, html {
     width: 100%;
     margin-bottom: 4px;
   }
+}
+.progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.circular-pie {
+  width: 150px;
+  height: 150px;
+  position: relative;
 }

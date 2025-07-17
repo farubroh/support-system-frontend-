@@ -1,19 +1,20 @@
 <div class="crm-wrapper">
   <!-- Left Sidebar -->
   <aside class="sidebar">
-    <div class="logo">sugarcrm</div>
+    
     <ul class="sidebar-icons">
-      <li><img src="assets/icons/star.svg" alt="star" /></li>
-      <li><img src="assets/icons/plus.svg" alt="plus" /></li>
-      <li><img src="assets/icons/grid.svg" alt="grid" /></li>
-      <li><img src="assets/icons/users.svg" alt="users" /></li>
-      <li><img src="assets/icons/check.svg" alt="check" /></li>
+      <li><i class="fa-solid fa-house"></i></li>
+      <li><i class="fa-solid fa-envelope"></i></li>
+      <li><i class="fa-solid fa-calendar"></i></li>
+      
+      <li><i class="fa-solid fa-users-rectangle"></i></li>
+      <!-- <li><img src="assets/icons/check.svg" alt="check" /></li>
       <li><img src="assets/icons/calendar.svg" alt="calendar" /></li>
       <li><img src="assets/icons/box.svg" alt="box" /></li>
       <li><img src="assets/icons/send.svg" alt="send" /></li>
       <li><img src="assets/icons/triangle.svg" alt="triangle" /></li>
       <li><img src="assets/icons/moon.svg" alt="moon" /></li>
-      <li><img src="assets/icons/sun.svg" alt="sun" /></li>
+      <li><img src="assets/icons/sun.svg" alt="sun" /></li> -->
     </ul>
   </aside>
 
@@ -33,22 +34,22 @@
       </nav>
       <div class="top-actions">
         <input type="text" value="https://www.sugarcrm.com/" readonly />
-        <div class="circle-icon">🔍</div>
+        <!-- <div class="circle-icon">🔍</div>
         <div class="circle-icon">📷</div>
         <div class="circle-icon">📤</div>
-        <img src="assets/images/user.jpg" class="avatar" />
+        <img src="assets/images/user.jpg" class="avatar" /> -->
       </div>
     </header>
 
     <!-- Profile Avatars -->
     <div class="avatar-bar">
-      <img src="assets/images/u1.jpg" class="avatar" />
-      <img src="assets/images/u2.jpg" class="avatar" />
-      <img src="assets/images/u3.jpg" class="avatar" />
-      <img src="assets/images/u4.jpg" class="avatar" />
-      <img src="assets/images/u5.jpg" class="avatar" />
-      <img src="assets/images/u6.jpg" class="avatar" />
-      <img src="assets/images/u7.jpg" class="avatar" />
+      <img src="/man.png" class="avatar" />
+      <img src="/black.png" class="avatar" />
+      <img src="/person.png" class="avatar" />
+      <img src="/Male.png" class="avatar" />
+      <img src="/New_male.png" class="avatar" />
+      <!-- <img src="assets/images/u6.jpg" class="avatar" />
+      <img src="assets/images/u7.jpg" class="avatar" /> -->
     </div>
 
     <!-- Case Columns -->
@@ -71,14 +72,18 @@
       </div>
 
       <!-- Issue Identification -->
-      <div class="case-section">
-        <h3>Issue Identification</h3>
-        <div class="case-card">Identify Issue Category</div>
-        <div class="case-card">Identify Issue Severity</div>
-        <div class="case-card">Identify Issue Impact</div>
-        <div class="case-card">Allocate to Resolution Team</div>
-        <div class="case-card">Advise Customer of Resolution Estimate</div>
-      </div>
+      <!-- Issue Solved Progress -->
+<div class="case-section progress-pie-box">
+  <h3>Total Issues Solved</h3>
+  <div class="progress-container">
+    <div class="circular-pie"
+     id="solvedPie"
+     [attr.data-pie]="pieConfig | json">
+</div>
+
+  </div>
+</div>
+
 
       <!-- Technical Resolution -->
       <div class="case-section">

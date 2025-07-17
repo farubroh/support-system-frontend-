@@ -19,15 +19,16 @@
     </div>
 
     <!-- 📎 Action Icons -->
-    <div class="icon-row">
-      <i class="bi bi-tags" title="Labels"></i>
-      <i class="bi bi-calendar-event" title="Due Date"></i>
-      <i class="bi bi-list-task" title="Checklist"></i>
-      <i class="bi bi-chat-left-text" title="Comments" (click)="toggleCommentSidebar()"></i>
+    <div class="icon-row" title="Add Categry">
+      <i class="fa-solid fa-tags"></i>
+      <i class="fa-solid fa-calendar-check" title="Due Date"></i>
+      <i class="fa-solid fa-list" title="Check list"></i>
+      <i class="fa-solid fa-message" title="Comments" (click)="toggleCommentSidebar()"></i>
 
       <!-- ➕ Inline Developer Dropdown -->
-      <div class="assign-wrapper">
-        <i class="bi bi-plus-circle" title="Assign Developer" (click)="toggleAssignBox()"></i>
+     
+        
+        <i class="fa-solid fa-user-plus" title="Assign Developer" (click)="toggleAssignBox()"></i>
 
         <div *ngIf="showAssignBox" class="inline-assign-box">
           <!-- Search Input -->
@@ -35,13 +36,13 @@
 
           <!-- Developer Options -->
           <div class="member-option" *ngFor="let dev of filteredDevelopers()" (click)="selectDeveloper(dev)">
-            <img src="/assets/images/male.jpg" class="avatar" />
+            <img src="/Male.png" class="avatar" />
             <span>{{ dev.username }}</span>
           </div>
 
           <!-- Selected Developer -->
           <div *ngIf="selectedDeveloper" class="selected-dev-row">
-            <img src="/assets/images/male.jpg" class="avatar" />
+            <img src="/Male.png" class="avatar" />
             <span>{{ selectedDeveloper.username }}</span>
             <span class="remove-btn" (click)="selectedDeveloper = null">×</span>
           </div>
@@ -49,7 +50,7 @@
           <!-- Submit Button -->
           <button class="submit-btn" [disabled]="!selectedDeveloper" (click)="submitAssignment()">Assign</button>
         </div>
-      </div>
+      
     </div>
 
     <!-- 🧾 Description + Info -->

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { getStatusColor } from '../utils/get-status-color';
@@ -6,6 +6,8 @@ import { IssueViewModalAdminComponent } from "../issue-view-modal-admin/issue-vi
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SafeHtmlPipe } from "../safe-html.pipe";
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+ declare var CircularProgressBar: any;
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -13,15 +15,19 @@ import { SafeHtmlPipe } from "../safe-html.pipe";
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css'],
   imports: [IssueViewModalAdminComponent, CommonModule, HttpClientModule, NgCircleProgressModule, SafeHtmlPipe],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [HttpClient]
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, AfterViewInit {
   issues: any[] = [];
   allIssues: any[] = [];
   activeTab: string = 'PENDING';
   loading: boolean = true;
   selectedIssue: any = null;
-  user = { username: 'Admin', role: 'Admin' };
+  user = {
+    username: 'Admin',
+    role: 'Admin'
+  };
 
   pendingPercent = 0;
   completedPercent = 0;
@@ -41,11 +47,24 @@ export class AdminDashboardComponent implements OnInit {
   currentMonthName = '';
   currentYear = 0;
 
-  statusTabs = [
-    { key: 'PENDING', label: 'Pending' },
-    { key: 'INPROGRESS', label: 'In Progress' },
-    { key: 'COMPLETED', label: 'Completed' },
-    { key: 'REJECTED', label: 'Rejected' }
+  pieConfig: any = {}; // 🟢 Circular pie configuration
+
+  statusTabs = [{
+      key: 'PENDING',
+      label: 'Pending'
+    },
+    {
+      key: 'INPROGRESS',
+      label: 'In Progress'
+    },
+    {
+      key: 'COMPLETED',
+      label: 'Completed'
+    },
+    {
+      key: 'REJECTED',
+      label: 'Rejected'
+    }
   ];
 
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
@@ -55,25 +74,49 @@ export class AdminDashboardComponent implements OnInit {
     this.fetchIssues();
     this.fetchAllIssuesForKPI();
     this.generateCalendar();
-    
+
     this.isDesktopView = window.innerWidth >= 768;
     window.addEventListener('resize', () => {
       this.isDesktopView = window.innerWidth >= 768;
     });
 
-    
     setInterval(() => {
       this.fetchIssues();
       this.fetchAllIssuesForKPI();
     }, 10000);
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const pieElements = document.querySelectorAll('.circular-pie');
+      const pie = new CircularProgressBar("circular-pie");
+      pieElements.forEach((el: any) => pie.initial(el));
+    }, 500);
+
+    // 🔁 Re-animate every 10 seconds
+    setInterval(() => {
+      const pie = new CircularProgressBar("circular-pie");
+      const options = {
+        index: 1,
+        percent: this.completedPercent,
+        colorSlice: "#42a5f5",
+        fontColor: "#42a5f5",
+        colorCircle: "#f1f1f1",
+        fontSize: "1.3rem",
+        stroke: 10,
+        strokeBottom: 14,
+        round: true
+      };
+      pie.animationTo(options);
+    }, 10000);
+  }
+
   fetchIssues() {
     this.loading = true;
-    this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
+    this.http.get < any[] > (`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
       (res) => {
         this.issues = res;
-        this.updateStatusCounts(); // Only for currently viewed tab
+        this.updateStatusCounts();
         this.loading = false;
       },
       (err) => {
@@ -85,7 +128,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   fetchAllIssuesForKPI() {
-    this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
+    this.http.get < any[] > (`http://localhost:8085/api/issues/all_admin`).subscribe(
       (res) => {
         this.allIssues = res;
         this.calculateKPIFromAll();
@@ -115,11 +158,24 @@ export class AdminDashboardComponent implements OnInit {
     this.completedPercent = Math.round((completed / total) * 100);
     this.rejectedPercent = Math.round((rejected / total) * 100);
 
-    const userSet = new Set<number>();
+    const userSet = new Set < number > ();
     for (let issue of this.allIssues) {
       if (issue.user?.id) userSet.add(issue.user.id);
     }
     this.totalUsersIssued = userSet.size;
+
+    // 🔄 Update pie config for progress bar
+    this.pieConfig = {
+      percent: this.completedPercent,
+      colorSlice: "#42a5f5",
+      colorCircle: "#f1f1f1",
+      fill: "#e3f2fd",
+      stroke: 10,
+      strokeBottom: 14,
+      fontSize: "1.3rem",
+      round: true,
+      animationSmooth: "1s ease-out"
+    };
   }
 
   get filteredIssues(): any[] {
@@ -137,7 +193,9 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   assignDeveloper(developerId: number) {
-    this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, { developerId: developerId })
+    this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
+        developerId: developerId
+      })
       .subscribe({
         next: () => {
           this.selectedIssue.status = 'INPROGRESS';
@@ -158,7 +216,9 @@ export class AdminDashboardComponent implements OnInit {
     const year = now.getFullYear();
     const month = now.getMonth();
 
-    this.currentMonthName = now.toLocaleString('default', { month: 'long' });
+    this.currentMonthName = now.toLocaleString('default', {
+      month: 'long'
+    });
     this.currentYear = year;
 
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -195,12 +255,18 @@ export class AdminDashboardComponent implements OnInit {
 
   getCategoryColor(category: string): string {
     switch ((category || '').toLowerCase()) {
-      case 'edu mail problem': return '#f48fb1';
-      case 'payment problem': return '#ffb74d';
-      case 'quota problem': return '#81c784';
-      case 'result problem': return '#64b5f6';
-      case 'login issue': return '#9575cd';
-      default: return '#cfd8dc';
+      case 'edu mail problem':
+        return '#f48fb1';
+      case 'payment problem':
+        return '#ffb74d';
+      case 'quota problem':
+        return '#81c784';
+      case 'result problem':
+        return '#64b5f6';
+      case 'login issue':
+        return '#9575cd';
+      default:
+        return '#cfd8dc';
     }
   }
 
