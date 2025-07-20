@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 
+
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {

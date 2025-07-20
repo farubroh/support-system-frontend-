@@ -1,70 +1,84 @@
-<div class="dashboard-container">
-  <div class="header">
-    <h2>📊 Issue Dashboard</h2>
-    <p>Welcome, <strong>{{ user.username }}</strong> | Role: <strong>{{ user.role }}</strong></p>
+<div class="appointment-wrapper">
+
+  <!-- ✅ Top Bar -->
+  <div class="top-bar">
+    <div class="left">
+      <i class="bi bi-calendar3"></i>
+      <span>{{ activeTab.replace('_', ' ') }} Issues</span>
+    </div>
+    <button class="refresh-btn" (click)="fetchIssues()">
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
   </div>
 
-  <div class="tabs-container">
-    <div class="tabs">
-      <button *ngFor="let tab of statusTabs" 
-              [ngClass]="{ 'active-tab': activeTab === tab.key }"
-              (click)="onTabClick(tab.key)">
-        <!-- Adding simple icons based on the status -->
-        <span *ngIf="tab.key === 'PENDING'">⏳</span>
-        <span *ngIf="tab.key === 'INPROGRESS'">🔄</span>
-        <span *ngIf="tab.key === 'COMPLETED'">✔️</span>
-        <span *ngIf="tab.key === 'REJECTED'">❌</span>
-        {{ tab.label }}
-      </button>
+  <!-- 🗂️ Status Tabs -->
+  <div class="day-tabs">
+  <div *ngFor="let tab of statusTabs"
+       class="day-tab"
+       [ngClass]="{ 'selected': activeTab === tab.key }"
+       (click)="onTabClick(tab.key)">
+    <i [class]="tab.icon"></i><br />
+    <span>{{ tab.label }}</span>
+  </div>
+</div>
+
+
+  <!-- 📋 Issue Cards -->
+  <!-- 📋 Issue Section -->
+<div *ngIf="loading" class="fancy-loader-wrapper">
+  <div class="fancy-spinner"></div>
+  <p class="loading-text">Loading {{ activeTab.replace('_', ' ') }} Issues...</p>
+</div>
+
+<div class="appointment-section" *ngIf="!loading" [@fadeInOut]>
+
+  <h3 class="appointment-title">{{ activeTab.replace('_', ' ') }} Issues ({{ issues.length }})</h3>
+
+  <div *ngIf="issues.length === 0">No issues found.</div>
+
+  <div *ngFor="let issue of issues" class="appointment-card" (click)="handleView(issue)">
+    <div class="category-icon">
+  <i [ngClass]="getCategoryIcon(issue.category)"></i>
+</div>
+
+    <div class="details">
+      <div class="name">{{ issue.title }}</div>
+      <div class="subtitle">Issue ID: {{ issue.id }}</div>
+    </div>
+    <div class="status-time">
+      <span class="status" [ngClass]="getStatusClass(issue.status)">{{ issue.status }}</span>
+      <div class="time">{{ issue.createdAt | date:'shortDate' }}</div>
     </div>
   </div>
+</div>
 
-  <div *ngIf="loading" class="loading-indicator">
-    <div class="spinner"></div>
-    <p>Loading {{ activeTab.replace('_', ' ') }} issues...</p>
+
+<!-- ✅ Bottom Navigation -->
+<div class="bottom-nav" *ngIf="!loading" [@fadeInOut]>
+  <i class="bi bi-house-door"></i>
+  <i class="bi bi-calendar2-event-fill"></i>
+
+  <!-- Centered ➕ Button with Text -->
+  <div class="center-plus-container" (click)="navigateToCreateIssue()">
+    <i class="fa-solid fa-circle-plus plus-icon"></i>
   </div>
 
-  <div *ngIf="!loading" class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Serial ID</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let issue of issues; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ issue.title }}</td>
-          <td>
-            <span class="status-badge" [ngStyle]="{ 'background-color': getStatusColor(issue.status) }">
-              {{ issue.status }}
-            </span>
-          </td>
-          <td>
-            <button class="view-btn" (click)="selectedIssue = issue">View</button>
-          </td>
-        </tr>
-        <tr *ngIf="issues.length === 0">
-          <td colspan="4">No {{ activeTab.replace('_', ' ') }} issues found.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- Message shown above the button -->
+  <div class="plus-tooltip" *ngIf="showPlusMessage">Click + icon to insert your problem</div>
 
-  <div class="create-button">
-    <a routerLink="/create-issue" class="create-btn">➕ Create New Issue</a>
-  </div>
+  <i class="bi bi-chat-left"></i>
+  <i class="bi bi-person-circle"></i>
+</div>
 
-<app-issue-view-modal-user 
-  *ngIf="selectedIssue" 
-  [issue]="selectedIssue" 
-  (close)="selectedIssue = null">
-</app-issue-view-modal-user>
-<app-issue-view-modal-user *ngIf="selectedIssue" [issue]="selectedIssue" (close)="selectedIssue = null">
-</app-issue-view-modal-user>
 
-  
+
+
+
+  <!-- 🔍 Issue Modal -->
+  <app-issue-view-modal-user 
+    *ngIf="selectedIssue" 
+    [issue]="selectedIssue" 
+    (close)="handleClose()">
+  </app-issue-view-modal-user>
+
 </div>
