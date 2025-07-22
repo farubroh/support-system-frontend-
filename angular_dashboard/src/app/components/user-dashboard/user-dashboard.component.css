@@ -17,14 +17,17 @@
   overflow-y: auto;
   margin-top: 8px;
   padding-right: 6px;
+   /* overflow: hidden; */
+
 }
 
 /* ✅ Top Bar - Refined */
 .top-bar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 6px;
+  
 }
 
 .top-bar .left {
@@ -38,11 +41,13 @@
   font-weight: 500;
   color: #444;
   gap: 8px;
+  
 }
 
 .top-bar .left i {
   font-size: 16px;
   color: #3498db;
+  
 }
 
 .refresh-btn {
@@ -89,8 +94,8 @@
 }
 
 .day-tab.selected {
-  background: linear-gradient(to right, #33333e, #3f3f3f);
-  color: #fff;
+  background: white;
+  color: black;
   transform: scale(1.12);         /* 🔍 Makes selected tab bigger */
   font-size: 13px;
   font-weight: 700;
@@ -126,12 +131,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, background 0.3s ease;
   cursor: pointer;
+  background-color: white;
 }
 
 .appointment-card:hover {
   background: var(--primary-dark);
   transform: translateY(-4px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  /* background-color: #f2f4f8; */
 }
 
 /* 🔘 Category Icon */
@@ -486,3 +493,109 @@
   opacity: 1;
   pointer-events: auto;
 }
+.card-box {
+  background-color: white;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+  
+}
+.view{
+  width: 70%;
+}
+
+.mini-card {
+  flex: 1;
+  background-color: white;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+/* Flex layout for row-based design */
+.row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  
+  
+}
+
+.col {
+  flex: 1;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 8px;
+  text-align: center;
+  margin-right: 10px;
+}
+
+/* Rank Sidebar */
+.rank-sidebar {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background-color: #f2f4f8;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.rank-bar {
+  background-color: #3498db;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+}
+.issue-scroll-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-right: 6px;
+  margin-top: 10px;
+}
+
+/* ✨ Scrollbar Styling for WebKit (Chrome, Edge, Safari) */
+.issue-scroll-area::-webkit-scrollbar {
+  width: 8px;
+}
+.issue-scroll-area::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #a855f7, #6366f1);
+  border-radius: 8px;
+}
+.issue-scroll-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+/* Firefox scroll styling */
+.issue-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #f1f1f1;
+}
+/* Hide scrollbar but keep scroll functionality (for ISSUES section) */
+.hide-scrollbar {
+  overflow-y: auto !important;
+  -ms-overflow-style: none;  /* IE 10+ */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
+}@media (min-width: 768px) {
+  .home-view {
+    flex: 1;
+    margin-right: 10px;
+    max-width: 50%;
+  }
+
+  .issues-view {
+    flex: 1;
+    max-width: 50%;
+  }
+}
+
+

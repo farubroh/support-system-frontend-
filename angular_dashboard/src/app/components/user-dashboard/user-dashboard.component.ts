@@ -33,6 +33,9 @@ export class DashboardComponent implements OnInit {
   showPlusMessage = true;
   showCreateModal: boolean = false;
 
+  totalUsers: number = 0;
+  totalIssues: number = 0;
+
   constructor(private http: HttpClient, private router: Router) {}
 
   statusTabs = [
@@ -41,23 +44,38 @@ export class DashboardComponent implements OnInit {
     { key: 'COMPLETED', label: 'Completed', icon: 'fa-solid fa-circle-check' },
     { key: 'REJECTED', label: 'Rejected', icon: 'fa-solid fa-circle-xmark' }
   ];
+ 
 
-  ngOnInit() {
-    this.startPlusMessageLoop();
-    const storedUser = sessionStorage.getItem('helpdeskUser');
-    if (storedUser) {
-      this.user = JSON.parse(storedUser);
-      this.fetchIssues();
-    }
+ ngOnInit() {
+   this.startPlusMessageLoop();
+  this.fetchTotalUsers();
+  this.fetchTotalIssues();
+  const storedUser = sessionStorage.getItem('helpdeskUser');
+  if (storedUser) {
+    this.user = JSON.parse(storedUser);
+    if (this.currentView === 'ISSUES') {
+  this.fetchIssues(); // only fetch one status
+} else {
+  this.fetchAllIssuesForHome(); // fetch all statuses
+}
+
+    this.fetchTodayStats();
+
+    // ⏱ Start polling
+    setInterval(() => {
+      this.fetchTotalIssues();
+      this.fetchTodayStats();
+    }, 1000);
   }
+}
 
   fetchIssues() {
     this.loading = true;
     const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
-
     this.http.get<any[]>(url).subscribe({
       next: (res) => {
         this.issues = res;
+        console.log("Issues fetched:", this.issues);
       },
       error: (err) => {
         console.error("Error fetching issues:", err);
@@ -66,7 +84,7 @@ export class DashboardComponent implements OnInit {
       complete: () => {
         setTimeout(() => {
           this.loading = false;
-        }, 1000); // Optional delay for smooth transition
+        }, 1000);
       }
     });
   }
@@ -107,7 +125,7 @@ export class DashboardComponent implements OnInit {
     if (cat.includes('profile')) return 'fa-solid fa-user-gear';
     if (cat.includes('result')) return 'fa-solid fa-chart-line';
 
-    return 'fa-solid fa-circle-question'; // fallback icon
+    return 'fa-solid fa-circle-question';
   }
 
   toggleCreateModal() {
@@ -123,7 +141,98 @@ export class DashboardComponent implements OnInit {
       this.showPlusMessage = true;
       setTimeout(() => {
         this.showPlusMessage = false;
-      }, 3000); // Show message for 3s
-    }, 10000); // Show every 10s
+      }, 100000);
+    }, 100000);
   }
+
+  currentView: string = 'HOME';
+
+  fetchTotalUsers() {
+    this.http.get<any>('http://localhost:8085/api/issues/users/total').subscribe({
+      next: (data) => {
+        this.totalUsers = data.count;
+      },
+      error: (err) => {
+        console.error("Error fetching total users:", err);
+      }
+    });
+  }
+
+  fetchTotalIssues() {
+    this.http.get<any>('http://localhost:8085/api/issues/issues/total').subscribe({
+      next: (data) => {
+        this.totalIssues = data.count;
+      },
+      error: (err) => {
+        console.error("Error fetching total issues:", err);
+      }
+    });
+  }
+
+todayIssueCount: number = 0;
+  userIssueRank: number = -1;
+  userRankString: string = '';
+
+
+fetchTodayStats() {
+    if (!this.user || !this.user.id) {
+      return;
+    }
+
+    this.http.get<any>(`http://localhost:8085/api/issues/issues/today/user-rank/${this.user.id}`).subscribe({
+      next: (res) => {
+        
+        console.log("🔥 today stats", res); //
+        this.todayIssueCount = res.totalTodayIssues;
+        this.userIssueRank = res.userRank;
+
+        if (this.userIssueRank > 0) {
+          this.userRankString = this.getOrdinalSuffix(this.userIssueRank);
+        } else {
+          this.userRankString = '';
+        }
+      },
+      error: (err) => {
+        console.error("Failed to fetch today's issue stats", err);
+      }
+    });
+}
+fetchAllIssuesForHome() {
+  this.loading = true;
+  const statuses = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
+  let combinedIssues: any[] = [];
+  let completedCalls = 0;
+
+  statuses.forEach(status => {
+    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
+    this.http.get<any[]>(url).subscribe({
+      next: (res) => {
+        combinedIssues = combinedIssues.concat(res.map(issue => ({ ...issue, status })));
+      },
+      error: (err) => {
+        console.error(`Error fetching ${status} issues`, err);
+      },
+      complete: () => {
+        completedCalls++;
+        if (completedCalls === statuses.length) {
+          this.issues = combinedIssues;
+          this.loading = false;
+        }
+      }
+    });
+  });
+}
+
+
+
+getOrdinalSuffix(n: number): string {
+  const j = n % 10, k = n % 100;
+  if (j === 1 && k !== 11) return `${n}st`;
+  if (j === 2 && k !== 12) return `${n}nd`;
+  if (j === 3 && k !== 13) return `${n}rd`;
+  return `${n}th`;
+}
+
+
+
 }
