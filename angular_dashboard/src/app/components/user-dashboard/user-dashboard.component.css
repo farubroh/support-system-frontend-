@@ -3,7 +3,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  max-width: 420px;
+  max-width: 100%;
   margin: auto;
   border-radius: 30px;
   padding: 20px 16px 10px;
@@ -132,6 +132,7 @@
   transition: transform 0.25s ease, background 0.3s ease;
   cursor: pointer;
   background-color: white;
+  
 }
 
 .appointment-card:hover {
@@ -494,13 +495,22 @@
   pointer-events: auto;
 }
 .card-box {
-  background-color: white;
   border-radius: 20px;
   padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
-  
+  margin: 14px auto;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid white;
+  max-width: 100%;
+  width: 70%; /* default for mobile */
 }
+
+/* Desktop view adjustments */
+@media (min-width: 768px) {
+  .card-box {
+    width: 600px; /* or use max-width: 600px for flexibility */
+  }
+}
+
 .view{
   width: 70%;
 }
@@ -585,7 +595,8 @@
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, Opera */
-}@media (min-width: 768px) {
+}
+@media (min-width: 768px) {
   .home-view {
     flex: 1;
     margin-right: 10px;
@@ -599,3 +610,219 @@
 }
 
 
+@media (min-width: 768px) {
+  .appointment-card {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 900px; /* adjust as needed */
+  }
+}@media (min-width: 768px) {
+  .dashboard-top-wrapper {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.stats-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.mini-card {
+  margin-bottom: -2px; /* closes up any remaining space */
+}
+/* For desktop view */
+@media (min-width: 768px) {
+  .stats-row {
+    flex-direction: row;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  .mini-card {
+    width: 280px;
+  }
+}
+.section-heading {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  text-align: left; /* mobile view */
+  margin-left: 20px;
+  
+}
+
+@media (min-width: 768px) {
+  .section-heading {
+    text-align: left; /* desktop view */
+    margin-left: -100px; /* optional for nice alignment */
+    /* optional for nice alignment */
+  }
+}
+@media (min-width: 768px) {
+  .appointment-title {
+    /* text-align: left;  */
+    /* desktop view */
+    margin-left: 150px; /* optional for nice alignment */
+    /* optional for nice alignment */
+  }
+}
+
+
+
+/* Hide filter toggle and menu on mobile */
+.desktop-filter-toggle,
+.top-bar-desktop {
+  display: none;
+}
+
+/* 📱 Toggle Icon for Desktop */
+@media (min-width: 768px) {
+  .desktop-filter-toggle {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 22px;
+    color: #555;
+    background: #fff;
+    padding: 10px 12px;
+    border-radius: 50%;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    cursor: pointer;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .desktop-filter-toggle:hover {
+    transform: scale(1.05);
+  }
+
+  /* 🎯 Slide-down Filter Menu */
+  .top-bar-desktop {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 64px;
+    left: 20px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    padding: 10px 0;
+    min-width: 160px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 99;
+  }
+
+  .top-bar-desktop.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .status-option {
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .status-option:hover {
+    background: #f7f9fb;
+  }
+
+  .status-dot {
+    font-size: 10px;
+  }
+
+  .status-dot.pending {
+    color: #e67e22;
+  }
+
+  .status-dot.completed {
+    color: #2ecc71;
+  }
+
+  .status-dot.rejected {
+    color: #e74c3c;
+  }
+
+  .status-dot.inprogress {
+    color: #3498db;
+  }
+}
+
+/* 🖥️ Left-Side Vertical Navbar for Desktop */
+@media (min-width: 768px) {
+  .vertical-filter-desktop {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    background: white;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 10px 6px;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.1);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 160px;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease;
+  }
+
+  .status-option-vertical {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    gap: 10px;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .status-option-vertical:hover {
+    background-color: #e3e9ff;
+    transform: translateX(6px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .status-option-vertical.active {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+
+  .status-option-vertical .status-dot {
+    font-size: 10px;
+  }
+
+  .status-dot.pending {
+    color: #e67e22;
+  }
+
+  .status-dot.completed {
+    color: #2ecc71;
+  }
+
+  .status-dot.rejected {
+    color: #e74c3c;
+  }
+
+  .status-dot.inprogress {
+    color: #3498db;
+  }
+  
+}

@@ -36,6 +36,9 @@ export class DashboardComponent implements OnInit {
   totalUsers: number = 0;
   totalIssues: number = 0;
 
+  // NEW: controls desktop filter menu open/close state
+  isFilterOpen: boolean = false;
+
   constructor(private http: HttpClient, private router: Router) {}
 
   statusTabs = [
@@ -44,29 +47,34 @@ export class DashboardComponent implements OnInit {
     { key: 'COMPLETED', label: 'Completed', icon: 'fa-solid fa-circle-check' },
     { key: 'REJECTED', label: 'Rejected', icon: 'fa-solid fa-circle-xmark' }
   ];
- 
 
- ngOnInit() {
-   this.startPlusMessageLoop();
-  this.fetchTotalUsers();
-  this.fetchTotalIssues();
-  const storedUser = sessionStorage.getItem('helpdeskUser');
-  if (storedUser) {
-    this.user = JSON.parse(storedUser);
-    if (this.currentView === 'ISSUES') {
-  this.fetchIssues(); // only fetch one status
-} else {
-  this.fetchAllIssuesForHome(); // fetch all statuses
-}
+  ngOnInit() {
+    this.checkScreenSize();
+  window.addEventListener('resize', this.checkScreenSize.bind(this));
+    this.startPlusMessageLoop();
+    this.fetchTotalUsers();
+    this.fetchTotalIssues();
 
-    this.fetchTodayStats();
+    const storedUser = sessionStorage.getItem('helpdeskUser');
+    if (storedUser) {
+      this.user = JSON.parse(storedUser);
+      if (this.currentView === 'ISSUES') {
+        this.fetchIssues();
+      } else {
+        this.fetchAllIssuesForHome();
+      }
 
-    // ⏱ Start polling
-    setInterval(() => {
-      this.fetchTotalIssues();
       this.fetchTodayStats();
-    }, 1000);
+
+      // Start polling every 1 second
+      setInterval(() => {
+        this.fetchTotalIssues();
+        this.fetchTodayStats();
+      }, 1000);
+    }
   }
+  checkScreenSize() {
+  this.isMobileView = window.innerWidth < 768;
 }
 
   fetchIssues() {
@@ -76,6 +84,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         this.issues = res;
         console.log("Issues fetched:", this.issues);
+        
       },
       error: (err) => {
         console.error("Error fetching issues:", err);
@@ -89,9 +98,18 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // UPDATED: closes filter menu after tab click
   onTabClick(tabKey: string) {
     this.activeTab = tabKey;
     this.fetchIssues();
+
+    // Close desktop filter menu after selection
+    this.isFilterOpen = false;
+  }
+
+  // NEW: toggles desktop filter menu open/close
+  toggleFilterMenu() {
+    this.isFilterOpen = !this.isFilterOpen;
   }
 
   getStatusColor = getStatusColor;
@@ -120,7 +138,7 @@ export class DashboardComponent implements OnInit {
     if (cat.includes('edu mail problem')) return 'fa-solid fa-envelope-circle-check';
     if (cat.includes('payment problem')) return 'fa-solid fa-bangladeshi-taka-sign';
     if (cat.includes('result problem')) return 'fa-solid fa-graduation-cap';
-    if (cat.includes('quota problem')) return 'fa-solid fa-certificate';
+    if (cat.includes('quota problem')) return 'bi bi-shield-check text-success fs-4' ;
     if (cat.includes('upload')) return 'fa-solid fa-upload';
     if (cat.includes('profile')) return 'fa-solid fa-user-gear';
     if (cat.includes('result')) return 'fa-solid fa-chart-line';
@@ -169,20 +187,17 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-todayIssueCount: number = 0;
+  todayIssueCount: number = 0;
   userIssueRank: number = -1;
   userRankString: string = '';
 
-
-fetchTodayStats() {
+  fetchTodayStats() {
     if (!this.user || !this.user.id) {
       return;
     }
 
     this.http.get<any>(`http://localhost:8085/api/issues/issues/today/user-rank/${this.user.id}`).subscribe({
       next: (res) => {
-        
-        console.log("🔥 today stats", res); //
         this.todayIssueCount = res.totalTodayIssues;
         this.userIssueRank = res.userRank;
 
@@ -196,43 +211,40 @@ fetchTodayStats() {
         console.error("Failed to fetch today's issue stats", err);
       }
     });
-}
-fetchAllIssuesForHome() {
-  this.loading = true;
-  const statuses = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
-  let combinedIssues: any[] = [];
-  let completedCalls = 0;
+  }
 
-  statuses.forEach(status => {
-    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
-    this.http.get<any[]>(url).subscribe({
-      next: (res) => {
-        combinedIssues = combinedIssues.concat(res.map(issue => ({ ...issue, status })));
-      },
-      error: (err) => {
-        console.error(`Error fetching ${status} issues`, err);
-      },
-      complete: () => {
-        completedCalls++;
-        if (completedCalls === statuses.length) {
-          this.issues = combinedIssues;
-          this.loading = false;
+  fetchAllIssuesForHome() {
+    this.loading = true;
+    const statuses = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
+    let combinedIssues: any[] = [];
+    let completedCalls = 0;
+
+    statuses.forEach(status => {
+      const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
+      this.http.get<any[]>(url).subscribe({
+        next: (res) => {
+          combinedIssues = combinedIssues.concat(res.map(issue => ({ ...issue, status })));
+        },
+        error: (err) => {
+          console.error(`Error fetching ${status} issues`, err);
+        },
+        complete: () => {
+          completedCalls++;
+          if (completedCalls === statuses.length) {
+            this.issues = combinedIssues;
+            this.loading = false;
+          }
         }
-      }
+      });
     });
-  });
-}
+  }
 
-
-
-getOrdinalSuffix(n: number): string {
-  const j = n % 10, k = n % 100;
-  if (j === 1 && k !== 11) return `${n}st`;
-  if (j === 2 && k !== 12) return `${n}nd`;
-  if (j === 3 && k !== 13) return `${n}rd`;
-  return `${n}th`;
-}
-
-
-
+  getOrdinalSuffix(n: number): string {
+    const j = n % 10, k = n % 100;
+    if (j === 1 && k !== 11) return `${n}st`;
+    if (j === 2 && k !== 12) return `${n}nd`;
+    if (j === 3 && k !== 13) return `${n}rd`;
+    return `${n}th`;
+  }
+  isMobileView: boolean = false;
 }
