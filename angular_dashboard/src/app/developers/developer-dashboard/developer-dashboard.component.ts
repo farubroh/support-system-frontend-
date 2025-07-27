@@ -1,13 +1,6 @@
-import {
-  Component,
-  OnInit
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  transferArrayItem
-} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ColumnComponent } from '../column/column.component';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -16,12 +9,23 @@ import { DeveloperIssueModalComponent } from '../developer-issue-modal/developer
 @Component({
   selector: 'app-developer-dashboard',
   standalone: true,
-  imports: [CommonModule, DragDropModule, ColumnComponent,DeveloperIssueModalComponent],
+  imports: [CommonModule, DragDropModule, ColumnComponent, DeveloperIssueModalComponent],
   templateUrl: './developer-dashboard.component.html',
   styleUrls: ['./developer-dashboard.component.css'],
 })
 export class DeveloperDashboardComponent implements OnInit {
   user: any;
+  assignedIssues: any[] = [];
+  developers: { name: string }[] = []; // Array to hold developers
+
+  developerImages: { [key: string]: string } = {
+    'Rafi': '/New_male.png',  // Example developer image paths
+    'Susmoy': '/black.png',
+    'Hasan': '/man.png',
+    // Add other developers here...
+  };
+
+
   issuesByStatus: { [key: string]: any[] } = {
     PENDING: [],
     INPROGRESS: [],
@@ -35,14 +39,54 @@ export class DeveloperDashboardComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    const storedUser = sessionStorage.getItem('helpdeskUser');
-    if (storedUser) {
-      this.user = JSON.parse(storedUser);
-      this.fetchIssues();
-    } else {
-      console.error('No user found in sessionStorage');
+  const storedUser = sessionStorage.getItem('helpdeskUser');
+  if (storedUser) {
+    this.user = JSON.parse(storedUser);
+    console.log('Logged in user:', this.user); // Log the user object
+    this.fetchDevelopers();
+    this.fetchIssues();
+    this.getAssignedIssues();
+  } else {
+    console.error('No user found in sessionStorage');
+  }
+}
+getCategoryColor(category: string): string {
+    switch ((category || '').toLowerCase()) {
+      case 'edu mail problem':
+        return '#f48fb1';
+      case 'payment problem':
+        return '#ffb74d';
+      case 'quota problem':
+        return '#81c784';
+      case 'result problem':
+        return '#64b5f6';
+      case 'login issue':
+        return '#9575cd';
+      default:
+        return '#cfd8dc';
     }
   }
+
+    getDeveloperImage(developerName: string): string {
+    return this.developerImages[developerName] || '/New_male.png';  // Default image if no match found
+  }
+  
+ fetchDevelopers() {
+  // Simulate the fetch from an API
+  const url = 'http://localhost:8085/api/developers'; // Assuming the backend has a /developers endpoint
+
+  this.http.get<any[]>(url).subscribe({
+    next: (res) => {
+      // Assuming the response is an array of developer objects with a 'name' property
+      
+      this.developers = res.map((developer: any) => ({ name: developer.username }));
+     
+      
+    },
+    error: (err) => console.error('Failed to load developers:', err),
+  });
+}
+
 
   fetchIssues() {
     const developerId = this.user.id;
@@ -50,6 +94,8 @@ export class DeveloperDashboardComponent implements OnInit {
 
     this.http.get<any>(url).subscribe({
       next: (res) => {
+        
+        console.log('API Response:', res);
         this.issuesByStatus['PENDING'] = res.INPROGRESS.map((d: any) => ({ ...d.issue }));
         this.issuesByStatus['INPROGRESS'] = [];
         this.issuesByStatus['COMPLETED'] = res.COMPLETED.map((d: any) => ({ ...d.issue }));
@@ -58,77 +104,69 @@ export class DeveloperDashboardComponent implements OnInit {
       error: (err) => console.error('Failed to load developer issues:', err),
     });
   }
+   getAssignedIssues() {
+  const url = 'http://localhost:8085/api/issues/all_admin'; // Assuming this endpoint gives all issues
 
-//   handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
-//   const prevContainer = event.previousContainer;
-//   const currContainer = event.container;
+  this.http.get<any[]>(url).subscribe({
+    next: (res) => {
+      // Filter out issues that are unassigned (those without a developerName)
+      this.assignedIssues = res.filter(issue => issue.developerName);
 
-//   if (prevContainer === currContainer) {
-//     moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
-//   } else {
-//     const movedIssue = prevContainer.data[event.previousIndex];
-
-//     // ✅ Move issue correctly between arrays
-//     transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
-
-//     // ✅ Update backend
-//     if (movedIssue?.issueId) {
-//       this.updateIssueStatus(movedIssue.issueId, targetStatus);
-//     }
-//   }
-// }
-handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
-  const prevContainer = event.previousContainer;
-  const currContainer = event.container;
-
-  const movedIssue = prevContainer.data[event.previousIndex];
-
-  // 🛑 Block illegal drag-drop to COMPLETED or REJECTED
-  if (['COMPLETED', 'REJECTED'].includes(targetStatus)) {
-    // Instead of drag-drop, open the modal
-    this.selectedIssue = movedIssue;
-    return;
-  }
-
-  if (prevContainer === currContainer) {
-    moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
-  } else {
-    transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
-    if (movedIssue?.issueId) {
-      this.updateIssueStatus(movedIssue.issueId, targetStatus);
-    }
-  }
+      console.log('Assigned Issues:', this.assignedIssues);  // Log assigned issues for debugging
+    },
+    error: (err) => console.error('Failed to load all issues:', err),
+  });
 }
 
 
+  handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
+    const prevContainer = event.previousContainer;
+    const currContainer = event.container;
+
+    const movedIssue = prevContainer.data[event.previousIndex];
+
+    // 🛑 Block illegal drag-drop to COMPLETED or REJECTED
+    if (['COMPLETED', 'REJECTED'].includes(targetStatus)) {
+      // Instead of drag-drop, open the modal
+      this.selectedIssue = movedIssue;
+      return;
+    }
+
+    if (prevContainer === currContainer) {
+      moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
+      if (movedIssue?.issueId) {
+        this.updateIssueStatus(movedIssue.issueId, targetStatus);
+      }
+    }
+  }
 
   updateIssueStatus(issueId: number, newStatus: string) {
     const payload = {
       toStatus: newStatus,
       workedBy: this.user.id,
       completedAnalysis: 'Completed by developer',
-      rejectionReason: 'Rejected by developer'
+      rejectionReason: 'Rejected by developer',
     };
 
-    this.http
-      .put(`http://localhost:8085/api/issues/${issueId}/status`, payload)
-      .subscribe({
-        next: () => {
-          console.log('✅ Status updated to', newStatus);
-        },
-        error: (err) => console.error('❌ Failed to update status:', err),
-      });
+    this.http.put(`http://localhost:8085/api/issues/${issueId}/status`, payload).subscribe({
+      next: () => {
+        console.log('✅ Status updated to', newStatus);
+      },
+      error: (err) => console.error('❌ Failed to update status:', err),
+    });
   }
+
   openIssueModal(issue: any) {
-  this.selectedIssue = issue;
-}
+    this.selectedIssue = issue;
+  }
 
-closeModal() {
-  this.selectedIssue = null;
-}
+  closeModal() {
+    this.selectedIssue = null;
+  }
 
-refreshAfterAction() {
-  this.fetchIssues();
-}
-
+  refreshAfterAction() {
+    this.fetchIssues();
+  }
 }
