@@ -104,19 +104,30 @@ getCategoryColor(category: string): string {
       error: (err) => console.error('Failed to load developer issues:', err),
     });
   }
-   getAssignedIssues() {
-  const url = 'http://localhost:8085/api/issues/all_admin'; // Assuming this endpoint gives all issues
+//    getAssignedIssues() {
+//   const url = 'http://localhost:8085/api/issues/all_admin'; // Assuming this endpoint gives all issues
 
+//   this.http.get<any[]>(url).subscribe({
+//     next: (res) => {
+//       // Filter out issues that are unassigned (those without a developerName)
+//       this.assignedIssues = res.filter(issue => issue.developerName);
+
+//       console.log('Assigned Issues:', this.assignedIssues);  // Log assigned issues for debugging
+//     },
+//     error: (err) => console.error('Failed to load all issues:', err),
+//   });
+// }
+getAssignedIssues() {
+  const url = 'http://localhost:8085/api/issues/all_admin';
   this.http.get<any[]>(url).subscribe({
     next: (res) => {
-      // Filter out issues that are unassigned (those without a developerName)
       this.assignedIssues = res.filter(issue => issue.developerName);
-
-      console.log('Assigned Issues:', this.assignedIssues);  // Log assigned issues for debugging
+      this.filteredAssignedIssues = [...this.assignedIssues]; // Show all by default
     },
     error: (err) => console.error('Failed to load all issues:', err),
   });
 }
+
 
 
   handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
@@ -169,4 +180,43 @@ getCategoryColor(category: string): string {
   refreshAfterAction() {
     this.fetchIssues();
   }
+  selectedDeveloper: string | null = null;
+filteredAssignedIssues: any[] = [];
+
+
+
+
+filteredKanbanIssues: { [key: string]: any[] } = {
+  PENDING: [],
+  INPROGRESS: [],
+  COMPLETED: [],
+  REJECTED: []
+};
+isKanbanView: boolean = false;
+
+filterByDeveloper(name: string) {
+  if (this.selectedDeveloper === name) {
+    // Reset back to all issues in table view
+    this.selectedDeveloper = null;
+    this.isKanbanView = false;
+  } else {
+    this.selectedDeveloper = name;
+    this.isKanbanView = true;
+
+    // Reset & group issues by status for the clicked developer
+    const devIssues = this.assignedIssues.filter(
+      issue => issue.developerName === name
+    );
+
+    // Group them by status
+    this.filteredKanbanIssues = {
+      PENDING: devIssues.filter(i => i.status === 'PENDING'),
+      INPROGRESS: devIssues.filter(i => i.status === 'INPROGRESS'),
+      COMPLETED: devIssues.filter(i => i.status === 'COMPLETED'),
+      REJECTED: devIssues.filter(i => i.status === 'REJECTED'),
+    };
+  }
+}
+
+
 }

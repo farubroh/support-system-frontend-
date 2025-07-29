@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { getStatusColor } from '../utils/get-status-color';
 import { IssueViewModalUserComponent } from "../issue-view-modal-user/issue-view-modal-user.component";
 import { trigger, transition, style, animate } from '@angular/animations';
+import { CreateIssueComponent } from "../create-issue/create-issue.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, IssueViewModalUserComponent],
+  imports: [CommonModule, RouterModule, IssueViewModalUserComponent, CreateIssueComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.css'],
   animations: [
@@ -54,10 +55,12 @@ export class DashboardComponent implements OnInit {
     this.startPlusMessageLoop();
     this.fetchTotalUsers();
     this.fetchTotalIssues();
+    this.fetchAllIssuesForKPI();
 
     const storedUser = sessionStorage.getItem('helpdeskUser');
     if (storedUser) {
       this.user = JSON.parse(storedUser);
+      this.fetchNoteData();
       if (this.currentView === 'ISSUES') {
         this.fetchIssues();
       } else {
@@ -83,7 +86,7 @@ export class DashboardComponent implements OnInit {
     this.http.get<any[]>(url).subscribe({
       next: (res) => {
         this.issues = res;
-        console.log("Issues fetched:", this.issues);
+        // console.log("Issues fetched:", this.issues);
         
       },
       error: (err) => {
@@ -179,6 +182,8 @@ export class DashboardComponent implements OnInit {
   fetchTotalIssues() {
     this.http.get<any>('http://localhost:8085/api/issues/issues/total').subscribe({
       next: (data) => {
+        
+        
         this.totalIssues = data.count;
       },
       error: (err) => {
@@ -186,6 +191,33 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+  
+  totalPendingIssuesUser: number = 0;
+  totalIssuesDate: string = ''; // For displaying the date when total issues are fetched
+  latestIssueDate: string = ''; // For displaying the date of latest issue for the user
+
+  fetchPendingIssuesForUser() {
+  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=PENDING`; // URL to get pending issues for the logged-in user
+  this.http.get<any[]>(url).subscribe({
+    next: (res) => {
+      // Set the total number of pending issues for the user
+      // console.log("Pending issues for user:", res);
+      this.totalPendingIssuesUser = res.length;
+
+      // Check if there are any pending issues, then set the date of the latest one
+      if (res.length > 0) {
+        const latestIssue = res[0]; // Assuming the first issue in the list is the latest one
+        this.latestIssueDate = new Date(latestIssue.createdDate).toLocaleDateString(); // Adjust according to your data structure
+      } else {
+        this.latestIssueDate = 'No Pending Issues';
+      }
+    },
+    error: (err) => {
+      console.error("Error fetching pending issues for user:", err);
+    }
+  });
+}
+
 
   todayIssueCount: number = 0;
   userIssueRank: number = -1;
@@ -223,6 +255,8 @@ export class DashboardComponent implements OnInit {
       const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
       this.http.get<any[]>(url).subscribe({
         next: (res) => {
+          // console.log(`Fetched ${status} issues:`, res);
+          if(res)
           combinedIssues = combinedIssues.concat(res.map(issue => ({ ...issue, status })));
         },
         error: (err) => {
@@ -247,4 +281,86 @@ export class DashboardComponent implements OnInit {
     return `${n}th`;
   }
   isMobileView: boolean = false;
+
+  totalPendingIssues: number = 0;
+latestUserPendingIssueId: number | null = null;
+currentDate: string = new Date().toDateString();
+
+
+  fetchNoteData() {
+  if (!this.user || !this.user.id) return;
+
+  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=PENDING`;
+  this.http.get<any[]>(url).subscribe({
+    next: (issues) => {
+      this.totalPendingIssues = issues.length;
+
+      if (issues.length > 0) {
+        const sorted = issues.sort((a, b) => b.id - a.id); // Descending by ID
+        this.latestUserPendingIssueId = sorted[0].id;
+      } else {
+        this.latestUserPendingIssueId = null;
+      }
+    },
+    error: (err) => {
+      console.error("Error fetching user's pending issues:", err);
+    }
+  });
+}
+
+  getCategoryColor(category: string): string {
+    switch ((category || '').toLowerCase()) {
+      case 'edu mail problem':
+        return '#f48fb1';
+      case 'payment problem':
+        return '#ffb74d';
+      case 'quota problem':
+        return '#81c784';
+      case 'result problem':
+        return '#64b5f6';
+      case 'login issue':
+        return '#9575cd';
+      default:
+        return '#cfd8dc';
+    }
+  }
+  allIssues: any[] = [];
+totalPendingIssuesAllUsers: number = 0;
+
+createIssue() {
+  this.showCreateModal = true; // Show modal instead of navigating
+}
+
+
+closeCreateModal() {
+  this.showCreateModal = false;
+}
+
+
+fetchAllIssuesForKPI() {
+  console.log('API call triggered');
+  this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
+    (res) => {
+      console.log('Raw response:', res);
+
+      this.allIssues = Array.isArray(res) ? res : [];
+
+      // Filter all issues with status 'PENDING' for all users
+      const pendingIssues = this.allIssues.filter(
+        issue => issue.status?.toUpperCase() === 'PENDING'
+      );
+
+      // Update the total pending issues for all users
+      this.totalPendingIssuesAllUsers = pendingIssues.length;
+
+      console.log('Total Pending Issues for All Users:', this.totalPendingIssuesAllUsers);
+    },
+    (err) => {
+      console.error('Failed to fetch all issues:', err);
+      this.allIssues = [];
+    }
+  );
+}
+
+
 }

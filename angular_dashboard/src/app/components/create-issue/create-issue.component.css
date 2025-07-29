@@ -1,219 +1,456 @@
+/* General Wrapper */
 .ticket-wrapper {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 28px;
-  background: linear-gradient(135deg, #ffffff, #f7f9fc);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
-  font-family: 'Segoe UI', sans-serif;
-  box-sizing: border-box;
+  max-width: 480px;
+  margin: 50px auto;
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
   transition: all 0.3s ease-in-out;
+  animation: slideInUp 0.6s ease-in-out;
 }
 
 /* Top Bar */
 .top-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 32px;
 }
 .back-button {
   background: transparent;
   border: none;
-  font-size: 22px;
+  font-size: 24px;
   cursor: pointer;
-  color: #0077cc;
-  transition: transform 0.2s;
+  color: #2563eb;
+  transition: transform 0.25s ease;
 }
 .back-button:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 .top-bar h2 {
-  flex-grow: 1;
-  font-size: 22px;
-  font-weight: 600;
-  color: #222;
-  margin: 0;
+  flex: 1;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-/* Preview Section */
+/* Preview */
 .preview-box {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px;
-  background: #eaf3ff;
-  border-radius: 12px;
-  margin-bottom: 24px;
+  gap: 16px;
+  padding: 18px;
+  background: #ecf3ff;
+  border-radius: 16px;
+  margin-bottom: 28px;
+  animation: fadeIn 0.7s ease;
 }
 .preview-image {
-  font-size: 50px;
-  color: #0066ff;
-  animation: pulse 2s infinite ease-in-out;
+  font-size: 52px;
+  color: #3b82f6;
+  animation: pulse 2.4s infinite;
+}
+.preview-info strong {
+  font-size: 16px;
+  color: #111827;
 }
 .preview-info p {
-  margin: 0;
-  color: #444;
   font-size: 14px;
+  color: #6b7280;
+  margin: 2px 0 0;
 }
 
 /* Tabs */
 .tab-box {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 .tab-box button {
   flex: 1;
-  padding: 10px;
+  padding: 12px 0;
   font-weight: 600;
-  background: none;
+  font-size: 14px;
   border: none;
+  border-radius: 14px;
+  background: #f3f4f6;
+  color: #475569;
   cursor: pointer;
-  font-size: 15px;
-  transition: color 0.3s, border-bottom 0.3s;
+  transition: all 0.3s ease;
 }
-.active-tab {
-  color: #0056d2;
-  border-bottom: 2px solid #0056d2;
+.tab-box .active-tab {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
 }
-.inactive-tab {
-  color: #aaa;
+.tab-box button:hover:not(.active-tab) {
+  background: #e0e7ff;
 }
 
-/* Form Groups */
+/* Form Styles */
 .ticket-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+}
+
+/* Floating Label Group */
+.form-group {
+  position: relative;
+  margin-top: 10px;
 }
 .form-group label {
-  font-weight: 600;
-  margin-bottom: 8px;
-  display: block;
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  background: white;
+  padding: 0 6px;
   font-size: 14px;
-  color: #333;
+  color: #6b7280;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  z-index: 1;
 }
-input[type='text'],
+input:not(:placeholder-shown) + label,
+input:focus + label,
+textarea:not(:placeholder-shown) + label,
+textarea:focus + label,
+select:focus + label {
+  top: -10px;
+  left: 10px;
+  font-size: 12px;
+  color: #2563eb;
+  background: white;
+}
+
+input[type="text"],
 textarea,
 select {
   width: 100%;
-  padding: 12px 14px;
-  font-size: 14px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  background: #fff;
-  transition: border 0.3s ease;
+  padding: 16px 14px;
+  font-size: 15px;
+  border-radius: 14px;
+  border: 1.5px solid #d1d5db;
+  background: white;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #0066ff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
   outline: none;
 }
 textarea {
+  min-height: 100px;
   resize: vertical;
 }
 .char-counter {
   font-size: 12px;
-  color: #888;
+  color: #6b7280;
   text-align: right;
   margin-top: 4px;
 }
 
-/* File Preview */
+/* File Upload Preview */
 .file-preview {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   margin-top: 10px;
 }
 .file-thumb {
-  background: #f0f4ff;
-  border-radius: 8px;
-  padding: 8px 10px;
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  animation: fadeIn 0.3s ease-in;
 }
 .file-thumb img {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
   object-fit: cover;
 }
 .file-thumb button {
-  border: none;
   background: none;
-  color: #cc0000;
-  font-size: 18px;
+  border: none;
+  font-size: 16px;
+  color: #ef4444;
   cursor: pointer;
 }
 
 /* Upload Progress */
 .progress-bar {
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 5px;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 6px;
   overflow: hidden;
-  margin-top: 10px;
 }
 .progress {
   height: 100%;
-  background: linear-gradient(to right, #00b4db, #0056d2);
-  transition: width 0.4s ease-in-out;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  transition: width 0.4s ease;
 }
 .upload-summary {
   font-size: 13px;
-  color: #333;
-  margin-top: 8px;
+  color: #444;
+  margin-top: 6px;
 }
 
-/* Form Actions */
+/* Actions */
 .form-actions {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 10px;
 }
 .cancel-btn,
 .submit-btn {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   font-weight: 600;
   font-size: 15px;
-  border-radius: 10px;
   border: none;
+  border-radius: 14px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: transform 0.2s ease, background 0.3s ease;
 }
 .cancel-btn {
-  background: #f3f3f3;
-  color: #555;
+  background: #f3f4f6;
+  color: #374151;
 }
 .cancel-btn:hover {
-  background: #e0e0e0;
+  background: #e5e7eb;
+  transform: translateY(-1px);
 }
 .submit-btn {
-  background: #0056d2;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 .submit-btn:hover {
-  background: #0041a3;
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
 }
 
-/* Pulse Animation */
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 @keyframes pulse {
   0% {
     transform: scale(1);
     opacity: 0.9;
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.08);
     opacity: 1;
   }
   100% {
     transform: scale(1);
     opacity: 0.9;
+  }
+}
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+/* Enhanced wrapper */
+.ticket-wrapper.enhanced {
+  animation: popIn 0.5s ease-out;
+  border: 1px solid #e2e8f0;
+}
+
+/* Floating label effect */
+.float-label {
+  position: relative;
+}
+.float-label input,
+.float-label textarea,
+.float-label select {
+  background: transparent;
+  border: 2px solid #d1d5db;
+  transition: all 0.3s ease;
+}
+.float-label input:focus,
+.float-label textarea:focus,
+.float-label select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.float-label label {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  background: white;
+  padding: 0 6px;
+  color: #6b7280;
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.2s ease all;
+}
+.float-label input:focus + label,
+.float-label input:not(:placeholder-shown) + label,
+.float-label textarea:focus + label,
+.float-label textarea:not(:placeholder-shown) + label,
+.float-label select:focus + label,
+.float-label select:valid + label {
+  top: -10px;
+  font-size: 12px;
+  color: #2563eb;
+}
+
+/* Input hover effects */
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: #93c5fd;
+}
+
+/* Smooth pulse animation for image icon */
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* Enhanced Button Hover Animation */
+.submit-btn:hover, .cancel-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  transform: scale(1.05); /* Scale up on hover */
+  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4); /* Larger shadow for hover effect */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Floating Animation for Labels */
+@keyframes floatEffect {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-group label {
+  animation: floatEffect 0.4s ease-out;
+}
+
+/* Icon Hover Effect */
+.preview-image:hover {
+  transform: rotate(360deg);
+  animation: pulse 1.8s ease-in-out;
+}
+
+/* File Upload Progress - Modern Style */
+.progress-bar {
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 6px;
+  transition: width 0.4s ease-in-out, background-color 0.5s ease-in-out;
+}
+
+/* Sliding Animation for Form Elements */
+.ticket-form {
+  animation: slideInUp 0.8s ease-out;
+}
+
+/* Enhanced Focus for Input Fields */
+input:focus, textarea:focus, select:focus {
+  border: 1.5px solid #1d4ed8; /* Focus with a bold color */
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3); /* Add glowing effect */
+  transition: all 0.3s ease-in-out;
+}
+
+/* Gradient background for File Upload */
+.file-thumb {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Modern Input Placeholder Animation */
+input::placeholder, textarea::placeholder {
+  color: #6b7280;
+  opacity: 0.6;
+  transition: opacity 0.3s ease-in-out;
+}
+
+input:focus::placeholder, textarea:focus::placeholder {
+  opacity: 0; /* Placeholder disappears when input is focused */
+}
+
+/* Hover Effects for Form Fields */
+input[type="text"]:hover,
+textarea:hover,
+select:hover {
+  border-color: #1d4ed8; /* Change border color on hover */
+  box-shadow: 0 0 4px rgba(37, 99, 235, 0.25); /* Subtle shadow */
+}
+
+/* Smooth Loading Animation for Form Wrapper */
+@keyframes slideInUp {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Enhanced Form Wrapper with Rounded Corners */
+.ticket-wrapper {
+  border-radius: 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  animation: popIn 0.6s ease-out;
+}
+
+/* Pop-In Animation for Form */
+@keyframes popIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }

@@ -1,143 +1,81 @@
-<div class="responsive-container">
-  <div class="appointment-wrapper">
-
-    <!-- ✅ Top Bar -->
-    <div class="top-bar">
-      <div class="left">
-        <i class="bi bi-calendar3"></i>
-        <span *ngIf="currentView === 'ISSUES'">{{ activeTab.replace('_', ' ') }} Issues</span>
-        <span *ngIf="currentView === 'HOME'">Dashboard</span>
-      </div>
-
-      <!-- 🧭 Desktop Filter Toggle Icon (optional if you plan to toggle) -->
-      <div class="desktop-filter-toggle" (click)="toggleFilterMenu()" title="Toggle filter menu">
-        <i class="fas fa-filter"></i>
+<div class="dashboard-wrapper">
+  <!-- Left Sidebar: Tasks Filters + Notes -->
+  <aside class="sidebar">
+    <div class="profile-section">
+      <div class="profile-icon"><img src="/Male.png" alt=""></div>
+      <div class="profile-info">
+        <h2 class="welcome-text">Welcome, {{ user?.username || 'User' }}!</h2>
       </div>
     </div>
 
-    <!-- 🎯 Desktop Vertical Filter Menu (left-side navbar, DESKTOP only) -->
-    <!-- 🎯 Desktop Left Vertical Filter (only show on desktop) -->
-<nav class="vertical-filter-desktop" *ngIf="!isMobileView && currentView === 'ISSUES'">
-  <div
-    class="status-option-vertical"
-    *ngFor="let status of statusTabs"
-    (click)="onTabClick(status.key)"
-    [class.active]="activeTab === status.key"
-    role="button"
-    tabindex="0"
-    (keydown.enter)="onTabClick(status.key)"
-    attr.aria-label="Filter by {{ status.label }}"
-  >
-    <i class="fas fa-circle status-dot" [ngClass]="status.key.toLowerCase()"></i>
-    <span>{{ status.label }}</span>
-  </div>
-</nav>
+    <div class="task-section">
+      <div class="task-tabs">
+        <button *ngFor="let status of statusTabs" 
+                (click)="onTabClick(status.key)"
+                [class.active]="activeTab === status.key">
+          {{ status.label }}
+        </button>
+      </div>
 
+      <!-- ⬆ Create Issue Button -->
+      <div class="create-issue-button-wrapper">
+        <button class="create-issue-button-modern" (click)="createIssue()">
+          <span class="icon">➕</span>
+          <span class="text">Create Issue</span>
+        </button>
+      </div>
 
-    <!-- 🗂️ Mobile Top Status Tabs (only show on mobile) -->
-<div class="day-tabs" *ngIf="isMobileView && currentView === 'ISSUES' && !isFilterOpen">
-  <div *ngFor="let tab of statusTabs"
-       class="day-tab"
-       [ngClass]="{ 'selected': activeTab === tab.key }"
-       (click)="onTabClick(tab.key)">
-    <i [class]="tab.icon"></i><br />
-    <span>{{ tab.label }}</span>
-  </div>
-</div>
+      <!-- ⬇ Notes Section -->
+      <div class="notes-list-modern">
+        <div class="note-card-modern green" *ngIf="totalPendingIssuesAllUsers >= 0">
+          <h4>Total Pending Issues</h4>
+          <p class="note-number">{{ totalPendingIssuesAllUsers }}</p>
+          <p class="note-description">Across all users</p>
+          <span class="note-date">{{ currentDate }}</span>
+        </div>
 
-
-    <!-- 🔄 Loading Spinner -->
-    <div *ngIf="loading" class="fancy-loader-wrapper">
-      <div class="fancy-spinner"></div>
-      <p class="loading-text">Loading {{ activeTab.replace('_', ' ') }} Issues...</p>
+        <div class="note-card-modern purple" *ngIf="latestUserPendingIssueId">
+          <h4>Your Latest Pending</h4>
+          <p class="note-number">{{ latestUserPendingIssueId }}</p>
+          <p class="note-description">Your latest pending issue ID</p>
+          <span class="note-date">{{ currentDate }}</span>
+        </div>
+      </div>
     </div>
+  </aside>
 
-    <!-- 📊 HOME View -->
-    <div class="appointment-section" *ngIf="!loading && currentView === 'HOME'" [@fadeInOut] style="display: flex; flex-direction: column; height: 100%;">
-      <!-- Header & Stats -->
-      <div class="dashboard-top-wrapper" style="flex-shrink: 0;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-          <div style="display: flex; align-items: center;">
-            <img src="/Male.png" alt="Avatar" style="width: 44px; height: 44px; border-radius: 50%; margin-right: 12px;">
-            <div>
-              <h4 style="margin: 0;">Hey! {{ user.username }} <i class="fa-solid fa-person-swimming"></i></h4>
-              <p style="margin: 0; font-size: 13px; color: gray;">{{ user.email }}</p>
+  <!-- Center Section: Only Issues Now -->
+  <section class="center-section">
+    <div class="task-list-section">
+      <div class="task-list">
+        <div class="task-item" *ngFor="let issue of issues">
+          <div class="task-main">
+            <div class="task-left">
+              <div class="task-title">{{ issue.title }}</div>
+              <div class="category-badge"
+                   [ngStyle]="{ 'background-color': getCategoryColor(issue.category), color: '#fff' }">
+                {{ issue.category }}
+              </div>
+            </div>
+            <div class="task-right">
+              <div class="task-created-date">
+                <small>{{ issue.createdAt | date: 'short' }}</small>
+              </div>
+              <div class="comments-count">🗨 {{ issue.commentCount || 0 }} comments</div>
             </div>
           </div>
         </div>
-
-        <div class="stats-row">
-          <div class="card-box mini-card">
-            <h2 style="margin: 0; font-size: 18px; color: black;">Total Issues: {{ totalIssues }}</h2>
-          </div>
-
-          <div class="card-box mini-card">
-            <p *ngIf="userRankString" style="font-size: 14px; color: #3498db; margin: 0;">
-              Your issue is in {{ userRankString }} place.
-            </p>
-            <p *ngIf="!userRankString" style="font-size: 14px; color: #e74c3c; margin: 0;">
-              No ranked issue yet.
-            </p>
-          </div>
-        </div>
-
-        <h3 class="section-heading">All Issues</h3>
-      </div>
-
-      <div class="issue-scroll-area">
-        <div *ngIf="issues.length === 0" style="color: #e74c3c;">No issues found.</div>
-
-        <div *ngFor="let issue of issues" class="appointment-card" (click)="handleView(issue)">
-          <div class="category-icon">
-            <i [ngClass]="getCategoryIcon(issue.category)"></i>
-          </div>
-          <div class="details">
-            <div class="name">{{ issue.title }}</div>
-            <div class="subtitle">{{ issue.category }}</div>
-          </div>
-          <div class="status-time">
-            <span class="status" [ngClass]="getStatusClass(issue.status)">{{ issue.status }}</span>
-            <div class="time">{{ issue.createdAt | date:'shortDate' }}</div>
-          </div>
-        </div>
       </div>
     </div>
+  </section>
 
-    <!-- 📋 ISSUES View -->
-    <div class="appointment-section hide-scrollbar" *ngIf="!loading && currentView === 'ISSUES'" [@fadeInOut]>
-  <!-- <h3 class="appointment-title">{{ activeTab.replace('_', ' ') }} Issues ({{ issues.length }})</h3> -->
-  <div *ngIf="issues.length === 0" class="no_issue">No issues found.</div>
-  <div *ngFor="let issue of issues" class="appointment-card" (click)="handleView(issue)">
-    <div class="category-icon">
-      <i [ngClass]="getCategoryIcon(issue.category)"></i>
-    </div>
-    <div class="details">
-      <div class="name">{{ issue.title }}</div>
-      <div class="subtitle">{{ issue.category }}</div> <!-- Ensure it's issue.category here -->
-    </div>
-    <div class="status-time">
-      <span class="status" [ngClass]="getStatusClass(issue.status)">{{ issue.status }}</span>
-      <div class="time">{{ issue.createdAt | date:'shortDate' }}</div>
-    </div>
-  </div>
-</div>
+  <!-- Create Issue Modal Slide-In -->
+  <app-issue-form 
+    *ngIf="showCreateModal"
+    (issueCreated)="closeCreateModal()"
+    class="slide-in-form">
+  </app-issue-form>
 
-
-    <!-- ✅ Bottom Navigation -->
-    <div class="bottom-nav" *ngIf="!loading" [@fadeInOut]>
-      <i class="bi bi-house-door" [class.active]="currentView === 'HOME'" (click)="currentView = 'HOME'; fetchAllIssuesForHome()"></i>
-      <i class="bi bi-calendar2-event-fill" [class.active]="currentView === 'ISSUES'" (click)="currentView = 'ISSUES'; fetchIssues()"></i>
-      <div class="center-plus-container" (click)="navigateToCreateIssue()">
-        <i class="fa-solid fa-circle-plus plus-icon"></i>
-      </div>
-      <div class="plus-tooltip" *ngIf="showPlusMessage">Click + icon to insert your problem</div>
-      <i class="fa-solid fa-bell"></i>
-      <i class="bi bi-person-circle"></i>
-    </div>
-
-    <!-- 🔍 Issue Modal -->
-    <app-issue-view-modal-user *ngIf="selectedIssue" [issue]="selectedIssue" (close)="handleClose()">
-    </app-issue-view-modal-user>
-
-  </div>
+  <!-- Overlay background -->
+  <div *ngIf="showCreateModal" class="overlay-bg" (click)="closeCreateModal()"></div>
 </div>

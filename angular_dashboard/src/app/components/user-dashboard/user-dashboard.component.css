@@ -1,828 +1,478 @@
-/* 📱 Main Wrapper */
-.appointment-wrapper {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  max-width: 100%;
-  margin: auto;
-  border-radius: 30px;
-  padding: 20px 16px 10px;
-  background: linear-gradient(145deg, #fdfcfe, #e9f4ed, #dfeaf7, #f7e7e0);
+.dashboard-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  padding: 20px;
   font-family: 'Segoe UI', sans-serif;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+  background: #f6f6f6;
+  height: 100vh;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
 }
-
-.appointment-section {
-  flex: 1;
+.slide-in-form {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 420px;
+  max-height: 95vh;
+  z-index: 1001;
+  background-color: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+  animation: slideInUp 0.4s ease-out forwards;
   overflow-y: auto;
-  margin-top: 8px;
-  padding-right: 6px;
-   /* overflow: hidden; */
-
 }
 
-/* ✅ Top Bar - Refined */
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 6px;
-  
+@keyframes slideInUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-.top-bar .left {
+.overlay-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.create-issue-button-modern {
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
-  padding: 8px 14px;
+  gap: 10px;
+  background: rgba(0, 123, 255, 0.15); /* Light blue translucent background */
+  backdrop-filter: blur(8px); /* Adds a blurred background effect */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #007bff; /* Button text color (blue) */
+  font-weight: 600;
+  padding: 14px 24px;
   border-radius: 16px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-  font-size: 13px;
-  font-weight: 500;
-  color: #444;
-  gap: 8px;
-  
-}
-
-.top-bar .left i {
-  font-size: 16px;
-  color: #3498db;
-  
-}
-
-.refresh-btn {
-  background-color: #3498db;
-  border: none;
-  padding: 8px;
-  border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+  font-size: 15px;
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
 }
 
-.refresh-btn i {
-  color: white;
-  font-size: 16px;
+.create-issue-button-modern .icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-size: 18px;
 }
 
-/* 🗓️ Day Tabs */
-.day-tabs {
+.create-issue-button-modern:hover {
+  background: rgba(0, 123, 255, 0.25); /* Darken the background on hover */
+  color: #0056b3; /* Change text color on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 12px 24px rgba(0, 123, 255, 0.4);
+}
+
+.create-issue-button-modern:hover .icon {
+  transform: rotate(90deg) scale(1.2); /* Icon rotation on hover */
+}
+
+.create-issue-button-modern:active {
+  transform: scale(0.97); /* Slight shrink effect when clicked */
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.15);
+}
+
+.create-issue-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0;
+}
+
+.create-issue-button {
+  background: linear-gradient(to right, #6366f1, #8b5cf6); /* Gradient matching your theme */
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(99, 102, 241, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effect: slight lift + gradient shift */
+.create-issue-button:hover {
+  background: linear-gradient(to right, #7c3aed, #6366f1);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* Tap effect */
+.create-issue-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+}
+
+
+
+.task-main {
   display: flex;
   justify-content: space-between;
-  margin: 16px 0;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.task-left {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.day-tab {
-  flex: 1;
-  background-color: #f1f1f1;
-  color: #666;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 10px 0 6px;
-  text-align: center;
-  border-radius: 14px;
-  line-height: 1.2;
-  transition: all 0.3s ease-in-out;
-  transform: scale(1); /* base scale for non-selected tabs */
-}
-
-.day-tab span {
-  display: block;
-  font-size: 14px;
+.task-title {
+  font-size: 16px;
   font-weight: 600;
-  margin-top: 2px;
-}
-
-.day-tab.selected {
-  background: white;
-  color: black;
-  transform: scale(1.12);         /* 🔍 Makes selected tab bigger */
-  font-size: 13px;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  border: 2px solid #fff;
-  transition: all 0.25s ease-in-out;
-  z-index: 1;
-}
-
-/* 📋 Appointment List */
-.appointment-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 14px;
   color: #333;
 }
 
-/* 🎨 Card Theme Colors */
-:root {
-  --primary-dark: #33333e;
-  --secondary-dark: #3f3f3f;
-  --accent-dark: #242529;
-}
-
-/* Appointment Card */
-.appointment-card {
-  display: flex;
-  align-items: center;
-  background: var(--secondary-dark);
-  border-radius: 18px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, background 0.3s ease;
-  cursor: pointer;
-  background-color: white;
-  
-}
-
-.appointment-card:hover {
-  background: var(--primary-dark);
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  /* background-color: #f2f4f8; */
-}
-
-/* 🔘 Category Icon */
-.category-icon {
-  width: 48px;        /* slightly bigger */
-  height: 48px;
-  border-radius: 50%;
-  background: var(--accent-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 14px;
-  font-size: 20px;    /* bigger icon */
-  color: #22262f;     /* bright yellow/gold */
-  transition: color 0.3s ease;
-}
-
-/* 👤 Avatar */
-.avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 12px;
-  border: 2px solid #555;
-}
-
-/* 📝 Details */
-.details {
-  flex: 1;
-}
-
-.name {
-  font-weight: 600;
-  font-size: 14px;
-  color: black;
-}
-
-/* Subtitle lighter */
-.subtitle {
-  font-size: 12px;
-  color: black;
-  margin-top: 2px;
-}
-
-/* 📌 Status + Time */
-.status-time {
+.task-right {
   text-align: right;
-}
-
-.status {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 12px;
-  display: inline-block;
-  text-transform: capitalize;
-}
-
-.status.success {
-  background-color: #2ecc71;
-  color: white;
-}
-
-.status.pending {
-  background-color: #e67e22;
-  color: white;
-}
-
-.status.inprogress {
-  background-color: #3498db;
-  color: white;
-}
-
-.status.rejected {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.time {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   font-size: 12px;
-  color: black;
-  margin-top: 5px;
+  color: #666;
 }
 
-/* ✅ Bottom Navigation */
-.bottom-nav {
+.comments-count {
+  font-style: italic;
+  color: #999;
+}
+
+
+
+
+
+
+/* Left Sidebar */
+.sidebar {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  margin: 24px auto 10px;
-  max-width: 360px;
-  background-color: #f2f4f8;
-  border-radius: 28px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  position: relative;
+  flex-direction: column;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Modern shadow effect */
+  transition: box-shadow 0.3s ease;
 }
 
-/* Buttons inside bottom nav */
-.bottom-nav i,
-.bottom-nav img {
-  background-color: transparent;
-  color: #a3a3a3;
-  padding: 10px 14px;
-  border-radius: 18px;
-  font-size: 20px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: none;
+.sidebar:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Hover effect on sidebar */
+}
+
+.profile-section {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* Hover effect on icons */
-.bottom-nav i:hover,
-.bottom-nav img:hover {
-  background-color: #fff;
-  color: #22262f;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-}
-
-/* Active icon style */
-.bottom-nav i.active {
-  background-color: #fff;
-  color: #22262f;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-/* Profile icon styling */
 .profile-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 18px;
-  object-fit: cover;
-  border: 2px solid transparent;
-  transition: border-color 0.3s ease;
+  background: #8b5cf6;
+  color: #fff;
+  font-weight: bold;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
 }
 
 .profile-icon:hover {
-  border-color: #fff;
+  transform: scale(1.1); /* Slight scaling effect on hover */
 }
 
-/* 🔄 Fancy Loader Spinner */
-.fancy-spinner {
-  width: 60px;
-  height: 60px;
-  border: 8px solid #e0e0e0;
-  border-top: 8px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1.2s linear infinite;
+.task-section {
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #e5e7eb;
+  
+}
+
+.notes-list-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.note-card-modern {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: #fff;
+  overflow: hidden;
+}
+
+.note-card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.note-card-modern.green {
+  background: linear-gradient(135deg, #34d399, #10b981);
+}
+
+.note-card-modern.purple {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.note-card-modern h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.note-card-modern .note-number {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.note-card-modern .note-description {
+  font-size: 14px;
+  opacity: 0.9;
   margin-bottom: 12px;
-  box-shadow: 0 0 12px #3498dbaa;
 }
 
-/* 🔄 Spinner Loader */
-.spinner {
+.note-card-modern .note-date {
+  font-size: 12px;
+  opacity: 0.75;
+  position: absolute;
+  bottom: 12px;
+  right: 20px;
+}
+
+
+
+/* Task Tabs Modern Look */
+.task-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.task-tabs button {
+  padding: 10px 20px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Hover: smooth gradient and lift */
+.task-tabs button:hover {
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+
+/* Active Tab */
+.task-tabs .active {
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  color: white;
+  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+  border-color: transparent;
+}
+
+/* Pressed effect */
+.task-tabs button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+}
+
+.task-tabs button:focus {
+  outline: none;
+}
+
+.category-badge {
+  padding: 4px 10px;
+  border-radius: 38px;
+  font-size: 12px;
+  font-weight: 600;
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #3498db;
-  border-radius: 50%;
-  animation: spin 0.9s ease-in-out infinite;
-  margin-right: 8px;
-  vertical-align: middle;
+  text-transform: capitalize;
+  color: #fff; /* fallback in case ngStyle isn't applied */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
-
-.spinner-large {
+.category-badge:hover {
+  transform: scale(1.05);
+}
+.profile-icon {
   width: 48px;
   height: 48px;
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #3498db;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #e5e7eb;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.profile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-/* ⏳ Fancy Loader */
-.fancy-loader-wrapper {
+/* 🔍 Hover effect */
+.profile-icon:hover img {
+  transform: scale(1.2);
+}
+
+
+/* Center Section */
+.center-section {
+  background: #f2f4f8;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 320px;
-  animation: fadeIn 0.3s ease-in;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
 }
 
-.loading-text {
-  font-size: 14px;
-  color: #555;
-  font-weight: 500;
+.notes-container {
+  padding: 20px;
+  flex: 0 0 30%;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* ✅ Complete Button */
-.btn-complete {
-  background-color: #2ecc71;
-  border: none;
-  color: white;
-  padding: 10px 18px;
-  font-size: 16px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.btn-complete:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ➕ Floating Button in Bottom Nav */
-.plus-button-wrapper {
-  position: absolute;
-  top: -32px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-}
-
-.plus-button {
-  width: 64px;
-  height: 64px;
-  background: #3f51b5; /* Deep blue */
-  border-radius: 50%;
-  color: #fff;
-  font-size: 36px;
-  font-weight: bold;
+.notes-list {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  border: 4px solid #ffffff;
-  cursor: pointer;
-  user-select: none;
+  gap: 10px;
+  flex-direction: column;
 }
 
-/* Hover state */
-.plus-button:hover {
-  background-color: #303f9f;
-}
-
-/* ✨ Animation on + button click */
-.plus-button:active {
-  transform: scale(0.9);
-  transition: transform 0.15s ease;
-}
-
-/* 💬 Floating Toast Message Bubble */
-.plus-tooltip {
-  position: absolute;
-  bottom: 80px; /* Positioned above the + icon */
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #fff;
-  color: #333;
-  font-size: 14px;
-  padding: 10px 16px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-  opacity: 0;
-  animation: tooltipCycle 10s infinite;
-  transition: opacity 0.5s ease;
-  z-index: 100;
-}
-
-/* ⏱️ Tooltip Animation (Every 10s) */
-@keyframes tooltipCycle {
-  0% {
-    opacity: 0;
-  }
-  5% {
-    opacity: 1;
-    transform: translate(-50%, -4px);
-  }
-  30% {
-    opacity: 1;
-    transform: translate(-50%, -4px);
-  }
-  35% {
-    opacity: 0;
-    transform: translate(-50%, 0);
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* ========================== */
-/* Create Issue Modal Animations */
-/* ========================== */
-
-/* Container for modal */
-.create-issue-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  max-width: 420px;
-  max-height: 90vh;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-  transform: translate(-50%, -50%) scale(0.9);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  overflow-y: auto;
-  z-index: 9999;
-}
-
-/* Show modal with fade and scale up */
-.create-issue-modal.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-/* Optional backdrop */
-.create-issue-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.25);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-  z-index: 9998;
-}
-
-.create-issue-backdrop.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-.card-box {
-  border-radius: 20px;
-  padding: 16px;
-  margin: 14px auto;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid white;
-  max-width: 100%;
-  width: 70%; /* default for mobile */
-}
-
-/* Desktop view adjustments */
-@media (min-width: 768px) {
-  .card-box {
-    width: 600px; /* or use max-width: 600px for flexibility */
-  }
-}
-
-.view{
-  width: 70%;
-}
-
-.mini-card {
+.note-card {
+  padding: 15px;
+  border-radius: 14px;
+  color: #fff;
   flex: 1;
-  background-color: white;
-  border-radius: 16px;
-  padding: 14px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-/* Flex layout for row-based design */
-.row {
+
+.note-card:hover {
+  transform: scale(1.05); /* Slight scaling effect on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Modern shadow effect */
+}
+
+.note-card.green {
+  background: #4ade80;
+}
+
+.note-card.purple {
+  background: #a78bfa;
+}
+
+.task-list-section {
+  flex: 1 1 70%;
+  overflow-y: auto;
+  padding: 20px;
+  background: #f9fafb;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-item:hover {
+  transform: translateY(-3px); /* Slight upward movement */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Shadow effect on hover */
+}
+
+.task-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  
-  
+  font-size: 12px;
+  color: #888;
 }
 
-.col {
-  flex: 1;
-  padding: 10px;
-  background-color: white;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 8px;
-  text-align: center;
-  margin-right: 10px;
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
 }
 
-/* Rank Sidebar */
-.rank-sidebar {
-  position: relative;
-  width: 100%;
-  height: 20px;
-  background-color: #f2f4f8;
-  border-radius: 10px;
-  margin-top: 10px;
+.status-badge.PENDING {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.rank-bar {
-  background-color: #3498db;
-  border-radius: 10px;
-  text-align: center;
+.status-badge.INPROGRESS {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.status-badge.COMPLETED {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.REJECTED {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+.notes-header button {
+  background: #6366f1;
   color: white;
-}
-.issue-scroll-area {
-  flex-grow: 1;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  padding-right: 6px;
-  margin-top: 10px;
-}
-
-/* ✨ Scrollbar Styling for WebKit (Chrome, Edge, Safari) */
-.issue-scroll-area::-webkit-scrollbar {
-  width: 8px;
-}
-.issue-scroll-area::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #a855f7, #6366f1);
-  border-radius: 8px;
-}
-.issue-scroll-area::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-/* Firefox scroll styling */
-.issue-scroll-area {
-  scrollbar-width: thin;
-  scrollbar-color: #555 #f1f1f1;
-}
-/* Hide scrollbar but keep scroll functionality (for ISSUES section) */
-.hide-scrollbar {
-  overflow-y: auto !important;
-  -ms-overflow-style: none;  /* IE 10+ */
-  scrollbar-width: none;     /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;             /* Chrome, Safari, Opera */
-}
-@media (min-width: 768px) {
-  .home-view {
-    flex: 1;
-    margin-right: 10px;
-    max-width: 50%;
-  }
-
-  .issues-view {
-    flex: 1;
-    max-width: 50%;
-  }
-}
-
-
-@media (min-width: 768px) {
-  .appointment-card {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 900px; /* adjust as needed */
-  }
-}@media (min-width: 768px) {
-  .dashboard-top-wrapper {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-.stats-row {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.mini-card {
-  margin-bottom: -2px; /* closes up any remaining space */
-}
-/* For desktop view */
-@media (min-width: 768px) {
-  .stats-row {
-    flex-direction: row;
-    justify-content: center;
-    gap: 24px;
-  }
-
-  .mini-card {
-    width: 280px;
-  }
-}
-.section-heading {
-  margin-top: 16px;
-  margin-bottom: 8px;
-  text-align: left; /* mobile view */
-  margin-left: 20px;
-  
-}
-
-@media (min-width: 768px) {
-  .section-heading {
-    text-align: left; /* desktop view */
-    margin-left: -100px; /* optional for nice alignment */
-    /* optional for nice alignment */
-  }
-}
-@media (min-width: 768px) {
-  .appointment-title {
-    /* text-align: left;  */
-    /* desktop view */
-    margin-left: 150px; /* optional for nice alignment */
-    /* optional for nice alignment */
-  }
-}
-
-
-
-/* Hide filter toggle and menu on mobile */
-.desktop-filter-toggle,
-.top-bar-desktop {
-  display: none;
-}
-
-/* 📱 Toggle Icon for Desktop */
-@media (min-width: 768px) {
-  .desktop-filter-toggle {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 22px;
-    color: #555;
-    background: #fff;
-    padding: 10px 12px;
-    border-radius: 50%;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    cursor: pointer;
-    z-index: 100;
-    transition: transform 0.3s ease;
-  }
-
-  .desktop-filter-toggle:hover {
-    transform: scale(1.05);
-  }
-
-  /* 🎯 Slide-down Filter Menu */
-  .top-bar-desktop {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 64px;
-    left: 20px;
-    background: white;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-    padding: 10px 0;
-    min-width: 160px;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    z-index: 99;
-  }
-
-  .top-bar-desktop.open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-
-  .status-option {
-    padding: 10px 16px;
-    font-size: 14px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-
-  .status-option:hover {
-    background: #f7f9fb;
-  }
-
-  .status-dot {
-    font-size: 10px;
-  }
-
-  .status-dot.pending {
-    color: #e67e22;
-  }
-
-  .status-dot.completed {
-    color: #2ecc71;
-  }
-
-  .status-dot.rejected {
-    color: #e74c3c;
-  }
-
-  .status-dot.inprogress {
-    color: #3498db;
-  }
-}
-
-/* 🖥️ Left-Side Vertical Navbar for Desktop */
-@media (min-width: 768px) {
-  .vertical-filter-desktop {
-    position: fixed;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-    background: white;
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-    padding: 10px 6px;
-    box-shadow: 3px 0 12px rgba(0,0,0,0.1);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 160px;
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease;
-  }
-
-  .status-option-vertical {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px;
-    background-color: #f8f9fa;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
-    cursor: pointer;
-    gap: 10px;
-    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .status-option-vertical:hover {
-    background-color: #e3e9ff;
-    transform: translateX(6px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  }
-
-  .status-option-vertical.active {
-    background-color: #3498db;
-    color: white;
-    font-weight: 600;
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  }
-
-  .status-option-vertical .status-dot {
-    font-size: 10px;
-  }
-
-  .status-dot.pending {
-    color: #e67e22;
-  }
-
-  .status-dot.completed {
-    color: #2ecc71;
-  }
-
-  .status-dot.rejected {
-    color: #e74c3c;
-  }
-
-  .status-dot.inprogress {
-    color: #3498db;
-  }
-  
+.notes-header button:hover {
+  transform: rotate(45deg); /* Rotate effect on hover */
 }

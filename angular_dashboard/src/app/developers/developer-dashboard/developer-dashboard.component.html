@@ -24,7 +24,11 @@
     <div class="section">
       <p>Developers</p>
       <ul>
-        <li *ngFor="let developer of developers">
+        <li 
+          *ngFor="let developer of developers"
+          (click)="filterByDeveloper(developer.name)"
+          [class.selected]="selectedDeveloper === developer.name"
+        >
           {{ developer.name }}
         </li>
         <li class="add">+ Add</li>
@@ -35,16 +39,11 @@
   <!-- Main Content -->
   <main class="main">
     <header class="main-header">
-  <input type="text" placeholder="Search" class="search-bar" />
-  <div class="profile-icon">
-    <!-- Display the image of the logged-in developer -->
-    <img [src]="getDeveloperImage(user?.username)" alt="Profile Image" class="developer-img" />
-  </div>
-  
-</header>
-
-
-
+      <input type="text" placeholder="Search" class="search-bar" />
+      <div class="profile-icon">
+        <img [src]="getDeveloperImage(user?.username)" alt="Profile Image" class="developer-img" />
+      </div>
+    </header>
 
     <section class="project-info">
       <div class="project-text">
@@ -54,55 +53,77 @@
       </div>
     </section>
 
-    <!-- Task Table Section wrapped in a div with white background -->
-    <div class="task-table-wrapper">
-  <section class="task-table">
-    <div class="table-header title">
-      <button class="add-task"><i class="bi bi-plus-circle"></i> Add new</button>
+    <!-- Table view (default) -->
+    <div *ngIf="!isKanbanView" class="task-table-wrapper">
+      <section class="task-table">
+        <div class="table-header title">
+          <button class="add-task"><i class="bi bi-plus-circle"></i> Add new</button>
+        </div>
+        <div class="table">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Category</th>
+                <th>Time tracking</th>
+                <th>Assignee</th>
+                <th>Due date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let issue of assignedIssues">
+                <td>{{ issue.title }}</td>
+                <td>
+                  <span class="status orange">{{ issue.status || 'N/A' }}</span>
+                </td>
+                <td>
+                  <span
+                    class="category-badge"
+                    [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }"
+                  >
+                    {{ issue.category || 'N/A' }}
+                  </span>
+                </td>
+                <td>
+                  {{ issue.createdAt ? (issue.createdAt | date: 'shortDate') : 'N/A' }}
+                </td>
+                <td>
+                  <div class="developer-info">
+                    <img
+                      *ngIf="issue.developerName"
+                      [src]="getDeveloperImage(issue.developerName)"
+                      alt="{{ issue.developerName }}"
+                      class="developer-img"
+                    />
+                    <span *ngIf="issue.developerName">{{ issue.developerName }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span *ngIf="issue.status === 'COMPLETED'">
+                    {{ issue.completedAt | date: 'shortDate' }}
+                  </span>
+                  <span *ngIf="issue.status !== 'COMPLETED'">N/A</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
-    <div class="table">
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Category</th>
-            <th>Time tracking</th>
-            <th>Assignee</th>
-            <th>Due date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let issue of assignedIssues">
-            <td>{{ issue.title }}</td>
-            <td><span class="status orange">{{ issue.status || 'N/A' }}</span></td>
-            <td><span class="category-badge"
-              [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }"
-              >{{ issue.category || 'N/A' }}</span></td>
-            <td>{{ issue.createdAt ? (issue.createdAt | date: 'shortDate') : 'N/A' }}</td>
-            <td>
-              <div class="developer-info">
-                <img *ngIf="issue.developerName" 
-                     [src]="getDeveloperImage(issue.developerName)" 
-                     alt="{{ issue.developerName }}" 
-                     class="developer-img" />
-                <span *ngIf="issue.developerName">{{ issue.developerName }}</span>
-              </div>
-            </td>
-            <td>
-              <span *ngIf="issue.status === 'COMPLETED'">
-                {{ issue.completedAt | date: 'shortDate' }}
-              </span>
-              <span *ngIf="issue.status !== 'COMPLETED'">
-                N/A
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</div>
 
+    <!-- Kanban drag-drop view -->
+    <div *ngIf="isKanbanView" class="kanban-board">
+      <div class="kanban-columns">
+        <app-column
+          *ngFor="let status of statusOrder"
+          [status]="status"
+          [issues]="filteredKanbanIssues[status]"
+          [connectedTo]="statusOrder"
+          (issueDropped)="handleDrop($event)"
+          (issueClicked)="openIssueModal($event)"
+        ></app-column>
+      </div>
+    </div>
   </main>
 </div>
