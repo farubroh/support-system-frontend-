@@ -132,5 +132,11 @@ export class CreateIssueComponent {
     }
   });
 }
+showSupportDetails = false;
+
+toggleSupportDetails() {
+  this.showSupportDetails = !this.showSupportDetails;
+}
+
 
 }

@@ -1,40 +1,36 @@
+
+
 <div class="ticket-wrapper">
   <div class="top-bar">
     <button class="back-button" (click)="router.navigate(['/dashboard'])">←</button>
     <h2>Create Ticket</h2>
   </div>
 
-  <!-- Preview Section -->
-  <div class="preview-box">
-   <i class="fa-solid fa-user-graduate preview-image"></i>
-
-    
+  <!-- Modern Preview Box -->
 
 
-    <div class="preview-info">
-      <strong>{{ form.category || 'No category selected' }}</strong>
-      <p>{{ form.title || 'Start typing a title...' }}</p>
-    </div>
-  </div>
 
   <!-- Tabs -->
-  <div class="tab-box">
-    <button class="active-tab">For service Technician</button>
-    <button class="inactive-tab">Contact support</button>
+  <!-- Technician Help Section -->
+<div class="support-section">
+  
+  <button class="modern-button" (click)="toggleSupportDetails()">
+    💬 Contact Support
+  </button>
+
+  <div *ngIf="showSupportDetails" class="support-details">
+    <ul>
+      <li><strong>Quota Issue:</strong> Visit Registrar Office</li>
+      <li><strong>Payment Issue:</strong> Visit Treasurer Office</li>
+      <li><strong>Network Issue:</strong> Contact IT Help Desk</li>
+      <li><strong>Course Issue:</strong> Ask Department Coordinator</li>
+    </ul>
   </div>
+</div>
+
 
   <form class="ticket-form" (ngSubmit)="handleSubmit()" enctype="multipart/form-data">
-    <!-- Status Pills -->
-    <!-- <div class="form-group">
-      <label>Status</label>
-      <div class="status-options">
-        <button type="button" class="pill high" [class.selected]="form.status === 'HIGH'" (click)="form.status = 'HIGH'">🔴 High</button>
-        <button type="button" class="pill medium" [class.selected]="form.status === 'MEDIUM'" (click)="form.status = 'MEDIUM'">🟡 Medium</button>
-        <button type="button" class="pill low" [class.selected]="form.status === 'LOW'" (click)="form.status = 'LOW'">🔵 Low</button>
-      </div>
-    </div> -->
-
-    <!-- Category Dropdown -->
+    <!-- Category -->
     <div class="form-group">
       <label for="category">Category</label>
       <select [(ngModel)]="form.category" name="category" id="category" required>
@@ -46,55 +42,60 @@
     <!-- Title -->
     <div class="form-group">
       <label for="title">Title</label>
-      <input type="text" [(ngModel)]="form.title" name="title" id="title" placeholder="Enter here..." required />
+      <input
+        type="text"
+        [(ngModel)]="form.title"
+        name="title"
+        id="title"
+        placeholder="Enter here..."
+        required
+      />
     </div>
-
-    <!-- Contact -->
-    <!-- <div class="form-group">
-      <label for="contact">Contact number</label>
-      <input type="text" [(ngModel)]="form.contact" name="contact" id="contact" placeholder="Enter here..." />
-    </div> -->
 
     <!-- Description -->
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea [(ngModel)]="form.description" name="description" id="description" maxlength="240" placeholder="Let us know your thoughts..." required></textarea>
+      <textarea
+        [(ngModel)]="form.description"
+        name="description"
+        id="description"
+        maxlength="240"
+        placeholder="Let us know your thoughts..."
+        required
+      ></textarea>
       <div class="char-counter">{{ form.description.length }}/240</div>
     </div>
-
-    <!-- Availability -->
-    <!-- <div class="form-group">
-      <label>Your availability</label>
-      <div class="day-selector">
-        <button type="button" *ngFor="let day of days" (click)="toggleDay(day)" [class.active]="form.availability.includes(day)">
-          {{ day }}
-        </button>
-      </div>
-    </div> -->
 
     <!-- File Upload -->
     <div class="form-group">
       <label>Upload File(s)</label>
-      <input type="file" (change)="onFileSelected($event)" multiple />
+      <label class="upload-label">
+        📎 Attach files
+        <input type="file" (change)="onFileSelected($event)" multiple hidden />
+      </label>
+
+      <!-- File Preview List -->
       <div class="file-preview">
         <div *ngFor="let file of filePreviews; let i = index" class="file-thumb">
-          <img *ngIf="file.type.startsWith('image')" [src]="file.url" alt="preview" />
-          <span *ngIf="!file.type.startsWith('image')">📄 {{ file.name }}</span>
-          <button type="button" (click)="removeFile(i)">✖</button>
+          <div class="file-icon">
+            <img *ngIf="file.type.startsWith('image')" [src]="file.url" alt="preview" />
+            <span *ngIf="!file.type.startsWith('image')">📄</span>
+          </div>
+          <div class="file-info">
+            <span class="file-name">{{ file.name }}</span>
+            <button type="button" class="file-remove" (click)="removeFile(i)">✖</button>
+          </div>
         </div>
       </div>
+
+      <!-- Upload Progress -->
       <div *ngIf="uploadProgress > 0" class="progress-bar">
         <div class="progress" [style.width.%]="uploadProgress"></div>
       </div>
+      <p *ngIf="uploadSummary && !isUploading" class="upload-summary">{{ uploadSummary }}</p>
     </div>
-    <!-- Below your file input -->
-<div *ngIf="isUploading" class="progress-bar">
-  <div class="progress" [style.width.%]="uploadProgress"></div>
-</div>
-<p *ngIf="uploadSummary && !isUploading" class="upload-summary">{{ uploadSummary }}</p>
 
-
-    <!-- Form Actions -->
+    <!-- Actions -->
     <div class="form-actions">
       <button type="button" class="cancel-btn" (click)="router.navigate(['/dashboard'])">Cancel</button>
       <button type="submit" class="submit-btn">Create Ticket</button>

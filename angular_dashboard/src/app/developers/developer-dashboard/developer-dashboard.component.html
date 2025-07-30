@@ -125,5 +125,13 @@
         ></app-column>
       </div>
     </div>
+    <app-developer-issue-modal
+  *ngIf="selectedIssue"
+  [issue]="selectedIssue"
+  [currentDeveloperId]="user?.id"
+  (close)="closeModal()"
+  (refresh)="refreshAfterAction()"
+></app-developer-issue-modal>
+
   </main>
 </div>

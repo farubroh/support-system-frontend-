@@ -1,13 +1,14 @@
-<div class="issue-card"
-     [ngClass]="{
-       pending: issue?.status === 'PENDING',
-       inprogress: issue?.status === 'INPROGRESS',
-       completed: issue?.status === 'COMPLETED',
-       rejected: issue?.status === 'REJECTED'
-     }">
-
-
-
+<div
+  class="issue-card"
+  [ngClass]="{
+    pending: issue?.status === 'PENDING',
+    inprogress: issue?.status === 'INPROGRESS',
+    completed: issue?.status === 'COMPLETED',
+    rejected: issue?.status === 'REJECTED'
+  }"
+  cdkDrag
+  [cdkDragData]="issue"
+>
   <div>
     <strong>{{ issue?.title }}</strong>
     <p>{{ issue?.description }}</p>

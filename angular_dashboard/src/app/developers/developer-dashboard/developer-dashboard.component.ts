@@ -89,21 +89,29 @@ getCategoryColor(category: string): string {
 
 
   fetchIssues() {
-    const developerId = this.user.id;
-    const url = `http://localhost:8085/api/developers/${developerId}/issues`;
+  const developerId = this.user.id;
+  const url = `http://localhost:8085/api/developers/${developerId}/issues`;
 
-    this.http.get<any>(url).subscribe({
-      next: (res) => {
-        
-        console.log('API Response:', res);
-        this.issuesByStatus['PENDING'] = res.INPROGRESS.map((d: any) => ({ ...d.issue }));
-        this.issuesByStatus['INPROGRESS'] = [];
-        this.issuesByStatus['COMPLETED'] = res.COMPLETED.map((d: any) => ({ ...d.issue }));
-        this.issuesByStatus['REJECTED'] = res.REJECTED.map((d: any) => ({ ...d.issue }));
-      },
-      error: (err) => console.error('Failed to load developer issues:', err),
-    });
-  }
+  this.http.get<any>(url).subscribe({
+    next: (res) => {
+      console.log('API Response:', res);
+
+      this.issuesByStatus['PENDING'] = res.PENDING?.map((d: any) => ({ ...d.issue })) || [];
+      this.issuesByStatus['INPROGRESS'] = res.INPROGRESS?.map((d: any) => ({ ...d.issue })) || [];
+      this.issuesByStatus['COMPLETED'] = res.COMPLETED?.map((d: any) => ({ ...d.issue })) || [];
+      this.issuesByStatus['REJECTED'] = res.REJECTED?.map((d: any) => ({ ...d.issue })) || [];
+
+      // Update filteredKanbanIssues if you are showing Kanban view for all developers or selected
+      // Update filteredKanbanIssues if you are showing Kanban view for all developers or selected
+      this.filteredKanbanIssues['PENDING'] = [...this.issuesByStatus['PENDING']];
+      this.filteredKanbanIssues['INPROGRESS'] = [...this.issuesByStatus['INPROGRESS']];
+      this.filteredKanbanIssues['COMPLETED'] = [...this.issuesByStatus['COMPLETED']];
+      this.filteredKanbanIssues['REJECTED'] = [...this.issuesByStatus['REJECTED']];
+    },
+    error: (err) => console.error('Failed to load developer issues:', err),
+  });
+}
+
 //    getAssignedIssues() {
 //   const url = 'http://localhost:8085/api/issues/all_admin'; // Assuming this endpoint gives all issues
 
@@ -129,45 +137,56 @@ getAssignedIssues() {
 }
 
 
+handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
+  const prevContainer = event.previousContainer;
+  const currContainer = event.container;
+  const movedIssue = prevContainer.data[event.previousIndex];
 
-  handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
-    const prevContainer = event.previousContainer;
-    const currContainer = event.container;
+  const prevStatus = prevContainer.id;
+  const currStatus = targetStatus;
 
-    const movedIssue = prevContainer.data[event.previousIndex];
+  console.log('🔥 Drop triggered in column:', targetStatus);
+  console.log('Previous Container ID:', prevStatus);
+  console.log('Current Container ID:', currStatus);
+  console.log('From index:', event.previousIndex, '→ To index:', event.currentIndex);
 
-    // 🛑 Block illegal drag-drop to COMPLETED or REJECTED
-    if (['COMPLETED', 'REJECTED'].includes(targetStatus)) {
-      // Instead of drag-drop, open the modal
-      this.selectedIssue = movedIssue;
-      return;
-    }
+  if (prevStatus === currStatus) {
+    moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
+  } else {
+    transferArrayItem(
+      prevContainer.data,
+      currContainer.data,
+      event.previousIndex,
+      event.currentIndex
+    );
 
-    if (prevContainer === currContainer) {
-      moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(prevContainer.data, currContainer.data, event.previousIndex, event.currentIndex);
-      if (movedIssue?.issueId) {
-        this.updateIssueStatus(movedIssue.issueId, targetStatus);
-      }
+    if (movedIssue?.issueId) {
+      this.updateIssueStatus(movedIssue.issueId, targetStatus);
     }
   }
+}
+
+
+
+
 
   updateIssueStatus(issueId: number, newStatus: string) {
-    const payload = {
-      toStatus: newStatus,
-      workedBy: this.user.id,
-      completedAnalysis: 'Completed by developer',
-      rejectionReason: 'Rejected by developer',
-    };
+  const payload = {
+    toStatus: newStatus,
+    workedBy: this.user.id,
+    completedAnalysis: 'Completed by developer',
+    rejectionReason: 'Rejected by developer',
+  };
 
-    this.http.put(`http://localhost:8085/api/issues/${issueId}/status`, payload).subscribe({
-      next: () => {
-        console.log('✅ Status updated to', newStatus);
-      },
-      error: (err) => console.error('❌ Failed to update status:', err),
-    });
-  }
+  this.http.put(`http://localhost:8085/api/issues/${issueId}/status`, payload).subscribe({
+    next: () => {
+      console.log('✅ Status updated to', newStatus);
+      this.fetchIssues(); // refresh after update
+    },
+    error: (err) => console.error('❌ Failed to update status:', err),
+  });
+}
+
 
   openIssueModal(issue: any) {
     this.selectedIssue = issue;

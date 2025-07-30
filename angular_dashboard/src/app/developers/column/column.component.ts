@@ -26,13 +26,16 @@ export class ColumnComponent {
   };
 
   onDropWrapper(event: CdkDragDrop<any[]>) {
-    console.log('🔥 Drop triggered in column:', this.status);
+  console.log('🔥 Drop triggered in column:', this.status);
+  this.issueDropped.emit({ event, targetStatus: this.status });
+}
 
-    // ❗ Emit the drop event to parent for actual handling
-    this.issueDropped.emit({ event, targetStatus: this.status });
-  }
   onIssueClick(issue: any) {
   this.issueClicked.emit(issue);
 }
+trackById(index: number, issue: any) {
+  return issue.issueId; // or some unique identifier
+}
+
 
 }

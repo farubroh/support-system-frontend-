@@ -1,46 +1,64 @@
-/* Base card */
 .issue-card {
-  padding: 12px 16px;
-  margin: 10px 0;
-  border-radius: 8px;
-  color: black;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  background-color: #9e9e9e; /* fallback */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   cursor: grab;
-  transition: all 0.25s ease-in-out;
-  transform-origin: center;
+  animation: popIn 0.3s ease-out;
 }
 
-/* Hover effect */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .issue-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  filter: brightness(1.05);
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Pending */
-.pending {
-  background-color: #ff9800;
-  border-left: 6px solid #e65100;
+.issue-card:active {
+  cursor: grabbing;
 }
 
-/* In Progress */
-.inprogress {
-  background-color: #f5d442;
-  border-left: 6px solid #c9b037;
+/* Preview while dragging */
+.cdk-drag-preview {
+  transform: scale(1.05);
+  border-radius: 14px;
+  padding: 16px;
+  background-color: #fff;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* Completed */
-.completed {
-  background-color: #4caf50;
-  border-left: 6px solid #1b5e20;
+/* Placeholder during drag */
+.cdk-drag-placeholder {
+  background-color: #dcdcdc;
+  border: 2px dashed #aaa;
+  min-height: 60px;
+  border-radius: 12px;
+  opacity: 0.4;
 }
 
-/* Rejected */
-.rejected {
-  background-color: #f44336;
-  border-left: 6px solid #b71c1c;
+/* Solid status backgrounds */
+.issue-card.pending {
+  background-color: #fbc02d; /* Amber */
 }
-.issue-card.pending:hover { box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4); }
-.issue-card.inprogress:hover { box-shadow: 0 4px 12px rgba(245, 212, 66, 0.4); }
-.issue-card.completed:hover { box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4); }
-.issue-card.rejected:hover { box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4); }
+.issue-card.inprogress {
+  background-color: #29b6f6; /* Sky Blue */
+}
+.issue-card.completed {
+  background-color: #66bb6a; /* Mint Green */
+}
+.issue-card.rejected {
+  background-color: #ef5350; /* Coral Red */
+}

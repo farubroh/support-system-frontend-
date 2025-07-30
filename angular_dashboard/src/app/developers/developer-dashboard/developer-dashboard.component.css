@@ -255,3 +255,15 @@ th {
   font-weight: 500;
   display: inline-block;
 }
+.kanban-board {
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.kanban-columns {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}

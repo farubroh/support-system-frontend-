@@ -10,12 +10,13 @@
     [id]="status"
   >
     <app-issue-card
-  *ngFor="let issue of issues"
+  *ngFor="let issue of issues; trackBy: trackById"
   [issue]="issue"
   cdkDrag
   [cdkDragData]="issue"
   (click)="issueClicked.emit(issue)"
 ></app-issue-card>
+
 
 
   </div>

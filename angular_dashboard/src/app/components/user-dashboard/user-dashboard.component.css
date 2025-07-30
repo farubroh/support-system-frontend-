@@ -9,31 +9,7 @@
   box-sizing: border-box;
   transition: background-color 0.3s ease;
 }
-.slide-in-form {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 420px;
-  max-height: 95vh;
-  z-index: 1001;
-  background-color: #fff;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.25);
-  animation: slideInUp 0.4s ease-out forwards;
-  overflow-y: auto;
-}
 
-@keyframes slideInUp {
-  0% {
-    transform: translateY(100%);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
 
 .overlay-bg {
   position: fixed;
@@ -475,4 +451,45 @@
 
 .notes-header button:hover {
   transform: rotate(45deg); /* Rotate effect on hover */
+}
+.slide-in-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 800px;
+  background-color: #ffffff;
+  z-index: 1001;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  padding: 32px;
+  box-sizing: border-box;  /* Ensure padding is accounted for in width/height */
+  height: auto;            /* Adjust based on content */
+  max-height: 85vh;        /* Ensure it doesn't overflow on large screens */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;               /* Space between form fields */
+  overflow: hidden;        /* Hide overflow */
+  animation: fadeInPop 0.35s ease-out forwards;
+}
+
+/* Optional animation */
+@keyframes fadeInPop {
+  from {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  .slide-in-form {
+    width: 94vw;
+    padding: 24px 16px;
+    max-height: 90vh; /* Ensures the modal fits without overflow */
+  }
 }
