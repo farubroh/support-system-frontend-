@@ -137,6 +137,12 @@ showSupportDetails = false;
 toggleSupportDetails() {
   this.showSupportDetails = !this.showSupportDetails;
 }
+// In your component.ts
+adjustTextareaHeight(event: Event) {
+  const textarea = event.target as HTMLTextAreaElement;
+  textarea.style.height = 'auto'; // Reset height
+  textarea.style.height = textarea.scrollHeight + 'px'; // Set to full content
+}
 
 
 }

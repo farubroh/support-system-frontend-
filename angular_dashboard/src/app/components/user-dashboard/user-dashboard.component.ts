@@ -73,6 +73,7 @@ export class DashboardComponent implements OnInit {
       setInterval(() => {
         this.fetchTotalIssues();
         this.fetchTodayStats();
+        this.fetchNoteData();
       }, 1000);
     }
   }
@@ -288,25 +289,36 @@ currentDate: string = new Date().toDateString();
 
 
   fetchNoteData() {
-  if (!this.user || !this.user.id) return;
+  if (!this.user || !this.user.id || !this.allIssues.length) return;
 
-  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=PENDING`;
-  this.http.get<any[]>(url).subscribe({
-    next: (issues) => {
-      this.totalPendingIssues = issues.length;
+  const pendingAll = this.allIssues.filter(
+    issue => issue.status?.toUpperCase() === 'PENDING'
+  );
 
-      if (issues.length > 0) {
-        const sorted = issues.sort((a, b) => b.id - a.id); // Descending by ID
-        this.latestUserPendingIssueId = sorted[0].id;
-      } else {
-        this.latestUserPendingIssueId = null;
-      }
-    },
-    error: (err) => {
-      console.error("Error fetching user's pending issues:", err);
-    }
-  });
+  const userPending = pendingAll.filter(
+    issue => issue.user?.id === this.user.id
+  );
+
+  this.totalPendingIssues = userPending.length;
+
+  if (userPending.length > 0) {
+    // 🔹 Find the user's pending issue with the highest ID
+    const userLatest = userPending.reduce((max, curr) => curr.id > max.id ? curr : max);
+
+    this.latestUserPendingIssueId = userLatest.id;
+
+    // 🔹 Find its position in the global list (sorted by ID ascending)
+    const sortedAll = pendingAll.sort((a, b) => a.id - b.id);
+    const position = sortedAll.findIndex(i => i.id === userLatest.id) + 1;
+
+    // Replace the displayed ID with its position in the global pending list
+    this.latestUserPendingIssueId = position;
+  } else {
+    this.latestUserPendingIssueId = null;
+  }
 }
+
+
 
   getCategoryColor(category: string): string {
     switch ((category || '').toLowerCase()) {

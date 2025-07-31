@@ -12,34 +12,31 @@ export class IssueViewModalUserComponent {
   @Input() issue: any;
   @Output() close = new EventEmitter<void>();
 
-  get developerLabel(): string {
-  if (!this.issue) return 'Developer';
-  switch (this.issue.status) {
-    case 'INPROGRESS': return 'Working On';
-    case 'COMPLETED': return 'Resolved By';
-    case 'REJECTED': return 'Rejected By';
-    default: return '';  // Hide label in PENDING
+  showCommentSidebar = false;
+  newComment = '';
+  comments: { author: string; message: string }[] = [
+    {
+      author: 'Admin',
+      message: 'Please wait while we review your issue.'
+    }
+  ];
+
+  toggleCommentSidebar() {
+    this.showCommentSidebar = !this.showCommentSidebar;
   }
-}
 
-get developerValue(): string {
-  if (!this.issue) return '';
-  return ['INPROGRESS', 'COMPLETED', 'REJECTED'].includes(this.issue.status)
-    ? this.issue.developerName ?? '-'
-    : '';
-}
+  submitComment() {
+    if (!this.newComment.trim()) return;
 
+    this.comments.unshift({
+      author: 'You',
+      message: this.newComment.trim()
+    });
+    this.newComment = '';
+  }
 
   onCloseModal() {
     this.close.emit();
   }
-  extractFileName(path: string): string {
-  return path.split('/').pop() ?? '';
-}
-
-extractUserId(path: string): string {
-  const parts = path.split('/');
-  return parts.length > 2 ? parts[parts.length - 2] : '';
-}
 
 }

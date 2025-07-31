@@ -1,38 +1,29 @@
-
-
 <div class="ticket-wrapper">
   <div class="top-bar">
     <button class="back-button" (click)="router.navigate(['/dashboard'])">←</button>
     <h2>Create Ticket</h2>
   </div>
 
-  <!-- Modern Preview Box -->
-
-
-
-  <!-- Tabs -->
   <!-- Technician Help Section -->
-<div class="support-section">
-  
-  <button class="modern-button" (click)="toggleSupportDetails()">
-    💬 Contact Support
-  </button>
+  <div class="support-section">
+    <button class="modern-button" (click)="toggleSupportDetails()">
+      💬 Contact Support
+    </button>
 
-  <div *ngIf="showSupportDetails" class="support-details">
-    <ul>
-      <li><strong>Quota Issue:</strong> Visit Registrar Office</li>
-      <li><strong>Payment Issue:</strong> Visit Treasurer Office</li>
-      <li><strong>Network Issue:</strong> Contact IT Help Desk</li>
-      <li><strong>Course Issue:</strong> Ask Department Coordinator</li>
-    </ul>
+    <div *ngIf="showSupportDetails" class="support-details">
+      <ul>
+        <li><strong>Quota Issue:</strong> Visit Registrar Office</li>
+        <li><strong>Payment Issue:</strong> Visit Treasurer Office</li>
+        <li><strong>Network Issue:</strong> Contact IT Help Desk</li>
+        <li><strong>Course Issue:</strong> Ask Department Coordinator</li>
+      </ul>
+    </div>
   </div>
-</div>
-
 
   <form class="ticket-form" (ngSubmit)="handleSubmit()" enctype="multipart/form-data">
     <!-- Category -->
     <div class="form-group">
-      <label for="category">Category</label>
+      <label for="category">Category:</label>
       <select [(ngModel)]="form.category" name="category" id="category" required>
         <option value="" disabled selected>Select a category</option>
         <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
@@ -41,7 +32,7 @@
 
     <!-- Title -->
     <div class="form-group">
-      <label for="title">Title</label>
+      <label for="title">Title*</label>
       <input
         type="text"
         [(ngModel)]="form.title"
@@ -53,29 +44,36 @@
     </div>
 
     <!-- Description -->
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea
-        [(ngModel)]="form.description"
-        name="description"
-        id="description"
-        maxlength="240"
-        placeholder="Let us know your thoughts..."
-        required
-      ></textarea>
-      <div class="char-counter">{{ form.description.length }}/240</div>
-    </div>
+     <label for="title">Description</label>
+    <textarea
+  [(ngModel)]="form.description"
+  name="description"
+  id="description"
+  maxlength="120"
+  placeholder="Let us know your thoughts..."
+  required
+  (input)="adjustTextareaHeight($event)"
+></textarea>
+
 
     <!-- File Upload -->
     <div class="form-group">
-      <label>Upload File(s)</label>
-      <label class="upload-label">
-        📎 Attach files
-        <input type="file" (change)="onFileSelected($event)" multiple hidden />
-      </label>
+      
+
+      <button type="button" class="upload-button" (click)="fileInput.click()">
+        📎 Upload Attachment
+      </button>
+
+      <input
+        #fileInput
+        type="file"
+        (change)="onFileSelected($event)"
+        multiple
+        hidden
+      />
 
       <!-- File Preview List -->
-      <div class="file-preview">
+      <div class="file-preview" style="margin-top:12px;">
         <div *ngFor="let file of filePreviews; let i = index" class="file-thumb">
           <div class="file-icon">
             <img *ngIf="file.type.startsWith('image')" [src]="file.url" alt="preview" />
