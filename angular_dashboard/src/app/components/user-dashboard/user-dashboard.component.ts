@@ -82,25 +82,24 @@ export class DashboardComponent implements OnInit {
 }
 
   fetchIssues() {
-    this.loading = true;
-    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
-    this.http.get<any[]>(url).subscribe({
-      next: (res) => {
-        this.issues = res;
-        // console.log("Issues fetched:", this.issues);
-        
-      },
-      error: (err) => {
-        console.error("Error fetching issues:", err);
-        this.issues = [];
-      },
-      complete: () => {
-        setTimeout(() => {
-          this.loading = false;
-        }, 1000);
-      }
-    });
-  }
+  this.loading = true;
+  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
+  this.http.get<any[]>(url).subscribe({
+    next: (res) => {
+      // Sort the issues by createdAt date in descending order
+      this.issues = res.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    },
+    error: (err) => {
+      console.error("Error fetching issues:", err);
+      this.issues = [];
+    },
+    complete: () => {
+      setTimeout(() => {
+        this.loading = false;
+      }, 1000);
+    }
+  });
+}
 
   // UPDATED: closes filter menu after tab click
   onTabClick(tabKey: string) {

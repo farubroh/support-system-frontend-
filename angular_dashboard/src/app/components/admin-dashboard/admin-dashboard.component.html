@@ -1,62 +1,15 @@
 <div class="crm-wrapper">
   <!-- Left Sidebar -->
-  <aside class="sidebar">
-    
+ <aside class="sidebar">
     <ul class="sidebar-icons">
-      <li><i class="fa-solid fa-house"></i></li>
-      <li><i class="fa-solid fa-envelope"></i></li>
-      <li><i class="fa-solid fa-calendar"></i></li>
-      
-      <li><i class="fa-solid fa-users-rectangle"></i></li>
-      <!-- <li><img src="assets/icons/check.svg" alt="check" /></li>
-      <li><img src="assets/icons/calendar.svg" alt="calendar" /></li>
-      <li><img src="assets/icons/box.svg" alt="box" /></li>
-      <li><img src="assets/icons/send.svg" alt="send" /></li>
-      <li><img src="assets/icons/triangle.svg" alt="triangle" /></li>
-      <li><img src="assets/icons/moon.svg" alt="moon" /></li>
-      <li><img src="assets/icons/sun.svg" alt="sun" /></li> -->
-    </ul>
-  </aside>
+      <!-- Problem Status -->
+      <li (click)="showAllIssues()">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>Problem Status</span>
+      </li>
 
-  <!-- Main Content -->
-  <main class="main-area">
-    <!-- Top Navigation -->
-    <header class="nav-header">
-      <h2>Customer Journeys</h2>
-      <nav class="top-menu">
-        <a href="#">Relationship</a>
-        <a href="#">Opportunities</a>
-        <a href="#">Leads</a>
-        <a href="#">Calendar</a>
-        <a class="active" href="#">Cases</a>
-        <a href="#">Reports</a>
-        <a href="#">Quotes</a>
-      </nav>
-      <div class="top-actions">
-        <input type="text" value="https://www.sugarcrm.com/" readonly />
-        <!-- <div class="circle-icon">🔍</div>
-        <div class="circle-icon">📷</div>
-        <div class="circle-icon">📤</div>
-        <img src="assets/images/user.jpg" class="avatar" /> -->
-      </div>
-    </header>
-
-    <!-- Profile Avatars -->
-    <div class="avatar-bar">
-      <img src="/man.png" class="avatar" />
-      <img src="/black.png" class="avatar" />
-      <img src="/person.png" class="avatar" />
-      <img src="/Male.png" class="avatar" />
-      <img src="/New_male.png" class="avatar" />
-      <!-- <img src="assets/images/u6.jpg" class="avatar" />
-      <img src="assets/images/u7.jpg" class="avatar" /> -->
-    </div>
-
-    <!-- Case Columns -->
-    <section class="case-columns">
-      <!-- New Case Management -->
-      <div class="case-section">
-        <h3>Problem Status</h3>
+      <!-- Conditionally display problem status sections -->
+      <li *ngIf="showingAllIssues">
         <div class="case-card" [class.highlighted]="filterStatus === 'PENDING'" (click)="setFilterStatus('PENDING')">
           Pending - {{ pendingCount }}
         </div>
@@ -69,48 +22,74 @@
         <div class="case-card" [class.highlighted]="filterStatus === 'REJECTED'" (click)="setFilterStatus('REJECTED')">
           Rejected - {{ rejectedCount }}
         </div>
-      </div>
+      </li>
 
-      <!-- Issue Identification -->
-      <!-- Issue Solved Progress -->
-<div class="case-section progress-pie-box">
-  <h3>Total Issues Solved</h3>
-  <div class="progress-container">
-    <div class="circular-pie"
-     id="solvedPie"
-     [attr.data-pie]="pieConfig | json">
-</div>
+      <!-- Categories -->
+      <li (click)="showCategories()">
+        <i class="fa-solid fa-list"></i>
+        <span>Categories</span>
+      </li>
 
+      <!-- Conditionally display categories -->
+      <li *ngIf="showingCategories">
+         <div class="case-card" *ngFor="let category of categoryList" 
+       [class.highlighted]="selectedCategory === category" 
+       (click)="selectCategory(category)">
+    {{ category }} - {{ getCategoryCount(category) }}
   </div>
-</div>
+      </li>
+
+      <!-- Other Sidebar Items -->
+      <li (click)="showGraph()">
+        <i class="fa-solid fa-chart-simple"></i>
+        <span>Graphical view</span>
+      </li>
+      <li (click)="showDevelopers()">
+        <i class="fa-solid fa-users-rectangle"></i>
+        <span>Developers view</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-area">
+    <!-- Top Navigation -->
+  <!-- Top Navigation -->
+<!-- Top Navigation -->
+<!-- Top Navigation -->
+<header class="nav-header">
+  <h2 class="admin-title">Admin Dashboard</h2>
+  <div class="top-actions">
+    <input
+      type="text"
+      class="search-box"
+      placeholder="Enter your search"
+      [(ngModel)]="searchQuery"
+    >
+  </div>
+</header>
 
 
-      <!-- Technical Resolution -->
-      <div class="case-section">
-        <h3>Technical Resolution</h3>
-        <div class="case-card">Identify Issue Dependencies</div>
-        <div class="case-card">Identify Issue Resolution</div>
-        <div class="case-card">Estimate Resolution Time</div>
-        <div class="case-card">Advise Customer of Resolution Estimate</div>
-        <div class="case-card">Advise Customer Issue Resolved</div>
-      </div>
 
-      <!-- Request Processing -->
-      <div class="case-section">
-        <h3>Request Processing</h3>
-        <div class="case-card highlighted">Request Processing</div>
-        <div class="case-card">Problem Resolution</div>
-        <div class="case-card">Customer Communication</div>
-        <div class="case-card">Testing and Verification</div>
-        <div class="case-card">Customer Notification</div>
-        <div class="case-card">Customer Satisfaction</div>
-      </div>
-    </section>
+
+    <!-- Profile Avatars -->
+    <div class="avatar-bar">
+      <img src="/man.png" class="avatar" />
+      <img src="/black.png" class="avatar" />
+      <img src="/person.png" class="avatar" />
+      <img src="/Male.png" class="avatar" />
+      <img src="/New_male.png" class="avatar" />
+      <!-- <img src="assets/images/u6.jpg" class="avatar" />
+      <img src="assets/images/u7.jpg" class="avatar" /> -->
+    </div>
+
+   
 
     <!-- Knowledge and Ticket Tables -->
     <div class="lower-panels">
       <div class="panel-box wide">
-  <h4>{{ filterStatus | titlecase }} Issues</h4>
+  <h4>{{ selectedCategory ? selectedCategory : (filterStatus | titlecase) }} Issues</h4>
+
 
   <!-- 📱 Mobile Card Layout -->
   <ng-container *ngIf="!isDesktopView">
@@ -165,7 +144,7 @@
 </div>
 
 
-      <div class="panel-box narrow">
+      <!-- <div class="panel-box narrow">
         <h4>Support Ticket Journeys</h4>
         <table>
           <thead>
@@ -180,7 +159,7 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </div> -->
     </div>
   </main>
 </div>

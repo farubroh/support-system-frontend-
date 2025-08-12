@@ -1,35 +1,45 @@
 <div class="ticket-wrapper">
   <div class="top-bar">
-    <button class="back-button" (click)="router.navigate(['/dashboard'])">←</button>
     <h2>Create Ticket</h2>
   </div>
 
-  <!-- Technician Help Section -->
+  <!-- Contact Support + Category in the Same Row -->
+  <div class="form-row">
+  <!-- Contact Support Button -->
   <div class="support-section">
     <button class="modern-button" (click)="toggleSupportDetails()">
       💬 Contact Support
     </button>
-
-    <div *ngIf="showSupportDetails" class="support-details">
-      <ul>
-        <li><strong>Quota Issue:</strong> Visit Registrar Office</li>
-        <li><strong>Payment Issue:</strong> Visit Treasurer Office</li>
-        <li><strong>Network Issue:</strong> Contact IT Help Desk</li>
-        <li><strong>Course Issue:</strong> Ask Department Coordinator</li>
-      </ul>
-    </div>
   </div>
 
-  <form class="ticket-form" (ngSubmit)="handleSubmit()" enctype="multipart/form-data">
-    <!-- Category -->
-    <div class="form-group">
-      <label for="category">Category:</label>
-      <select [(ngModel)]="form.category" name="category" id="category" required>
-        <option value="" disabled selected>Select a category</option>
-        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-      </select>
-    </div>
+  <!-- Category Dropdown -->
+  <div class="tt">
+    
+    <select
+      [(ngModel)]="form.category"
+      name="category"
+      id="category"
+      required
+    >
+      <option value="" disabled selected>Select a category</option>
+      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+    </select>
+  </div>
+</div>
 
+
+  <!-- Support Details Below -->
+  <div *ngIf="showSupportDetails" class="support-details">
+    <ul>
+      <li><strong>Quota Issue:</strong> Visit Registrar Office</li>
+      <li><strong>Payment Issue:</strong> Visit Treasurer Office</li>
+      <li><strong>Network Issue:</strong> Contact IT Help Desk</li>
+      <li><strong>Course Issue:</strong> Ask Department Coordinator</li>
+    </ul>
+  </div>
+
+  <!-- Ticket Form -->
+  <form class="ticket-form" (ngSubmit)="handleSubmit()" enctype="multipart/form-data">
     <!-- Title -->
     <div class="form-group">
       <label for="title">Title*</label>
@@ -44,22 +54,19 @@
     </div>
 
     <!-- Description -->
-     <label for="title">Description</label>
+    <label for="description">Description</label>
     <textarea
-  [(ngModel)]="form.description"
-  name="description"
-  id="description"
-  maxlength="120"
-  placeholder="Let us know your thoughts..."
-  required
-  (input)="adjustTextareaHeight($event)"
-></textarea>
-
+      [(ngModel)]="form.description"
+      name="description"
+      id="description"
+      maxlength="120"
+      placeholder="Let us know your thoughts..."
+      required
+      (input)="adjustTextareaHeight($event)"
+    ></textarea>
 
     <!-- File Upload -->
     <div class="form-group">
-      
-
       <button type="button" class="upload-button" (click)="fileInput.click()">
         📎 Upload Attachment
       </button>
@@ -73,7 +80,7 @@
       />
 
       <!-- File Preview List -->
-      <div class="file-preview" style="margin-top:12px;">
+      <div class="file-preview">
         <div *ngFor="let file of filePreviews; let i = index" class="file-thumb">
           <div class="file-icon">
             <img *ngIf="file.type.startsWith('image')" [src]="file.url" alt="preview" />

@@ -30,15 +30,13 @@
         <div class="note-card-modern green" *ngIf="totalPendingIssuesAllUsers >= 0">
           <h4>Total Pending Issues</h4>
           <p class="note-number">{{ totalPendingIssuesAllUsers }}</p>
-          <p class="note-description">Across all users</p>
-          <span class="note-date">{{ currentDate }}</span>
+      
         </div>
 
         <div class="note-card-modern purple" *ngIf="latestUserPendingIssueId">
           <h4>Your Latest Pending</h4>
           <p class="note-number">{{ latestUserPendingIssueId }}</p>
-          <p class="note-description">Your latest pending issue ID</p>
-          <span class="note-date">{{ currentDate }}</span>
+          
         </div>
       </div>
     </div>

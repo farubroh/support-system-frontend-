@@ -1,24 +1,32 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms'; // For ngModel
 import { getStatusColor } from '../utils/get-status-color';
 import { IssueViewModalAdminComponent } from "../issue-view-modal-admin/issue-view-modal-admin.component";
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SafeHtmlPipe } from "../safe-html.pipe";
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
- declare var CircularProgressBar: any;
+
+declare var CircularProgressBar: any;
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css'],
-  imports: [IssueViewModalAdminComponent, CommonModule, HttpClientModule, NgCircleProgressModule, SafeHtmlPipe],
+  imports: [
+    IssueViewModalAdminComponent,
+    CommonModule,
+    HttpClientModule,
+    NgCircleProgressModule,
+    SafeHtmlPipe,
+    FormsModule
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [HttpClient]
 })
-export class AdminDashboardComponent implements OnInit, AfterViewInit {
+export class AdminDashboardComponent implements OnInit {
   issues: any[] = [];
   allIssues: any[] = [];
   activeTab: string = 'PENDING';
@@ -41,31 +49,28 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   rejectedCount: number = 0;
 
   isDarkMode = false;
-  filterStatus: string = 'PENDING'; // Used for table filtering
+  filterStatus: string = 'PENDING'; 
 
   calendarHtml: SafeHtml = '';
   currentMonthName = '';
   currentYear = 0;
 
-  pieConfig: any = {}; // 🟢 Circular pie configuration
+  pieConfig: any = {};
+  sidebarView: string = '';
 
-  statusTabs = [{
-      key: 'PENDING',
-      label: 'Pending'
-    },
-    {
-      key: 'INPROGRESS',
-      label: 'In Progress'
-    },
-    {
-      key: 'COMPLETED',
-      label: 'Completed'
-    },
-    {
-      key: 'REJECTED',
-      label: 'Rejected'
-    }
+  categoryCounts: any[] = [];
+  categoryList = ['Edu mail problem', 'Payment problem', 'Result problem', 'Quota problem'];
+  selectedCategory: string = '';
+
+  statusTabs = [
+    { key: 'PENDING', label: 'Pending' },
+    { key: 'INPROGRESS', label: 'In Progress' },
+    { key: 'COMPLETED', label: 'Completed' },
+    { key: 'REJECTED', label: 'Rejected' }
   ];
+
+  searchQuery: string = '';
+  searchConflictMessage: string = '';
 
   constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
   isDesktopView = true;
@@ -73,7 +78,6 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.fetchIssues();
     this.fetchAllIssuesForKPI();
-    this.generateCalendar();
 
     this.isDesktopView = window.innerWidth >= 768;
     window.addEventListener('resize', () => {
@@ -86,34 +90,13 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     }, 10000);
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      const pieElements = document.querySelectorAll('.circular-pie');
-      const pie = new CircularProgressBar("circular-pie");
-      pieElements.forEach((el: any) => pie.initial(el));
-    }, 500);
-
-    // 🔁 Re-animate every 10 seconds
-    setInterval(() => {
-      const pie = new CircularProgressBar("circular-pie");
-      const options = {
-        index: 1,
-        percent: this.completedPercent,
-        colorSlice: "#42a5f5",
-        fontColor: "#42a5f5",
-        colorCircle: "#f1f1f1",
-        fontSize: "1.3rem",
-        stroke: 10,
-        strokeBottom: 14,
-        round: true
-      };
-      pie.animationTo(options);
-    }, 10000);
+  get searchActive(): boolean {
+    return this.searchQuery.trim().length > 0;
   }
 
   fetchIssues() {
     this.loading = true;
-    this.http.get < any[] > (`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
+    this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
       (res) => {
         this.issues = res;
         this.updateStatusCounts();
@@ -128,7 +111,7 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   fetchAllIssuesForKPI() {
-    this.http.get < any[] > (`http://localhost:8085/api/issues/all_admin`).subscribe(
+    this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
       (res) => {
         this.allIssues = res;
         this.calculateKPIFromAll();
@@ -144,10 +127,12 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     const total = this.allIssues.length || 1;
     this.totalIssuesCount = total;
 
-    const pending = this.allIssues.filter(i => i.status === 'PENDING').length;
-    const completed = this.allIssues.filter(i => i.status === 'COMPLETED').length;
-    const rejected = this.allIssues.filter(i => i.status === 'REJECTED').length;
-    const inprogress = this.allIssues.filter(i => i.status === 'INPROGRESS').length;
+    const normalize = (status: string) => (status || '').trim().toUpperCase();
+
+    const pending = this.allIssues.filter(i => normalize(i.status) === 'PENDING').length;
+    const completed = this.allIssues.filter(i => normalize(i.status) === 'COMPLETED').length;
+    const rejected = this.allIssues.filter(i => normalize(i.status) === 'REJECTED').length;
+    const inprogress = this.allIssues.filter(i => normalize(i.status) === 'INPROGRESS').length;
 
     this.pendingCount = pending;
     this.completedCount = completed;
@@ -158,13 +143,12 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.completedPercent = Math.round((completed / total) * 100);
     this.rejectedPercent = Math.round((rejected / total) * 100);
 
-    const userSet = new Set < number > ();
+    const userSet = new Set<number>();
     for (let issue of this.allIssues) {
       if (issue.user?.id) userSet.add(issue.user.id);
     }
     this.totalUsersIssued = userSet.size;
 
-    // 🔄 Update pie config for progress bar
     this.pieConfig = {
       percent: this.completedPercent,
       colorSlice: "#42a5f5",
@@ -179,29 +163,74 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   get filteredIssues(): any[] {
-    return this.allIssues.filter(i => i.status === this.filterStatus);
+    const normalize = (status: string) => (status || '').trim().toUpperCase();
+    let results = this.allIssues;
+
+    // Search first
+    if (this.searchActive) {
+      const query = this.searchQuery.toLowerCase();
+      results = results.filter(issue =>
+        (issue.title && issue.title.toLowerCase().includes(query)) ||
+        (issue.category && issue.category.toLowerCase().includes(query)) ||
+        (issue.status && issue.status.toLowerCase().includes(query))
+      );
+      return results; // Ignore category/status when searching
+    }
+
+    // If category selected, ignore status
+    if (this.selectedCategory) {
+      results = results.filter(issue => issue.category === this.selectedCategory);
+      return results;
+    }
+
+    // If status selected
+    if (this.filterStatus && this.filterStatus !== 'ALL') {
+      results = results.filter(issue => normalize(issue.status) === this.filterStatus);
+    }
+
+    return results;
   }
 
   setFilterStatus(status: string) {
-    this.filterStatus = status;
+    if (this.searchActive) {
+      this.searchConflictMessage = 'Clear search to view status results.';
+    } else {
+      this.searchConflictMessage = '';
+      this.filterStatus = status;
+      this.selectedCategory = '';
+    }
+  }
+
+  selectCategory(category: string) {
+    if (this.searchActive) {
+      this.searchConflictMessage = 'Clear search to view category results.';
+    } else {
+      this.searchConflictMessage = '';
+      this.selectedCategory = category;
+    }
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.searchConflictMessage = '';
   }
 
   onTabClick(status: string) {
-    this.activeTab = status;
+    this.filterStatus = status;
     this.fetchIssues();
     this.fetchAllIssuesForKPI();
   }
 
   assignDeveloper(developerId: number) {
     this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
-        developerId: developerId
-      })
+      developerId: developerId
+    })
       .subscribe({
         next: () => {
           this.selectedIssue.status = 'INPROGRESS';
           this.refreshIssueList();
         },
-        error: (err) => alert('Failed to assign developer')
+        error: () => alert('Failed to assign developer')
       });
   }
 
@@ -210,48 +239,6 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   getStatusColor = getStatusColor;
-
-  generateCalendar() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-
-    this.currentMonthName = now.toLocaleString('default', {
-      month: 'long'
-    });
-    this.currentYear = year;
-
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const firstDay = new Date(year, month, 1).getDay();
-    const numDays = new Date(year, month + 1, 0).getDate();
-
-    let html = '<table><thead><tr>' + days.map(day => `<th>${day}</th>`).join('') + '</tr></thead><tbody><tr>';
-    let dayCounter = 1;
-
-    for (let i = 0; i < firstDay; i++) {
-      html += '<td></td>';
-    }
-
-    for (let i = firstDay; i < 7; i++) {
-      html += `<td>${dayCounter++}</td>`;
-    }
-    html += '</tr>';
-
-    while (dayCounter <= numDays) {
-      html += '<tr>';
-      for (let i = 0; i < 7; i++) {
-        if (dayCounter <= numDays) {
-          html += `<td>${dayCounter++}</td>`;
-        } else {
-          html += '<td></td>';
-        }
-      }
-      html += '</tr>';
-    }
-
-    html += '</tbody></table>';
-    this.calendarHtml = this.sanitizer.bypassSecurityTrustHtml(html);
-  }
 
   getCategoryColor(category: string): string {
     switch ((category || '').toLowerCase()) {
@@ -275,9 +262,35 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   updateStatusCounts() {
-    this.pendingCount = this.issues.filter(i => i.status === 'PENDING').length;
-    this.inProgressCount = this.issues.filter(i => i.status === 'INPROGRESS').length;
-    this.completedCount = this.issues.filter(i => i.status === 'COMPLETED').length;
-    this.rejectedCount = this.issues.filter(i => i.status === 'REJECTED').length;
+    const normalize = (status: string) => (status || '').trim().toUpperCase();
+    this.pendingCount = this.issues.filter(i => normalize(i.status) === 'PENDING').length;
+    this.inProgressCount = this.issues.filter(i => normalize(i.status) === 'INPROGRESS').length;
+    this.completedCount = this.issues.filter(i => normalize(i.status) === 'COMPLETED').length;
+    this.rejectedCount = this.issues.filter(i => normalize(i.status) === 'REJECTED').length;
+  }
+
+  getCategoryCount(category: string): number {
+    return this.allIssues.filter(issue => issue.category === category).length;
+  }
+
+  showingAllIssues: boolean = false;
+  showingCategories: boolean = false;
+  showingGraph: boolean = false;
+  showingDevelopers: boolean = false;
+
+  showCategories() {
+    this.showingCategories = !this.showingCategories;
+  }
+
+  showAllIssues() {
+    this.showingAllIssues = !this.showingAllIssues;
+  }
+
+  showGraph() {
+    this.showingGraph = !this.showingGraph;
+  }
+
+  showDevelopers() {
+    this.showingDevelopers = !this.showingDevelopers;
   }
 }
