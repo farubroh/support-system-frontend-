@@ -21,4 +21,13 @@ export class IssueCardComponent {
   return status?.toLowerCase().replace(/\s+/g, '-'); // e.g., "INPROGRESS" -> "inprogress"
 }
 
+getCategoryIcon(category: string): string {
+  switch ((category || '').toLowerCase()) {
+    case 'bug': return 'fa-solid fa-bug';
+    case 'feature': return 'fa-solid fa-lightbulb';
+    case 'task': return 'fa-solid fa-check';
+    default: return 'fa-solid fa-folder';
+  }
+}
+
 }

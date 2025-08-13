@@ -2,46 +2,103 @@
   flex: 1;
   min-width: 280px;
   max-width: 320px;
-  height: 78vh;
+  height: 80vh;
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
+/* Column Header Styling */
 .column h3 {
   text-align: center;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 500;
   color: #ffffff;
-  background: #3f51b5; /* universal header color */
-  padding: 14px;
+  background: #3f51b5; /* Primary color, can be changed */
+  padding: 16px;
   margin: 0;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
 
+/* Column Drop Area Styling */
 .column-drop-area {
   flex-grow: 1;
-  padding: 14px;
-  background: #f9fafa;
+  padding: 16px;
+  background: #f8f9fa; /* Very light grey */
   overflow-y: auto;
   scroll-behavior: smooth;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
 }
 
+/* Smooth Scrollbar Styling */
 .column-drop-area::-webkit-scrollbar {
   width: 6px;
 }
+
 .column-drop-area::-webkit-scrollbar-thumb {
   background-color: #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .column-drop-area.cdk-drop-list-dragging {
-  background-color: #e0f7fa;
+  background-color: #e3f2fd; /* Light Blue while dragging */
 }
+
+/* Card Hover Effect */
+.issue-card {
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: grab;
+}
+
+.issue-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.issue-card:active {
+  cursor: grabbing;
+}
+
+/* Card Content Styling */
+.issue-card strong {
+  font-size: 1.1rem;
+  color: #212121;
+  font-weight: 600;
+}
+
+.issue-card p {
+  color: #757575;
+  margin: 8px 0;
+}
+
+.issue-card small {
+  color: #9e9e9e;
+  font-size: 0.85rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

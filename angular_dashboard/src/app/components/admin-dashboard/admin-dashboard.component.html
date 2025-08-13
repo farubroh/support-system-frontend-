@@ -1,6 +1,6 @@
 <div class="crm-wrapper">
   <!-- Left Sidebar -->
- <aside class="sidebar">
+ <aside class="sidebar collapsible">
     <ul class="sidebar-icons">
       <!-- Problem Status -->
       <li (click)="showAllIssues()">
@@ -87,37 +87,19 @@
 
     <!-- Knowledge and Ticket Tables -->
     <div class="lower-panels">
-      <div class="panel-box wide">
-  <h4>{{ selectedCategory ? selectedCategory : (filterStatus | titlecase) }} Issues</h4>
+     <div class="panel-box wide">
+  <h4 class="sticky-title">
+    {{ selectedCategory ? selectedCategory : (filterStatus | titlecase) }} Issues
+  </h4>
 
-
-  <!-- 📱 Mobile Card Layout -->
-  <ng-container *ngIf="!isDesktopView">
-    <div class="issue-card" *ngFor="let issue of filteredIssues; let i = index">
-      <div class="card-row"><strong>Issue No.:</strong> {{ i + 1 }}</div>
-      <div class="card-row"><strong>Title:</strong> {{ issue.title }}</div>
-      <div class="card-row"><strong>Category:</strong>
-        <span class="category-badge"
-              [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }">
-          {{ issue.category || 'No Category' }}
-        </span>
-      </div>
-      <div class="card-row"><strong>Issue Date:</strong> {{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</div>
-      <div class="card-row"><strong>Developer:</strong>
-        <button class="view-btn" (click)="selectedIssue = issue">View</button>
-      </div>
-    </div>
-    <div *ngIf="filteredIssues.length === 0">No {{ filterStatus | lowercase }} issues found.</div>
-  </ng-container>
-
-  <!-- 💻 Desktop Table Layout -->
-  <ng-container *ngIf="isDesktopView">
+  <div class="table-wrapper">
     <table *ngIf="filteredIssues.length > 0">
       <thead>
         <tr>
           <th>Issue No.</th>
           <th>Title</th>
           <th>Category</th>
+          <th>Users Info</th>
           <th>Issue Date</th>
           <th>Assigned Developer</th>
         </tr>
@@ -132,16 +114,40 @@
               {{ issue.category || 'No Category' }}
             </span>
           </td>
-          <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
           <td>
-            <button class="view-btn" (click)="selectedIssue = issue">View</button>
-          </td>
+        <div class="user-info">
+          {{ issue.user?.username }}-{{ issue.user?.department }} - {{ issue.user?.designation }} <!-- Display department and designation -->
+        </div>
+      </td>
+          <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
+         <td>
+  <!-- Show "View" button only if the issue doesn't have an assigned developer -->
+  <button *ngIf="!issue.assignedDeveloper" class="view-btn" (click)="selectedIssue = issue">
+    View
+  </button>
+
+  <!-- Show "Assigned" button if the issue is already assigned -->
+  <button *ngIf="issue.assignedDeveloper" class="assigned-btn" (click)="selectedIssue = issue" disabled>
+    Assigned
+  </button>
+
+  <!-- Display the developer's name if the issue is assigned -->
+  <div *ngIf="issue.assignedDeveloper">
+    <span>Assigned to: {{ issue.developerName }}</span>
+  </div>
+</td>
+
+
+
+
+
         </tr>
       </tbody>
     </table>
     <div *ngIf="filteredIssues.length === 0">No {{ filterStatus | lowercase }} issues found.</div>
-  </ng-container>
+  </div>
 </div>
+
 
 
       <!-- <div class="panel-box narrow">

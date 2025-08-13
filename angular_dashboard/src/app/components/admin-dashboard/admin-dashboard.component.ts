@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { AfterViewInit, Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; // For ngModel
@@ -72,7 +72,7 @@ export class AdminDashboardComponent implements OnInit {
   searchQuery: string = '';
   searchConflictMessage: string = '';
 
-  constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
+  constructor(private http: HttpClient, private sanitizer: DomSanitizer,private cdr: ChangeDetectorRef) {}
   isDesktopView = true;
 
   ngOnInit() {
@@ -99,6 +99,7 @@ export class AdminDashboardComponent implements OnInit {
     this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
       (res) => {
         this.issues = res;
+        
         this.updateStatusCounts();
         this.loading = false;
       },
@@ -221,18 +222,29 @@ export class AdminDashboardComponent implements OnInit {
     this.fetchAllIssuesForKPI();
   }
 
-  assignDeveloper(developerId: number) {
-    this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
-      developerId: developerId
-    })
-      .subscribe({
-        next: () => {
-          this.selectedIssue.status = 'INPROGRESS';
-          this.refreshIssueList();
-        },
-        error: () => alert('Failed to assign developer')
-      });
-  }
+ assignDeveloper(developerId: number) {
+  this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
+    developerId: developerId
+  })
+  .subscribe({
+    next: (res: any) => {
+      this.selectedIssue.status = 'PENDING';  // Do not change status to INPROGRESS
+      this.selectedIssue.assignedDeveloper = developerId;
+      this.selectedIssue.developerName = res.developerName;  // Update developer name
+
+      // Manually trigger change detection to update the view
+      this.cdr.detectChanges();
+      this.refreshIssueList();  // Refresh the issue list to update the UI
+
+      // Optionally close the issue view
+      this.selectedIssue = null;
+    },
+    error: () => alert('Failed to assign developer')
+  });
+}
+
+
+
 
   refreshIssueList() {
     this.fetchIssues();
@@ -273,8 +285,8 @@ export class AdminDashboardComponent implements OnInit {
     return this.allIssues.filter(issue => issue.category === category).length;
   }
 
-  showingAllIssues: boolean = false;
-  showingCategories: boolean = false;
+  showingAllIssues: boolean = true;
+  showingCategories: boolean = true;
   showingGraph: boolean = false;
   showingDevelopers: boolean = false;
 

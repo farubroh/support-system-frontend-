@@ -86,7 +86,8 @@ export class DashboardComponent implements OnInit {
   const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
   this.http.get<any[]>(url).subscribe({
     next: (res) => {
-      // Sort the issues by createdAt date in descending order
+      
+      console.log("Fetched issues:", res); // Ensure the issues are fetched correctly
       this.issues = res.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
     error: (err) => {
@@ -101,14 +102,40 @@ export class DashboardComponent implements OnInit {
   });
 }
 
+getFileName(filePath: string): string {
+    const fileName = filePath.split('/').pop();  // Get the last part of the path
+    return fileName ? fileName : 'Unknown file';  // Return the file name or a fallback
+  }
+
+
+isSidebarOpen = false; // Start with the sidebar open
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
   // UPDATED: closes filter menu after tab click
   onTabClick(tabKey: string) {
-    this.activeTab = tabKey;
-    this.fetchIssues();
+  this.activeTab = tabKey;  // Set active status tab
 
-    // Close desktop filter menu after selection
-    this.isFilterOpen = false;
+  // Fetch the issues for the selected status tab
+  this.fetchIssues();  
+
+  // Close desktop filter menu after selection
+  this.isFilterOpen = false;
+
+  // Handle mobile view, show issues under the sidebar
+  if (this.isMobileView) {
+    // Ensure mobile issues are shown
+    this.showIssuesBelowSidebar(tabKey);
   }
+}
+
+showIssuesBelowSidebar(tabKey: string) {
+  // Update the issues list for mobile view
+  this.fetchIssues(); // Re-fetch issues whenever the tab is clicked
+}
+
+
 
   // NEW: toggles desktop filter menu open/close
   toggleFilterMenu() {

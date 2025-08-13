@@ -4,7 +4,44 @@ body, html {
   padding: 0;
   font-family: 'Segoe UI', sans-serif;
   background: #f2f4f8;
+  overflow: hidden;
+  
 }
+/* Style for the Users Info column */
+
+
+.user-info {
+  font-size: 13px;
+  font-weight: 1100;
+  color: #333;
+  border-radius: 6px;
+  padding: 5px 8px;
+  
+  text-align: center;
+  color: #555;
+}
+.user-info:hover {
+  background: #e0e0e0;
+  cursor: pointer;
+}
+/* Style for the Assigned button */
+.assigned-btn {
+  background-color: #81c784;  /* Green background */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: not-allowed;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.assigned-btn:hover {
+  background-color: #66bb6a;  /* Darker green on hover */
+}
+
+
 
 .nav-header {
   display: flex;
@@ -31,7 +68,11 @@ body, html {
   flex-direction: column;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
-  width: 250px;  /* Decreased width */
+  width: 200px;
+  max-height: 700px;        /* Default small height */
+  overflow-y: auto;         /* Enable scrolling if content exceeds max-height */
+  margin-top: 20px;         /* Space from top */
+  margin-left: 20px;
 }
 
 /* Sidebar Icons and Text */
@@ -162,19 +203,29 @@ body, html {
   padding: 16px;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  max-height: 320px;
+  max-height: 620px;
   overflow-y: auto;
 }
 
 .panel-box.wide {
-  flex: 3;
+  
   background: #fff;
   padding: 16px;
   border-radius: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  max-height: 620px;
+  
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  
+}
+
+.table-wrapper{
+   flex: 1;
   overflow-y: auto;
-  position: relative;
+    padding-bottom: 55px; 
 }
 
 .panel-box.wide thead th {

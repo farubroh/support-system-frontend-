@@ -9,9 +9,25 @@
   cdkDrag
   [cdkDragData]="issue"
 >
-  <div>
+  <!-- Title & Category -->
+  <div class="title-row">
     <strong>{{ issue?.title }}</strong>
-    <p>{{ issue?.description }}</p>
-    <small>📅 {{ issue?.createdAt | date }}</small>
+    <span class="category">{{ issue?.category }}</span>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="issue-stats">
+    <div class="stat">
+      <i class="fa-solid fa-comment"></i>
+      <span>{{ issue?.comments || 0 }}</span>
+    </div>
+    <div class="stat" *ngIf="issue?.tasks !== undefined">
+      <i class="fa-solid fa-list-check"></i>
+      <span>{{ issue?.tasks }}</span>
+    </div>
+    <div class="stat">
+      <i class="fa-regular fa-clock"></i>
+      <span>{{ issue?.createdAt | date:'shortDate' }}</span>
+    </div>
   </div>
 </div>

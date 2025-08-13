@@ -19,10 +19,10 @@ export class ColumnComponent {
 
 
   statusTitle: Record<string, string> = {
-    PENDING: '🕒 Pending',
-    INPROGRESS: '🚧 In Progress',
-    COMPLETED: '✅ Completed',
-    REJECTED: '❌ Rejected'
+    PENDING: ' Pending',
+    INPROGRESS: ' In Progress',
+    COMPLETED: ' Completed',
+    REJECTED: ' Rejected'
   };
 
   onDropWrapper(event: CdkDragDrop<any[]>) {

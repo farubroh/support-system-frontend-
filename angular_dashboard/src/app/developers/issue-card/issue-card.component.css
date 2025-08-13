@@ -1,64 +1,61 @@
 .issue-card {
+  background-color: #1f232b;
   border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 12px;
-  color: #ffffff;
-  font-size: 0.95rem;
-  background-color: #9e9e9e; /* fallback */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  cursor: grab;
-  animation: popIn 0.3s ease-out;
+  padding: 12px 14px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: all 0.25s ease;
 }
-
-@keyframes popIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 .issue-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
 }
 
-.issue-card:active {
-  cursor: grabbing;
+/* Title row */
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.title-row strong {
+  font-size: 0.95rem;
+  color: #f1f5f9;
+}
+.category {
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.06);
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #aab2c0;
+  text-transform: capitalize;
 }
 
-/* Preview while dragging */
-.cdk-drag-preview {
-  transform: scale(1.05);
-  border-radius: 14px;
-  padding: 16px;
-  background-color: #fff;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+/* Stats row */
+.issue-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+.stat {
+  background-color: rgba(255,255,255,0.04);
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #aab2c0;
+  transition: background 0.3s ease;
+}
+.stat:hover {
+  background-color: rgba(255,255,255,0.08);
 }
 
-/* Placeholder during drag */
-.cdk-drag-placeholder {
-  background-color: #dcdcdc;
-  border: 2px dashed #aaa;
-  min-height: 60px;
-  border-radius: 12px;
-  opacity: 0.4;
-}
-
-/* Solid status backgrounds */
-.issue-card.pending {
-  background-color: #fbc02d; /* Amber */
-}
-.issue-card.inprogress {
-  background-color: #29b6f6; /* Sky Blue */
-}
-.issue-card.completed {
-  background-color: #66bb6a; /* Mint Green */
-}
-.issue-card.rejected {
-  background-color: #ef5350; /* Coral Red */
-}
+/* Status minimal color hints */
+.pending { border-left: 3px solid #f1c40f; }
+.inprogress { border-left: 3px solid #3498db; }
+.completed { border-left: 3px solid #2ecc71; }
+.rejected { border-left: 3px solid #e74c3c; }
