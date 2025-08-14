@@ -15,7 +15,10 @@
   display: flex;
   height: 100vh;
 }
-
+.sidebar nav,
+.sidebar .section {
+  background: none; /* Remove background */
+}
 .sidebar {
   width: 250px;
   background: white;

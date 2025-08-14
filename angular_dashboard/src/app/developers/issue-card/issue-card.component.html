@@ -9,25 +9,39 @@
   cdkDrag
   [cdkDragData]="issue"
 >
-  <!-- Title & Category -->
-  <div class="title-row">
-    <strong>{{ issue?.title }}</strong>
-    <span class="category">{{ issue?.category }}</span>
+  <!-- Card Title -->
+  <div class="card-title">{{ issue?.title }}</div>
+  <div class="created-time">{{ issue?.createdAt | date:'short' }}</div>
+
+  <!-- Labels -->
+  <div class="labels">
+    <span
+      class="label"
+      [ngStyle]="{
+        'background-color': getCategoryColor(issue?.category),
+        'border': '1px solid ' + getCategoryColor(issue?.category),
+        'border-radius': '5px',
+        'color': '#000',
+        'padding': '2px 5px',
+        'font-size': '12px'
+      }"
+    >
+      {{ issue?.category || 'Uncategorized' }}
+    </span>
   </div>
 
-  <!-- Stats Row -->
-  <div class="issue-stats">
-    <div class="stat">
-      <i class="fa-solid fa-comment"></i>
-      <span>{{ issue?.comments || 0 }}</span>
+  <!-- Card Footer -->
+  <div class="card-footer">
+    <div class="stats">
+      <i class="fa-regular fa-comment"></i> {{ issue?.comments || 0 }}
     </div>
-    <div class="stat" *ngIf="issue?.tasks !== undefined">
-      <i class="fa-solid fa-list-check"></i>
-      <span>{{ issue?.tasks }}</span>
+    <div class="avatars">
+      <img *ngIf="issue?.user?.avatar" [src]="issue?.user.avatar" />
     </div>
-    <div class="stat">
-      <i class="fa-regular fa-clock"></i>
-      <span>{{ issue?.createdAt | date:'shortDate' }}</span>
-    </div>
+  </div>
+
+  <div class="user-info" *ngIf="issue?.user">
+    <span class="user-name">{{ issue?.user.name }}</span>
+    <span class="user-designation">{{ issue?.user.designation }}</span>
   </div>
 </div>

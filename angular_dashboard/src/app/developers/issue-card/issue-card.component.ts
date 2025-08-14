@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
+
 @Component({
   selector: 'app-issue-card',
   standalone: true,
@@ -11,23 +12,34 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 })
 export class IssueCardComponent {
   @Input() issue: any;
+
   ngOnInit() {
-  console.log('🧪 Issue status:', this.issue?.status);
-}
-
-
-
-  getStatusClass(status: string): string {
-  return status?.toLowerCase().replace(/\s+/g, '-'); // e.g., "INPROGRESS" -> "inprogress"
-}
-
-getCategoryIcon(category: string): string {
-  switch ((category || '').toLowerCase()) {
-    case 'bug': return 'fa-solid fa-bug';
-    case 'feature': return 'fa-solid fa-lightbulb';
-    case 'task': return 'fa-solid fa-check';
-    default: return 'fa-solid fa-folder';
+    console.log('🧪 Issue status:', this.issue?.status);
   }
-}
 
+  getCategoryClass(category: string): string {
+    switch ((category || '').toLowerCase()) {
+      case 'bug': return 'category-bug';
+      case 'feature': return 'category-feature';
+      case 'task': return 'category-task';
+      default: return 'category-default';
+    }
+  }
+
+  getCategoryColor(category: string): string {
+    switch ((category || '').toLowerCase()) {
+      case 'edu mail problem':
+        return '#f48fb1';
+      case 'payment problem':
+        return '#ffb74d';
+      case 'quota problem':
+        return '#81c784';
+      case 'result problem':
+        return '#64b5f6';
+      case 'login issue':
+        return '#9575cd';
+      default:
+        return '#cfd8dc';
+    }
+  }
 }

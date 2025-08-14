@@ -1,36 +1,23 @@
 <div class="app-container">
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">AUST <span>Pilot</span></div>
+   <aside class="sidebar">
+    <div class="logo">
+      <h2>AppLogo</h2>
+    </div>
     <nav>
       <ul>
-        <li><i class="bi bi-grid"></i> Dashboard</li>
-        <li><i class="bi bi-inbox"></i> Inbox </li>
+        <li><i class="bi bi-house-door"></i> Dashboard</li>
+        <li><i class="bi bi-inbox"></i> Inbox</li>
         <li><i class="bi bi-check2-square"></i> Tasks</li>
         <li><i class="bi bi-chat-left-text"></i> Conversations</li>
-        <li><i class="bi bi-folder"></i> Files</li>
       </ul>
     </nav>
-
-    <div class="section">
-      <p>Projects</p>
-      <ul>
-        <li class="active">Star Construction App</li>
-        <li>Annual Maintenance</li>
-        <li class="add">+ Add</li>
-      </ul>
-    </div>
-
     <div class="section">
       <p>Developers</p>
       <ul>
-        <li 
-          *ngFor="let developer of developers"
-          (click)="filterByDeveloper(developer.name)"
-          [class.selected]="selectedDeveloper === developer.name"
-        >
-          {{ developer.name }}
-        </li>
+        <li>Developer 1</li>
+        <li>Developer 2</li>
+        <li>Developer 3</li>
         <li class="add">+ Add</li>
       </ul>
     </div>
@@ -38,18 +25,14 @@
 
   <!-- Main Content -->
   <main class="main">
-    <header class="main-header">
-      <input type="text" placeholder="Search" class="search-bar" />
-      <div class="profile-icon">
-        <img [src]="getDeveloperImage(user?.username)" alt="Profile Image" class="developer-img" />
-      </div>
-    </header>
+    
 
     <section class="project-info">
       <div class="project-text">
         <div class="title">
           <h2>Developer Dashboard</h2>
         </div>
+        <input type="text" placeholder="Search" class="search-bar" />
       </div>
     </section>
 
