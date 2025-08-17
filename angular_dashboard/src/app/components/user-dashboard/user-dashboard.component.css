@@ -456,7 +456,7 @@ Key
   flex: 1 1 70%;
   overflow-y: auto;
   padding: 20px;
-  background: #f9fafb;
+  background: #F6F7FF;
 }
 
 .task-list {
@@ -543,7 +543,7 @@ Key
   left: 50%;
   transform: translate(-50%, -50%);
   width: 50vw;
-  max-width: 560px;
+  max-width: 540px;
   max-height: 100vh;
   height: auto;
   z-index: 1001;
@@ -646,4 +646,10 @@ Key
     width: auto;
     text-align: center;
   }
+}
+.task-description {
+  font-size: 13px;           /* smaller font */
+  color: rgba(0, 0, 0, 0.4); /* 40% visible */
+  margin-top: 6px;
+  line-height: 1.4;
 }

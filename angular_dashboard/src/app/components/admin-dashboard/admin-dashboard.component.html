@@ -73,15 +73,14 @@
 
 
     <!-- Profile Avatars -->
-    <div class="avatar-bar">
+    <!-- <div class="avatar-bar">
       <img src="/man.png" class="avatar" />
       <img src="/black.png" class="avatar" />
       <img src="/person.png" class="avatar" />
       <img src="/Male.png" class="avatar" />
       <img src="/New_male.png" class="avatar" />
-      <!-- <img src="assets/images/u6.jpg" class="avatar" />
-      <img src="assets/images/u7.jpg" class="avatar" /> -->
-    </div>
+      
+    </div> -->
 
    
 
@@ -115,7 +114,8 @@
             </span>
           </td>
           <td>
-        <div class="user-info">
+        <div class="user-info"  [ngStyle]="{ 'text-align': 'left' }"
+>
           {{ issue.user?.username }}-{{ issue.user?.department }} - {{ issue.user?.designation }} <!-- Display department and designation -->
         </div>
       </td>

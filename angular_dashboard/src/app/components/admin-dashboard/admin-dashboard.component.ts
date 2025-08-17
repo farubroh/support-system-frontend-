@@ -208,6 +208,7 @@ export class AdminDashboardComponent implements OnInit {
     } else {
       this.searchConflictMessage = '';
       this.selectedCategory = category;
+      this.filterStatus = '';
     }
   }
 
@@ -255,13 +256,13 @@ export class AdminDashboardComponent implements OnInit {
   getCategoryColor(category: string): string {
     switch ((category || '').toLowerCase()) {
       case 'edu mail problem':
-        return '#f48fb1';
+        return ' #7321D7';
       case 'payment problem':
-        return '#ffb74d';
+        return '  #B10F99';
       case 'quota problem':
-        return '#81c784';
+        return '#0E9591';
       case 'result problem':
-        return '#64b5f6';
+        return '#2E0D3C';
       case 'login issue':
         return '#9575cd';
       default:

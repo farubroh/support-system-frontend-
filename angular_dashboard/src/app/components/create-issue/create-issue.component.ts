@@ -1,5 +1,3 @@
-// Updated CreateIssueComponent with optional file upload, animation on file input, and no 'No file selected' fallback
-
 import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Router } from '@angular/router';
