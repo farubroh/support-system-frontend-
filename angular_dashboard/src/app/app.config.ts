@@ -1,8 +1,10 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { NgCircleProgressModule } from 'ng-circle-progress';
+import { AuthenticationService } from './authentication.service';  // Corrected the name
+import { JwtInterceptor } from './jwt-interceptor.service';
 
 
 import { routes } from './app.routes';
@@ -13,6 +15,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideAnimations(),
+    AuthenticationService, 
+    JwtInterceptor,
 
     // ✅ Registering Circle Progress Module globally
     importProvidersFrom(

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthenticationService } from '../../authentication.service';
 
 @Component({
   selector: 'app-login',
@@ -12,29 +13,31 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  credentials = { username: '', password: '' };
+  credentials = { username: '', password: '', isAdmin: false };
   error: string = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private authService: AuthenticationService
+  ) {}
 
-  handleSubmit(event: Event) {
+  handleSubmit(event: Event): void {
     event.preventDefault();
     this.error = '';  // Reset error message
-    //this.http.post('http://localhost:4200/api/login', this.credentials)
-    this.http.post('http://localhost:8085/api/login', this.credentials)
 
+    this.http.post<any>('http://localhost:8085/api/authenticate', this.credentials)
       .subscribe({
         next: (res: any) => {
-          // Store user info in sessionStorage
-          sessionStorage.setItem('helpdeskUser', JSON.stringify(res));
+          console.log(res);
+          // Store user and token upon successful login
+          this.authService.login({ ...res.user, token: res.token });
 
-          // Redirect user based on role
-          const role = res.role;
+          const role = res.user.role;
           if (role === 'Admin') {
             this.router.navigate(['/admin']);
           } else if (role === 'Student') {
             this.router.navigate(['/dashboard']);
-            console.log('User logged in successfully');
           } else if (role === 'Developer') {
             this.router.navigate(['/developer']);
           }
