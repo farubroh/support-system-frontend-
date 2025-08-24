@@ -94,12 +94,24 @@ export class AdminDashboardComponent implements OnInit {
     return this.searchQuery.trim().length > 0;
   }
 
-  fetchIssues() {
-    this.loading = true;
-    this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`).subscribe(
+fetchIssues() {
+  this.loading = true;
+  const token = localStorage.getItem('auth_token'); // Or sessionStorage, depending on where you store it
+
+  if (!token) {
+    console.error('JWT token is missing');
+    this.loading = false;
+    return;
+  }
+
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
+
+  this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`, { headers })
+    .subscribe(
       (res) => {
         this.issues = res;
-        
         this.updateStatusCounts();
         this.loading = false;
       },
@@ -109,7 +121,8 @@ export class AdminDashboardComponent implements OnInit {
         this.loading = false;
       }
     );
-  }
+}
+
 
   fetchAllIssuesForKPI() {
     this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(

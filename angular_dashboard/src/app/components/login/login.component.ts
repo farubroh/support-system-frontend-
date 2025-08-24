@@ -22,30 +22,38 @@ export class LoginComponent {
     private authService: AuthenticationService
   ) {}
 
-  handleSubmit(event: Event): void {
-    event.preventDefault();
-    this.error = '';  // Reset error message
+handleSubmit(event: Event): void {
+  event.preventDefault();
+  this.error = '';  // Reset error message
 
-    this.http.post<any>('http://localhost:8085/api/authenticate', this.credentials)
-      .subscribe({
-        next: (res: any) => {
-          console.log(res);
-          // Store user and token upon successful login
+  this.http.post<any>('http://localhost:8085/api/authenticate', this.credentials)
+    .subscribe({
+      next: (res: any) => {
+        console.log(res);
+        // Check if the response contains a user and token
+        if (res && res.token) {
+          // Store the user and token in session storage or a service
           this.authService.login({ ...res.user, token: res.token });
 
+          // Based on the user's role, navigate to the appropriate dashboard
           const role = res.user.role;
-          if (role === 'Admin') {
-            this.router.navigate(['/admin']);
-          } else if (role === 'Student') {
-            this.router.navigate(['/dashboard']);
-          } else if (role === 'Developer') {
-            this.router.navigate(['/developer']);
+          if (role === 'admin') {
+            this.router.navigate(['/admin']);  // Admin dashboard route
+          } else if (role === 'user') {
+            this.router.navigate(['/dashboard']);  // User dashboard route
+          } else if (role === 'developer') {
+            this.router.navigate(['/developer']);  // Developer dashboard route
           }
-        },
-        error: (err) => {
-          console.error(err);
-          this.error = '❌ Invalid Username or Password';
+        } else {
+          this.error = '❌ Invalid credentials or no token received';
         }
-      });
-  }
+      },
+      error: (err) => {
+        console.error(err);
+        this.error = '❌ Invalid Username or Password';
+      }
+    });
+}
+
+
 }
