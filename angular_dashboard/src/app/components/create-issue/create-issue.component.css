@@ -55,6 +55,7 @@ html, body {
 
 /* Ticket Form */
 .ticket-form label {
+  
   font-weight: 600;
   margin-bottom: 4px;
   color: #2e354f;
@@ -65,7 +66,7 @@ html, body {
 /* Category, Title */
 .ticket-form input[type="text"],
 .ticket-form select {
-  
+  padding-left: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
   font-size: 14px;
@@ -91,7 +92,7 @@ html, body {
 
 /* Description Textarea – Match title and auto-grow */
 .ticket-form textarea {
-  
+  padding-left: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
   font-size: 14px;
@@ -135,6 +136,8 @@ html, body {
   flex-wrap: wrap;  /* Allow wrapping for multiple files */
   gap: 15px;
   margin-top: 12px;
+  flex-direction: column;
+  
 }
 
 .file-thumb {
@@ -145,7 +148,7 @@ html, body {
   border-radius: 8px;
   background: #f0f4fc;
   border: 1px solid #dce5f3;
-  max-width: 120px;  /* Limit width of each file preview */
+  max-width: 20vw;/* Limit width of each file preview */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;  /* Prevent file name from breaking into multiple lines */
@@ -437,6 +440,38 @@ html, body {
     padding: 14px 10px;
     border-radius: 16px;
   }
+
+  /* Category, Title */
+.ticket-form input[type="text"],
+.ticket-form select {
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 14px;
+  
+  border-radius: 10px;
+  border: 1px solid #dde3ec;
+  width: 90%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.ticket-form textarea {
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 14px;
+  height: 42px;
+  resize: none;
+  overflow: hidden;
+  border: 1px solid #dde3ec;
+  border-radius: 10px;
+  width: 90%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: border 0.3s, box-shadow 0.3s;
+}
 
   /* Stack Contact Support + Category vertically */
   .form-row {

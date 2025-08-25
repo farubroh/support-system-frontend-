@@ -542,7 +542,7 @@ Key
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 50vw;
+  width: 90vw;
   max-width: 540px;
   max-height: 100vh;
   height: auto;
@@ -559,8 +559,17 @@ Key
   cursor: default;
   animation: slideFadeIn 0.4s ease-out;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow-y: auto;
 }
 
+
+@media (max-width: 560px) {
+  .slide-in-form  {
+    overflow-y: auto;
+    padding-left: 40px;
+  }
+
+}
 .slide-in-form:hover {
   box-shadow: 0 32px 70px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, -50%) scale(1.01);

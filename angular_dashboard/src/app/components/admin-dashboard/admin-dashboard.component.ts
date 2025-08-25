@@ -77,7 +77,7 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.fetchIssues();
-    this.fetchAllIssuesForKPI();
+    // this.fetchAllIssuesForKPI();
 
     this.isDesktopView = window.innerWidth >= 768;
     window.addEventListener('resize', () => {
@@ -86,7 +86,7 @@ export class AdminDashboardComponent implements OnInit {
 
     setInterval(() => {
       this.fetchIssues();
-      this.fetchAllIssuesForKPI();
+      // this.fetchAllIssuesForKPI();
     }, 10000);
   }
 
@@ -96,7 +96,8 @@ export class AdminDashboardComponent implements OnInit {
 
 fetchIssues() {
   this.loading = true;
-  const token = localStorage.getItem('auth_token'); // Or sessionStorage, depending on where you store it
+  const token = localStorage.getItem('auth_token'); 
+  console.log(token); // Or sessionStorage, depending on where you store it
 
   if (!token) {
     console.error('JWT token is missing');
@@ -124,18 +125,18 @@ fetchIssues() {
 }
 
 
-  fetchAllIssuesForKPI() {
-    this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
-      (res) => {
-        this.allIssues = res;
-        this.calculateKPIFromAll();
-      },
-      (err) => {
-        console.error('Failed to fetch all issues:', err);
-        this.allIssues = [];
-      }
-    );
-  }
+  // fetchAllIssuesForKPI() {
+  //   this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
+  //     (res) => {
+  //       this.allIssues = res;
+  //       this.calculateKPIFromAll();
+  //     },
+  //     (err) => {
+  //       console.error('Failed to fetch all issues:', err);
+  //       this.allIssues = [];
+  //     }
+  //   );
+  // }
 
   calculateKPIFromAll() {
     const total = this.allIssues.length || 1;
@@ -233,7 +234,7 @@ fetchIssues() {
   onTabClick(status: string) {
     this.filterStatus = status;
     this.fetchIssues();
-    this.fetchAllIssuesForKPI();
+    // this.fetchAllIssuesForKPI();
   }
 
  assignDeveloper(developerId: number) {

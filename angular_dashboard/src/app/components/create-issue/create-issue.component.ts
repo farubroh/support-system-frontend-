@@ -3,6 +3,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthenticationService } from '../../authentication.service'; // Import AuthenticationService
 
 @Component({
   selector: 'app-issue-form',
@@ -13,6 +14,12 @@ import { FormsModule } from '@angular/forms';
 })
 export class CreateIssueComponent {
   @Output() issueCreated = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<void>();
+
+
+  onCancel() {
+  this.cancel.emit(); // tell parent to close modal
+}
 
   user: any;
   days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -30,21 +37,15 @@ export class CreateIssueComponent {
   isUploading = false;
   uploadSummary = '';
 
-  constructor(private http: HttpClient, public router: Router) {
-    const storedUser = sessionStorage.getItem('helpdeskUser');
-    if (storedUser) {
-      this.user = JSON.parse(storedUser);
-    } else {
+  constructor(private http: HttpClient, public router: Router, private authService: AuthenticationService) {
+    // Fetch user from AuthenticationService (from localStorage)
+    this.user = this.authService.getUser();  // Using AuthenticationService instead of sessionStorage
+    
+    if (!this.user) {
       console.error('No logged-in user found');
       this.router.navigate(['/login']);
     }
   }
-
-  // toggleDay(day: string) {
-  //   const index = this.form.availability.indexOf(day);
-  //   if (index > -1) this.form.availability.splice(index, 1);
-  //   else this.form.availability.push(day);
-  // }
 
   onFileSelected(event: any) {
     const maxFileCount = 5;
@@ -100,47 +101,48 @@ export class CreateIssueComponent {
     this.uploadSummary = this.filePreviews.length > 0 ? `${this.filePreviews.length} file(s) selected.` : '';
   }
 
- handleSubmit() {
-  const formData = new FormData();
-  formData.append('title', this.form.title);
-  formData.append('description', this.form.description);
-  formData.append('userId', this.user.id.toString());
-  formData.append('category', this.form.category);
+  handleSubmit() {
+    const formData = new FormData();
+    formData.append('title', this.form.title);
+    formData.append('description', this.form.description);
+    formData.append('userId', this.user.id.toString());
+    formData.append('category', this.form.category);
 
-  if (this.files.length > 0) {
-    this.files.forEach(file => formData.append('files', file));
+    if (this.files.length > 0) {
+      this.files.forEach(file => formData.append('files', file));
+    }
+
+    this.http.post('http://localhost:8085/api/issues/with-files', formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).subscribe({
+      next: (event: any) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.uploadProgress = Math.round((event.loaded / event.total) * 100);
+        } else if (event.type === HttpEventType.Response) {
+          this.issueCreated.emit();
+          alert('✅ Ticket submitted successfully!');
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: (err) => {
+        alert('❌ Submission failed. Check logs.');
+        console.error(err);
+      }
+    });
   }
 
-  this.http.post('http://localhost:8085/api/issues/with-files', formData, {
-    reportProgress: true,
-    observe: 'events'
-  }).subscribe({
-    next: (event: any) => {
-      if (event.type === HttpEventType.UploadProgress && event.total) {
-        this.uploadProgress = Math.round((event.loaded / event.total) * 100);
-      } else if (event.type === HttpEventType.Response) {
-        this.issueCreated.emit();
-        alert('✅ Ticket submitted successfully!');
-        this.router.navigate(['/dashboard']);
-      }
-    },
-    error: (err) => {
-      alert('❌ Submission failed. Check logs.');
-      console.error(err);
-    }
-  });
-}
-showSupportDetails = false;
+  showSupportDetails = false;
 
-toggleSupportDetails() {
-  this.showSupportDetails = !this.showSupportDetails;
-}
-// In your component.ts
-adjustTextareaHeight(event: Event) {
-  const textarea = event.target as HTMLTextAreaElement;
-  textarea.style.height = 'auto'; // Reset height
-  textarea.style.height = textarea.scrollHeight + 'px'; // Set to full content
-}
+  toggleSupportDetails() {
+    this.showSupportDetails = !this.showSupportDetails;
+  }
 
-
+  // Adjust the textarea height dynamically
+  adjustTextareaHeight(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto'; // Reset height
+    textarea.style.height = textarea.scrollHeight + 'px'; // Set to full content
+  }
+  
 }

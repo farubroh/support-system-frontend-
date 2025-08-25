@@ -6,6 +6,7 @@ import { getStatusColor } from '../utils/get-status-color';
 import { IssueViewModalUserComponent } from "../issue-view-modal-user/issue-view-modal-user.component";
 import { trigger, transition, style, animate } from '@angular/animations';
 import { CreateIssueComponent } from "../create-issue/create-issue.component";
+import { AuthenticationService } from '../../authentication.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -40,7 +41,12 @@ export class DashboardComponent implements OnInit {
   // NEW: controls desktop filter menu open/close state
   isFilterOpen: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+ constructor(
+  private http: HttpClient,
+  private router: Router,
+  private authService: AuthenticationService
+) {}
+
 
   statusTabs = [
     { key: 'PENDING', label: 'Pending', icon: 'fa-regular fa-hourglass-half' },
@@ -50,33 +56,33 @@ export class DashboardComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.checkScreenSize();
+  this.checkScreenSize();
   window.addEventListener('resize', this.checkScreenSize.bind(this));
-    this.startPlusMessageLoop();
-    this.fetchTotalUsers();
-    this.fetchTotalIssues();
-    this.fetchAllIssuesForKPI();
+  this.startPlusMessageLoop();
+  this.fetchTotalUsers();
+  this.fetchTotalIssues();
+  this.fetchAllIssuesForKPI();
 
-    const storedUser = sessionStorage.getItem('helpdeskUser');
-    if (storedUser) {
-      this.user = JSON.parse(storedUser);
-      this.fetchNoteData();
-      if (this.currentView === 'ISSUES') {
-        this.fetchIssues();
-      } else {
-        this.fetchAllIssuesForHome();
-      }
-
-      this.fetchTodayStats();
-
-      // Start polling every 1 second
-      setInterval(() => {
-        this.fetchTotalIssues();
-        this.fetchTodayStats();
-        this.fetchNoteData();
-      }, 1000);
+  this.user = this.authService.getUser();  // ✅ get from localStorage via service
+  if (this.user) {
+    this.fetchNoteData();
+    if (this.currentView === 'ISSUES') {
+      this.fetchIssues();
+    } else {
+      this.fetchAllIssuesForHome();
     }
+    this.fetchTodayStats();
+
+    setInterval(() => {
+      this.fetchTotalIssues();
+      this.fetchTodayStats();
+      this.fetchNoteData();
+    }, 1000);
+  } else {
+    // Optional: hard redirect if somehow landed here without user
+    this.router.navigate(['/login']);
   }
+}
   checkScreenSize() {
   this.isMobileView = window.innerWidth < 768;
 }
