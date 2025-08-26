@@ -60,7 +60,7 @@ export class DashboardComponent implements OnInit {
   window.addEventListener('resize', this.checkScreenSize.bind(this));
   this.startPlusMessageLoop();
   this.fetchTotalUsers();
-  this.fetchTotalIssues();
+  
   this.fetchAllIssuesForKPI();
 
   this.user = this.authService.getUser();  // ✅ get from localStorage via service
@@ -71,11 +71,11 @@ export class DashboardComponent implements OnInit {
     } else {
       this.fetchAllIssuesForHome();
     }
-    this.fetchTodayStats();
+    
 
     setInterval(() => {
-      this.fetchTotalIssues();
-      this.fetchTodayStats();
+      
+      
       this.fetchNoteData();
     }, 1000);
   } else {
@@ -212,18 +212,18 @@ showIssuesBelowSidebar(tabKey: string) {
     });
   }
 
-  fetchTotalIssues() {
-    this.http.get<any>('http://localhost:8085/api/issues/issues/total').subscribe({
-      next: (data) => {
+  // fetchTotalIssues() {
+  //   this.http.get<any>('http://localhost:8085/api/issues/issues/total').subscribe({
+  //     next: (data) => {
         
         
-        this.totalIssues = data.count;
-      },
-      error: (err) => {
-        console.error("Error fetching total issues:", err);
-      }
-    });
-  }
+  //       this.totalIssues = data.count;
+  //     },
+  //     error: (err) => {
+  //       console.error("Error fetching total issues:", err);
+  //     }
+  //   });
+  // }
   
   totalPendingIssuesUser: number = 0;
   totalIssuesDate: string = ''; // For displaying the date when total issues are fetched
@@ -256,27 +256,27 @@ showIssuesBelowSidebar(tabKey: string) {
   userIssueRank: number = -1;
   userRankString: string = '';
 
-  fetchTodayStats() {
-    if (!this.user || !this.user.id) {
-      return;
-    }
+  // fetchTodayStats() {
+  //   if (!this.user || !this.user.id) {
+  //     return;
+  //   }
 
-    this.http.get<any>(`http://localhost:8085/api/issues/issues/today/user-rank/${this.user.id}`).subscribe({
-      next: (res) => {
-        this.todayIssueCount = res.totalTodayIssues;
-        this.userIssueRank = res.userRank;
+  //   this.http.get<any>(`http://localhost:8085/api/issues/issues/today/user-rank/${this.user.id}`).subscribe({
+  //     next: (res) => {
+  //       this.todayIssueCount = res.totalTodayIssues;
+  //       this.userIssueRank = res.userRank;
 
-        if (this.userIssueRank > 0) {
-          this.userRankString = this.getOrdinalSuffix(this.userIssueRank);
-        } else {
-          this.userRankString = '';
-        }
-      },
-      error: (err) => {
-        console.error("Failed to fetch today's issue stats", err);
-      }
-    });
-  }
+  //       if (this.userIssueRank > 0) {
+  //         this.userRankString = this.getOrdinalSuffix(this.userIssueRank);
+  //       } else {
+  //         this.userRankString = '';
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error("Failed to fetch today's issue stats", err);
+  //     }
+  //   });
+  // }
 
   fetchAllIssuesForHome() {
     this.loading = true;

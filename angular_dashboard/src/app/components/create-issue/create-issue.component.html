@@ -16,14 +16,15 @@
   <div class="tt">
     
     <select
-      [(ngModel)]="form.category"
-      name="category"
-      id="category"
-      required
-    >
-      <option value="" disabled selected>Select a category</option>
-      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-    </select>
+  [(ngModel)]="form.category"
+  name="category"
+  id="category"
+  required
+>
+  <option value="" disabled selected>Select a category</option>
+  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+</select>
+
   </div>
 </div>
 

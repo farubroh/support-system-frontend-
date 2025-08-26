@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -12,9 +12,10 @@ import { AuthenticationService } from '../../authentication.service'; // Import 
   templateUrl: './create-issue.component.html',
   styleUrls: ['./create-issue.component.css']
 })
-export class CreateIssueComponent {
+export class CreateIssueComponent implements OnInit {
   @Output() issueCreated = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+  
 
 
   onCancel() {
@@ -29,8 +30,7 @@ export class CreateIssueComponent {
     category: ''
   };
 
-  categories = ['Edu mail problem', 'Result problem', 'Payment problem', 'Quota problem'];
-
+  categories: string[] = [];  // Categories fetched from the backend
   files: File[] = [];
   filePreviews: any[] = [];
   uploadProgress = 0;
@@ -39,12 +39,26 @@ export class CreateIssueComponent {
 
   constructor(private http: HttpClient, public router: Router, private authService: AuthenticationService) {
     // Fetch user from AuthenticationService (from localStorage)
-    this.user = this.authService.getUser();  // Using AuthenticationService instead of sessionStorage
+    this.user = this.authService.getUser();
     
     if (!this.user) {
       console.error('No logged-in user found');
       this.router.navigate(['/login']);
     }
+  }
+
+  ngOnInit(): void {
+    // Fetch categories from backend API when the component is initialized
+    this.http.get<{ categoryId: number, categoryName: string }[]>('http://localhost:8085/api/categories')
+      .subscribe(
+        (data) => {
+          this.categories = data.map(cat => cat.categoryName);  // Extract category names and assign to categories array
+        },
+        (error) => {
+          console.error('Failed to load categories', error);
+          alert('❌ Failed to load categories');
+        }
+      );
   }
 
   onFileSelected(event: any) {
@@ -68,7 +82,7 @@ export class CreateIssueComponent {
     let completed = 0;
     const newTotal = newFiles.length;
 
-    Array.from(newFiles).forEach((file, idx) => {
+    Array.from(newFiles).forEach((file) => {
       if (file.size > maxFileSize) {
         alert(`❌ ${file.name} exceeds 5MB limit.`);
         return;
@@ -144,5 +158,4 @@ export class CreateIssueComponent {
     textarea.style.height = 'auto'; // Reset height
     textarea.style.height = textarea.scrollHeight + 'px'; // Set to full content
   }
-  
 }
