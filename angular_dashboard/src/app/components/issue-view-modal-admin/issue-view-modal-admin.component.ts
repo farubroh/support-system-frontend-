@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
+type UiDeveloper = { id: number; username: string };
+
 @Component({
   selector: 'app-issue-view-modal-admin',
   standalone: true,
@@ -15,42 +17,40 @@ export class IssueViewModalAdminComponent {
   @Output() close = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
 
-  developers: any[] = [];
-  assignedDeveloper: any = null;
-  selectedDeveloper: any = null;
-  searchQuery: string = '';
+  /** Normalized list for the UI (id + username only). */
+  developers: UiDeveloper[] = [];
+  assignedDeveloper: UiDeveloper | null = null;
+  selectedDeveloper: UiDeveloper | null = null;
+
+  searchQuery = '';
   showAssignBox = false;
   showCommentSidebar = false;
 
   newComment = '';
   comments: { author: string; message: string }[] = [
-    {
-      author: 'Md. Younus Hossain Ahsan',
-      message: 'Please check the mail address recovery issue with registrar.'
-    },
-    {
-      author: 'Omar Faruk',
-      message: 'Added this card to PENDING.'
-    }
+    { author: 'Md. Younus Hossain Ahsan', message: 'Please check the mail address recovery issue with registrar.' },
+    { author: 'Omar Faruk', message: 'Added this card to PENDING.' }
   ];
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    console.log('ISSUE:', this.issue);
+    // console.log('ISSUE:', this.issue);
+    this.http.get<any[]>('http://localhost:8085/api/developers').subscribe({
+      next: (res: any[]) => {
+        // 🔧 Normalize backend { id, user:{username,...} } → { id, username }
+        this.developers = (res || []).map((d: any) => ({
+          id: d?.id,
+          username: d?.user?.username ?? d?.username ?? `Developer #${d?.id}`
+        }));
 
-    this.http.get('http://localhost:8085/api/developers').subscribe({
-      next: (res: any) => {
-        this.developers = res;
-
+        // resolve current developer id from name if needed
         if (!this.issue.developerId && this.issue.developerName) {
-          const matchedDev = this.developers.find(dev => dev.username === this.issue.developerName);
-          if (matchedDev) {
-            this.issue.developerId = matchedDev.id;
-          }
+          const matched = this.developers.find(dev => dev.username === this.issue.developerName);
+          if (matched) this.issue.developerId = matched.id;
         }
 
-        this.assignedDeveloper = this.developers.find(dev => dev.id === this.issue.developerId);
+        this.assignedDeveloper = this.developers.find(dev => dev.id === this.issue.developerId) ?? null;
       },
       error: () => alert('Failed to load developers')
     });
@@ -66,7 +66,7 @@ export class IssueViewModalAdminComponent {
     this.showCommentSidebar = !this.showCommentSidebar;
   }
 
-  selectDeveloper(dev: any) {
+  selectDeveloper(dev: UiDeveloper) {
     this.selectedDeveloper = dev;
   }
 
@@ -77,7 +77,7 @@ export class IssueViewModalAdminComponent {
     this.http.post(`http://localhost:8085/api/issues/${this.issue.id}/assign`, payload).subscribe({
       next: () => {
         this.issue.status = 'INPROGRESS';
-        this.issue.developerId = this.selectedDeveloper.id;
+        this.issue.developerId = this.selectedDeveloper!.id;
         this.assignedDeveloper = this.selectedDeveloper;
         this.selectedDeveloper = null;
         this.showAssignBox = false;
@@ -98,17 +98,17 @@ export class IssueViewModalAdminComponent {
     return dev ? dev.username : '';
   }
 
-  filteredDevelopers() {
-    return this.developers.filter(dev =>
-      dev.username.toLowerCase().includes(this.searchQuery.toLowerCase()) &&
-      (!this.issue.developerId || dev.id !== this.issue.developerId)
-    );
+  filteredDevelopers(): UiDeveloper[] {
+    const q = (this.searchQuery || '').toLowerCase().trim();
+    if (!q) return this.developers;
+    return this.developers.filter(dev => dev.username.toLowerCase().includes(q));
   }
 
   onCloseModal() {
     this.close.emit();
   }
 
+  /** NOTE: kept as-is to match your backend handler. */
   markComplete() {
     const payload = {
       status: 'COMPLETED',
@@ -127,10 +127,7 @@ export class IssueViewModalAdminComponent {
 
   submitComment() {
     if (!this.newComment.trim()) return;
-    this.comments.unshift({
-      author: 'Admin',
-      message: this.newComment.trim()
-    });
+    this.comments.unshift({ author: 'Admin', message: this.newComment.trim() });
     this.newComment = '';
   }
 }

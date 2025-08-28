@@ -59,9 +59,9 @@ export class DashboardComponent implements OnInit {
   this.checkScreenSize();
   window.addEventListener('resize', this.checkScreenSize.bind(this));
   this.startPlusMessageLoop();
-  this.fetchTotalUsers();
   
-  this.fetchAllIssuesForKPI();
+  
+
 
   this.user = this.authService.getUser();  // ✅ get from localStorage via service
   if (this.user) {
@@ -201,16 +201,16 @@ showIssuesBelowSidebar(tabKey: string) {
 
   currentView: string = 'HOME';
 
-  fetchTotalUsers() {
-    this.http.get<any>('http://localhost:8085/api/issues/users/total').subscribe({
-      next: (data) => {
-        this.totalUsers = data.count;
-      },
-      error: (err) => {
-        console.error("Error fetching total users:", err);
-      }
-    });
-  }
+  // fetchTotalUsers() {
+  //   this.http.get<any>('http://localhost:8085/api/issues/users/total').subscribe({
+  //     next: (data) => {
+  //       this.totalUsers = data.count;
+  //     },
+  //     error: (err) => {
+  //       console.error("Error fetching total users:", err);
+  //     }
+  //   });
+  // }
 
   // fetchTotalIssues() {
   //   this.http.get<any>('http://localhost:8085/api/issues/issues/total').subscribe({
@@ -381,30 +381,30 @@ closeCreateModal() {
 }
 
 
-fetchAllIssuesForKPI() {
-  console.log('API call triggered');
-  this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
-    (res) => {
-      console.log('Raw response:', res);
+// fetchAllIssuesForKPI() {
+//   console.log('API call triggered');
+//   this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
+//     (res) => {
+//       console.log('Raw response:', res);
 
-      this.allIssues = Array.isArray(res) ? res : [];
+//       this.allIssues = Array.isArray(res) ? res : [];
 
-      // Filter all issues with status 'PENDING' for all users
-      const pendingIssues = this.allIssues.filter(
-        issue => issue.status?.toUpperCase() === 'PENDING'
-      );
+//       // Filter all issues with status 'PENDING' for all users
+//       const pendingIssues = this.allIssues.filter(
+//         issue => issue.status?.toUpperCase() === 'PENDING'
+//       );
 
-      // Update the total pending issues for all users
-      this.totalPendingIssuesAllUsers = pendingIssues.length;
+//       // Update the total pending issues for all users
+//       this.totalPendingIssuesAllUsers = pendingIssues.length;
 
-      console.log('Total Pending Issues for All Users:', this.totalPendingIssuesAllUsers);
-    },
-    (err) => {
-      console.error('Failed to fetch all issues:', err);
-      this.allIssues = [];
-    }
-  );
-}
+//       console.log('Total Pending Issues for All Users:', this.totalPendingIssuesAllUsers);
+//     },
+//     (err) => {
+//       console.error('Failed to fetch all issues:', err);
+//       this.allIssues = [];
+//     }
+//   );
+// }
 
 
 }

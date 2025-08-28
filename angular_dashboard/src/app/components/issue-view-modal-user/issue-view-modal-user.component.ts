@@ -11,6 +11,9 @@ import { CommonModule } from '@angular/common';
 export class IssueViewModalUserComponent {
   @Input() issue: any;
   @Output() close = new EventEmitter<void>();
+  // issue-view-modal-user.component.ts
+@Input() files: string[] | null = null;
+
 
   showCommentSidebar = false;
   newComment = '';

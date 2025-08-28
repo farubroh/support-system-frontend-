@@ -1,243 +1,249 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { ColumnComponent } from '../column/column.component';
+import { Component, OnInit, computed, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { DeveloperIssueModalComponent } from '../developer-issue-modal/developer-issue-modal.component';
+import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { AuthenticationService } from '../../authentication.service';
+
+type StatusKey = 'PENDING' | 'INPROGRESS' | 'COMPLETED' | 'REJECTED';
+
+interface IssueDto {
+  issueId: number;
+  title: string;
+  description?: string;
+  status: StatusKey;
+  serialId?: string;
+  createdAt?: string;
+  completedAt?: string;
+  rejectedAt?: string;
+  completedReason?: string;
+  rejectionReason?: string;
+}
+
+interface UserDto {
+  id?: number;
+  username: string;
+  role?: string;
+  department?: string;
+  designation?: string;
+}
+
+interface DeveloperSpecificIssueDto {
+  createdBy: UserDto;
+  issue: IssueDto;
+}
+
+interface IssuesOfDeveloperDto {
+  PENDING: DeveloperSpecificIssueDto[];
+  INPROGRESS: DeveloperSpecificIssueDto[];
+  COMPLETED: DeveloperSpecificIssueDto[];
+  REJECTED: DeveloperSpecificIssueDto[];
+}
+
+interface Card {
+  id: number;
+  title: string;
+  subtitle?: string | null;
+  meta?: { views?: number; comments?: number; attachments?: number };
+  description?: string;
+  done?: boolean;
+  status: StatusKey;
+  // keep references if needed
+  createdBy?: UserDto;
+  raw?: DeveloperSpecificIssueDto;
+}
+
+interface List {
+  title: string;
+  key: StatusKey;
+  cards: Card[];
+}
 
 @Component({
   selector: 'app-developer-dashboard',
   standalone: true,
-  imports: [CommonModule, DragDropModule, ColumnComponent, DeveloperIssueModalComponent],
+  imports: [CommonModule, DragDropModule, FormsModule],
   templateUrl: './developer-dashboard.component.html',
-  styleUrls: ['./developer-dashboard.component.css'],
+  styleUrls: ['./developer-dashboard.component.css']
 })
 export class DeveloperDashboardComponent implements OnInit {
-  user: any;
-  assignedIssues: any[] = [];
-  developers: { name: string }[] = []; // Array to hold developers
+  constructor(private http: HttpClient, private auth: AuthenticationService) {}
 
-  developerImages: { [key: string]: string } = {
-    'Rafi': '/New_male.png',  // Example developer image paths
-    'Susmoy': '/black.png',
-    'Hasan': '/man.png',
-    // Add other developers here...
-  };
+  // search + details pane
+  query = signal<string>('');
+  selected = signal<Card | null>(null);
+  description = signal<string>('');
 
+  // lists
+  lists = signal<List[]>([]);
 
-  issuesByStatus: { [key: string]: any[] } = {
-    PENDING: [],
-    INPROGRESS: [],
-    COMPLETED: [],
-    REJECTED: [],
-  };
-  selectedIssue: any = null;
-
-  statusOrder = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
-
-  constructor(private http: HttpClient) {}
+  // derive filtered view
+  private readonly filtered = computed<List[]>(() => {
+    const q = this.query().toLowerCase().trim();
+    if (!q) return this.lists();
+    return this.lists().map(list => ({
+      ...list,
+      cards: list.cards.filter(c =>
+        c.title.toLowerCase().includes(q) ||
+        (c.description ?? '').toLowerCase().includes(q) ||
+        (c.subtitle ?? '').toLowerCase().includes(q)
+      )
+    }));
+  });
 
   ngOnInit() {
-  const storedUser = sessionStorage.getItem('helpdeskUser');
-  if (storedUser) {
-    this.user = JSON.parse(storedUser);
-    console.log('Logged in user:', this.user); // Log the user object
-    this.fetchDevelopers();
-    this.fetchIssues();
-    this.getAssignedIssues();
-  } else {
-    console.error('No user found in sessionStorage');
+    const user = this.auth.getUser();
+    if (!user || !user.id) return;
+
+    // Load issues bucketed by status for this developer (by userId)
+    this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${user.id}/issues`)
+      .subscribe(dto => {
+        this.inflate(dto);
+      });
   }
-}
-getCategoryColor(category: string): string {
-    switch ((category || '').toLowerCase()) {
-      case 'edu mail problem':
-        return '#f48fb1';
-      case 'payment problem':
-        return '#ffb74d';
-      case 'quota problem':
-        return '#81c784';
-      case 'result problem':
-        return '#64b5f6';
-      case 'login issue':
-        return '#9575cd';
-      default:
-        return '#cfd8dc';
+
+  /** Builds board lists from backend dto. */
+  private inflate(dto: IssuesOfDeveloperDto) {
+    const mapCards = (arr: DeveloperSpecificIssueDto[], key: StatusKey): Card[] =>
+      (arr || []).map(d => ({
+        id: d.issue.issueId,
+        title: d.issue.title,
+        subtitle: d.createdBy?.username ?? null,
+        meta: { views: 0, comments: 0, attachments: 0 },
+        description: d.issue.description ?? '',
+        done: key === 'COMPLETED',
+        status: key,
+        createdBy: d.createdBy,
+        raw: d
+      }));
+
+    this.lists.set([
+      { title: 'Pending',     key: 'PENDING',    cards: mapCards(dto.PENDING, 'PENDING') },
+      { title: 'In Progress', key: 'INPROGRESS', cards: mapCards(dto.INPROGRESS, 'INPROGRESS') },
+      { title: 'Completed',   key: 'COMPLETED',  cards: mapCards(dto.COMPLETED, 'COMPLETED') },
+      { title: 'Rejected',    key: 'REJECTED',   cards: mapCards(dto.REJECTED, 'REJECTED') }
+    ]);
+  }
+
+  /** Used by *ngFor trackBy */
+  trackById = (_: number, item: Card) => item.id;
+
+  /** Lists connected for cross-list dragging. */
+  connectedTo(i: number): string[] {
+    const ids = this.lists().map((_, idx) => `list-${idx}`);
+    ids.splice(i, 1);
+    return ids;
+  }
+
+  /** Handle dnd. Also updates backend status when moved across lists. */
+  drop(e: CdkDragDrop<Card[]>) {
+    if (e.previousContainer === e.container) {
+      moveItemInArray(e.container.data, e.previousIndex, e.currentIndex);
+      return;
     }
-  }
 
-    getDeveloperImage(developerName: string): string {
-    return this.developerImages[developerName] || '/New_male.png';  // Default image if no match found
-  }
-  
- fetchDevelopers() {
-  // Simulate the fetch from an API
-  const url = 'http://localhost:8085/api/developers'; // Assuming the backend has a /developers endpoint
+    // compute from/to status keys
+    const fromIdx = this.indexFromListId(e.previousContainer.id);
+    const toIdx   = this.indexFromListId(e.container.id);
+    if (fromIdx === -1 || toIdx === -1) return;
 
-  this.http.get<any[]>(url).subscribe({
-    next: (res) => {
-      // Assuming the response is an array of developer objects with a 'name' property
-      
-      this.developers = res.map((developer: any) => ({ name: developer.username }));
-     
-      
-    },
-    error: (err) => console.error('Failed to load developers:', err),
-  });
-}
+    const fromKey = this.lists()[fromIdx].key;
+    const toKey   = this.lists()[toIdx].key;
 
-
-  fetchIssues() {
-  const developerId = this.user.id;
-  const url = `http://localhost:8085/api/developers/${developerId}/issues`;
-
-  this.http.get<any>(url).subscribe({
-    next: (res) => {
-      console.log('API Response:', res);
-
-      this.issuesByStatus['PENDING'] = res.PENDING?.map((d: any) => ({ ...d.issue })) || [];
-      this.issuesByStatus['INPROGRESS'] = res.INPROGRESS?.map((d: any) => ({ ...d.issue })) || [];
-      this.issuesByStatus['COMPLETED'] = res.COMPLETED?.map((d: any) => ({ ...d.issue })) || [];
-      this.issuesByStatus['REJECTED'] = res.REJECTED?.map((d: any) => ({ ...d.issue })) || [];
-
-      // Update filteredKanbanIssues if you are showing Kanban view for all developers or selected
-      // Update filteredKanbanIssues if you are showing Kanban view for all developers or selected
-      this.filteredKanbanIssues['PENDING'] = [...this.issuesByStatus['PENDING']];
-      this.filteredKanbanIssues['INPROGRESS'] = [...this.issuesByStatus['INPROGRESS']];
-      this.filteredKanbanIssues['COMPLETED'] = [...this.issuesByStatus['COMPLETED']];
-      this.filteredKanbanIssues['REJECTED'] = [...this.issuesByStatus['REJECTED']];
-    },
-    error: (err) => console.error('Failed to load developer issues:', err),
-  });
-}
-
-//    getAssignedIssues() {
-//   const url = 'http://localhost:8085/api/issues/all_admin'; // Assuming this endpoint gives all issues
-
-//   this.http.get<any[]>(url).subscribe({
-//     next: (res) => {
-//       // Filter out issues that are unassigned (those without a developerName)
-//       this.assignedIssues = res.filter(issue => issue.developerName);
-
-//       console.log('Assigned Issues:', this.assignedIssues);  // Log assigned issues for debugging
-//     },
-//     error: (err) => console.error('Failed to load all issues:', err),
-//   });
-// }
-getAssignedIssues() {
-  const url = 'http://localhost:8085/api/issues/all_admin';
-  this.http.get<any[]>(url).subscribe({
-    next: (res) => {
-      this.assignedIssues = res.filter(issue => issue.developerName);
-      this.filteredAssignedIssues = [...this.assignedIssues]; // Show all by default
-    },
-    error: (err) => console.error('Failed to load all issues:', err),
-  });
-}
-
-
-handleDrop({ event, targetStatus }: { event: CdkDragDrop<any[]>, targetStatus: string }) {
-  const prevContainer = event.previousContainer;
-  const currContainer = event.container;
-  const movedIssue = prevContainer.data[event.previousIndex];
-
-  const prevStatus = prevContainer.id;
-  const currStatus = targetStatus;
-
-  console.log('🔥 Drop triggered in column:', targetStatus);
-  console.log('Previous Container ID:', prevStatus);
-  console.log('Current Container ID:', currStatus);
-  console.log('From index:', event.previousIndex, '→ To index:', event.currentIndex);
-
-  if (prevStatus === currStatus) {
-    moveItemInArray(currContainer.data, event.previousIndex, event.currentIndex);
-  } else {
+    // optimistic UI
     transferArrayItem(
-      prevContainer.data,
-      currContainer.data,
-      event.previousIndex,
-      event.currentIndex
+      e.previousContainer.data,
+      e.container.data,
+      e.previousIndex,
+      e.currentIndex
     );
 
-    if (movedIssue?.issueId) {
-      this.updateIssueStatus(movedIssue.issueId, targetStatus);
-    }
-  }
-}
+    const moved = e.container.data[e.currentIndex];
+    const prevStatus = moved.status;
+    moved.status = toKey;
+    moved.done = toKey === 'COMPLETED';
 
-
-
-
-
-  updateIssueStatus(issueId: number, newStatus: string) {
-  const payload = {
-    toStatus: newStatus,
-    workedBy: this.user.id,
-    completedAnalysis: 'Completed by developer',
-    rejectionReason: 'Rejected by developer',
-  };
-
-  this.http.put(`http://localhost:8085/api/issues/${issueId}/status`, payload).subscribe({
-    next: () => {
-      console.log('✅ Status updated to', newStatus);
-      this.fetchIssues(); // refresh after update
-    },
-    error: (err) => console.error('❌ Failed to update status:', err),
-  });
-}
-
-
-  openIssueModal(issue: any) {
-    this.selectedIssue = issue;
-  }
-
-  closeModal() {
-    this.selectedIssue = null;
-  }
-
-  refreshAfterAction() {
-    this.fetchIssues();
-  }
-  selectedDeveloper: string | null = null;
-filteredAssignedIssues: any[] = [];
-
-
-
-
-filteredKanbanIssues: { [key: string]: any[] } = {
-  PENDING: [],
-  INPROGRESS: [],
-  COMPLETED: [],
-  REJECTED: []
-};
-isKanbanView: boolean = false;
-
-filterByDeveloper(name: string) {
-  if (this.selectedDeveloper === name) {
-    // Reset back to all issues in table view
-    this.selectedDeveloper = null;
-    this.isKanbanView = false;
-  } else {
-    this.selectedDeveloper = name;
-    this.isKanbanView = true;
-
-    // Reset & group issues by status for the clicked developer
-    const devIssues = this.assignedIssues.filter(
-      issue => issue.developerName === name
-    );
-
-    // Group them by status
-    this.filteredKanbanIssues = {
-      PENDING: devIssues.filter(i => i.status === 'PENDING'),
-      INPROGRESS: devIssues.filter(i => i.status === 'INPROGRESS'),
-      COMPLETED: devIssues.filter(i => i.status === 'COMPLETED'),
-      REJECTED: devIssues.filter(i => i.status === 'REJECTED'),
+    // call backend to update status
+    const user = this.auth.getUser();
+    const payload = {
+      workedBy: user?.id,               // developer’s userId
+      fromStatus: fromKey,
+      toStatus: toKey,
+      rejectionReason: toKey === 'REJECTED' ? 'Rejected by developer' : null,
+      completedAnalysis: toKey === 'COMPLETED' ? 'Marked as completed' : null
     };
+
+    this.http.post(`http://localhost:8085/api/issues/${moved.id}/status`, payload).subscribe({
+      next: () => {},
+      error: () => {
+        // revert UI if failed
+        transferArrayItem(
+          e.container.data,
+          e.previousContainer.data,
+          e.currentIndex,
+          e.previousIndex
+        );
+        moved.status = prevStatus;
+        moved.done = prevStatus === 'COMPLETED';
+        alert('Failed to update status.');
+      }
+    });
   }
-}
 
+  private indexFromListId(id: string): number {
+    // id format is "list-<index>"
+    const idx = Number((id || '').split('-')[1]);
+    return Number.isFinite(idx) ? idx : -1;
+    }
 
+  /** Cards query filter used by template. */
+  filteredLists(): List[] {
+    return this.filtered();
+  }
 
+  openCard(card: Card) {
+    this.selected.set(card);
+    this.description.set(card.description ?? '');
+  }
 
+  closeDetails() {
+    this.selected.set(null);
+  }
+
+  markDone(card: Card) {
+    // toggle UI only; status change should be done via drag to Completed/Back
+    card.done = !card.done;
+  }
+
+  deleteCard(list: List, card: Card) {
+    list.cards = list.cards.filter(c => c.id !== card.id);
+    this.lists.set(this.lists().map(l => (l.key === list.key ? list : l)));
+  }
+
+  addCard(list: List) {
+    const id = Date.now();
+    list.cards.unshift({
+      id,
+      title: 'New task',
+      subtitle: null,
+      meta: { views: 0, comments: 0, attachments: 0 },
+      description: '',
+      done: false,
+      status: list.key
+    });
+    this.lists.set(this.lists().map(l => (l.key === list.key ? list : l)));
+  }
+
+  addList() {
+    const idx = this.lists().length + 1;
+    this.lists.update(arr => arr.concat([{
+      title: `Custom ${idx}`,
+      key: 'PENDING',
+      cards: []
+    }]));
+  }
+
+  updateSubtitle(card: Card, value: string) {
+    card.subtitle = value;
+  }
 }

@@ -1,120 +1,141 @@
-<div class="app-container">
-  <!-- Sidebar -->
-   <aside class="sidebar">
-    <div class="logo">
-      <h2>AppLogo</h2>
-    </div>
-    <nav>
-      <ul>
-        <li><i class="bi bi-house-door"></i> Dashboard</li>
-        <li><i class="bi bi-inbox"></i> Inbox</li>
-        <li><i class="bi bi-check2-square"></i> Tasks</li>
-        <li><i class="bi bi-chat-left-text"></i> Conversations</li>
-      </ul>
-    </nav>
-    <div class="section">
-      <p>Developers</p>
-      <ul>
-        <li>Developer 1</li>
-        <li>Developer 2</li>
-        <li>Developer 3</li>
-        <li class="add">+ Add</li>
-      </ul>
-    </div>
-  </aside>
+<!-- Top bar -->
+<header class="topbar">
+  <div class="left">
+    <div class="logo">Trello-like</div>
+    <div class="divider"></div>
+    <div class="board-title">Support</div>
+  </div>
 
-  <!-- Main Content -->
-  <main class="main">
-    
 
-    <section class="project-info">
-      <div class="project-text">
-        <div class="title">
-          <h2>Developer Dashboard</h2>
+  <div class="search">
+    <input
+      type="search"
+      placeholder="Search cards…"
+      [value]="query()"
+      (input)="query.set(($any($event.target)).value)"
+    />
+  </div>
+
+
+  <div class="actions">
+    <button class="icon" title="Notifications">🔔</button>
+    <button class="icon" title="Star">⭐</button>
+    <button class="icon" title="Share">🔗</button>
+  </div>
+</header>
+
+
+<!-- Board -->
+<main class="board" cdkDropListGroup>
+  <section class="list" *ngFor="let list of filteredLists(); let i = index">
+    <header class="list__header">
+      <h3>{{ list.title }}</h3>
+    </header>
+
+
+    <!-- IMPORTANT: give each list a unique id and connect them so cross-list dragging works -->
+    <div
+      class="list__body"
+      cdkDropList
+      [id]="'list-'+i"
+      [cdkDropListData]="list.cards"
+      [cdkDropListConnectedTo]="connectedTo(i)"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <article
+        class="card"
+        *ngFor="let card of list.cards; trackBy: trackById"
+        cdkDrag
+        (click)="openCard(card)"
+      >
+        <div class="left">
+          <span class="status" [class.done]="card.done">●</span>
         </div>
-        <input type="text" placeholder="Search" class="search-bar" />
+
+
+        <div class="content">
+          <div class="title">
+            <span *ngIf="card.done" class="check">✔</span>
+            {{ card.title }}
+            <span *ngIf="card.subtitle" class="tag">{{ card.subtitle }}</span>
+          </div>
+          <div class="meta" *ngIf="card.meta as m">
+            <span *ngIf="m.views">👁 {{ m.views }}</span>
+            <span *ngIf="m.comments">💬 {{ m.comments }}</span>
+            <span *ngIf="m.attachments">📎 {{ m.attachments }}</span>
+          </div>
+        </div>
+
+
+        <div class="right" (click)="$event.stopPropagation()">
+          <button class="tiny" (click)="markDone(card)" title="Toggle done">✓</button>
+          <button class="tiny danger" (click)="deleteCard(list, card)" title="Delete">✕</button>
+        </div>
+      </article>
+    </div>
+
+
+    <footer class="list__footer">
+      <button class="add" (click)="addCard(list)">＋ Add a card</button>
+    </footer>
+  </section>
+
+
+  <section class="list list--ghost">
+    <button class="add-list" (click)="addList()">＋ Add another list</button>
+  </section>
+</main>
+
+
+<!-- Details drawer -->
+<aside class="details" [class.open]="selected() !== null" (click)="closeDetails()">
+  <div class="details__panel" (click)="$event.stopPropagation()">
+    <header class="details__header">
+      <h3>{{ selected()?.title }}</h3>
+      <button class="close" (click)="closeDetails()">✕</button>
+    </header>
+
+
+    <div class="details__body" *ngIf="selected() as s">
+      <div class="row">
+        <label>Status</label>
+        <button class="pill" [class.on]=s.done (click)="markDone(s)">
+          {{ s.done ? 'Done' : 'Open' }}
+        </button>
       </div>
-    </section>
 
-    <!-- Table view (default) -->
-    <div *ngIf="!isKanbanView" class="task-table-wrapper">
-      <section class="task-table">
-        <div class="table-header title">
-          <button class="add-task"><i class="bi bi-plus-circle"></i> Add new</button>
-        </div>
-        <div class="table">
-          <table>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Category</th>
-                <th>Time tracking</th>
-                <th>Assignee</th>
-                <th>Due date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let issue of assignedIssues">
-                <td>{{ issue.title }}</td>
-                <td>
-                  <span class="status orange">{{ issue.status || 'N/A' }}</span>
-                </td>
-                <td>
-                  <span
-                    class="category-badge"
-                    [ngStyle]="{ 'background-color': getCategoryColor(issue.category), 'color': 'white' }"
-                  >
-                    {{ issue.category || 'N/A' }}
-                  </span>
-                </td>
-                <td>
-                  {{ issue.createdAt ? (issue.createdAt | date: 'shortDate') : 'N/A' }}
-                </td>
-                <td>
-                  <div class="developer-info">
-                    <img
-                      *ngIf="issue.developerName"
-                      [src]="getDeveloperImage(issue.developerName)"
-                      alt="{{ issue.developerName }}"
-                      class="developer-img"
-                    />
-                    <span *ngIf="issue.developerName">{{ issue.developerName }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span *ngIf="issue.status === 'COMPLETED'">
-                    {{ issue.completedAt | date: 'shortDate' }}
-                  </span>
-                  <span *ngIf="issue.status !== 'COMPLETED'">N/A</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
 
-    <!-- Kanban drag-drop view -->
-    <div *ngIf="isKanbanView" class="kanban-board">
-      <div class="kanban-columns">
-        <app-column
-          *ngFor="let status of statusOrder"
-          [status]="status"
-          [issues]="filteredKanbanIssues[status]"
-          [connectedTo]="statusOrder"
-          (issueDropped)="handleDrop($event)"
-          (issueClicked)="openIssueModal($event)"
-        ></app-column>
+      <div class="row">
+        <label>Subtitle</label>
+        <input
+          type="text"
+          [value]="s.subtitle || ''"
+          placeholder="[optional]"
+          (change)="updateSubtitle(s, ($any($event.target)).value)"
+        />
       </div>
-    </div>
-    <app-developer-issue-modal
-  *ngIf="selectedIssue"
-  [issue]="selectedIssue"
-  [currentDeveloperId]="user?.id"
-  (close)="closeModal()"
-  (refresh)="refreshAfterAction()"
-></app-developer-issue-modal>
 
-  </main>
-</div>
+
+      <div class="meta grid" *ngIf="s.meta">
+        <div><strong>👁</strong> {{ s.meta.views || 0 }}</div>
+        <div><strong>💬</strong> {{ s.meta.comments || 0 }}</div>
+        <div><strong>📎</strong> {{ s.meta.attachments || 0 }}</div>
+      </div>
+
+
+      <textarea
+        rows="8"
+        placeholder="Description…"
+        [value]="description()"
+        (input)="description.set(($any($event.target)).value)"
+      ></textarea>
+    </div>
+
+
+    <footer class="details__footer">
+      <button class="primary" (click)="closeDetails()">Close</button>
+    </footer>
+  </div>
+</aside>
+
+

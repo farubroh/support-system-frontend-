@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms'; // For ngModel
+import { FormsModule } from '@angular/forms';
 import { getStatusColor } from '../utils/get-status-color';
 import { IssueViewModalAdminComponent } from "../issue-view-modal-admin/issue-view-modal-admin.component";
 import { NgCircleProgressModule } from 'ng-circle-progress';
@@ -32,10 +32,7 @@ export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'PENDING';
   loading: boolean = true;
   selectedIssue: any = null;
-  user = {
-    username: 'Admin',
-    role: 'Admin'
-  };
+  user = { username: 'Admin', role: 'Admin' };
 
   pendingPercent = 0;
   completedPercent = 0;
@@ -49,7 +46,7 @@ export class AdminDashboardComponent implements OnInit {
   rejectedCount: number = 0;
 
   isDarkMode = false;
-  filterStatus: string = 'PENDING'; 
+  filterStatus: string = 'PENDING';
 
   calendarHtml: SafeHtml = '';
   currentMonthName = '';
@@ -72,12 +69,11 @@ export class AdminDashboardComponent implements OnInit {
   searchQuery: string = '';
   searchConflictMessage: string = '';
 
-  constructor(private http: HttpClient, private sanitizer: DomSanitizer,private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private sanitizer: DomSanitizer, private cdr: ChangeDetectorRef) {}
   isDesktopView = true;
 
   ngOnInit() {
     this.fetchIssues();
-    // this.fetchAllIssuesForKPI();
 
     this.isDesktopView = window.innerWidth >= 768;
     window.addEventListener('resize', () => {
@@ -86,7 +82,6 @@ export class AdminDashboardComponent implements OnInit {
 
     setInterval(() => {
       this.fetchIssues();
-      // this.fetchAllIssuesForKPI();
     }, 10000);
   }
 
@@ -94,92 +89,37 @@ export class AdminDashboardComponent implements OnInit {
     return this.searchQuery.trim().length > 0;
   }
 
-fetchIssues() {
-  this.loading = true;
-  const token = localStorage.getItem('auth_token'); 
-  console.log(token); // Or sessionStorage, depending on where you store it
+  fetchIssues() {
+    this.loading = true;
+    const token = localStorage.getItem('auth_token');
 
-  if (!token) {
-    console.error('JWT token is missing');
-    this.loading = false;
-    return;
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`
-  };
-
-  this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`, { headers })
-    .subscribe(
-      (res) => {
-        this.issues = res;
-        this.updateStatusCounts();
-        this.loading = false;
-      },
-      (err) => {
-        console.error(err);
-        this.issues = [];
-        this.loading = false;
-      }
-    );
-}
-
-
-  // fetchAllIssuesForKPI() {
-  //   this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
-  //     (res) => {
-  //       this.allIssues = res;
-  //       this.calculateKPIFromAll();
-  //     },
-  //     (err) => {
-  //       console.error('Failed to fetch all issues:', err);
-  //       this.allIssues = [];
-  //     }
-  //   );
-  // }
-
-  calculateKPIFromAll() {
-    const total = this.allIssues.length || 1;
-    this.totalIssuesCount = total;
-
-    const normalize = (status: string) => (status || '').trim().toUpperCase();
-
-    const pending = this.allIssues.filter(i => normalize(i.status) === 'PENDING').length;
-    const completed = this.allIssues.filter(i => normalize(i.status) === 'COMPLETED').length;
-    const rejected = this.allIssues.filter(i => normalize(i.status) === 'REJECTED').length;
-    const inprogress = this.allIssues.filter(i => normalize(i.status) === 'INPROGRESS').length;
-
-    this.pendingCount = pending;
-    this.completedCount = completed;
-    this.rejectedCount = rejected;
-    this.inProgressCount = inprogress;
-
-    this.pendingPercent = Math.round((pending / total) * 100);
-    this.completedPercent = Math.round((completed / total) * 100);
-    this.rejectedPercent = Math.round((rejected / total) * 100);
-
-    const userSet = new Set<number>();
-    for (let issue of this.allIssues) {
-      if (issue.user?.id) userSet.add(issue.user.id);
+    if (!token) {
+      console.error('JWT token is missing');
+      this.loading = false;
+      return;
     }
-    this.totalUsersIssued = userSet.size;
 
-    this.pieConfig = {
-      percent: this.completedPercent,
-      colorSlice: "#42a5f5",
-      colorCircle: "#f1f1f1",
-      fill: "#e3f2fd",
-      stroke: 10,
-      strokeBottom: 14,
-      fontSize: "1.3rem",
-      round: true,
-      animationSmooth: "1s ease-out"
-    };
+    const headers = { Authorization: `Bearer ${token}` };
+
+    this.http.get<any[]>(`http://localhost:8085/api/issues/status/${this.activeTab}`, { headers })
+      .subscribe(
+        (res) => {
+          this.issues = res;
+          this.updateStatusCounts();
+          this.loading = false;
+        },
+        (err) => {
+          console.error(err);
+          this.issues = [];
+          this.loading = false;
+        }
+      );
   }
 
+  // === IMPORTANT FIX #1: start filtering from this.issues, not this.allIssues ===
   get filteredIssues(): any[] {
     const normalize = (status: string) => (status || '').trim().toUpperCase();
-    let results = this.allIssues;
+    let results = this.issues; // <-- FIXED
 
     // Search first
     if (this.searchActive) {
@@ -189,7 +129,7 @@ fetchIssues() {
         (issue.category && issue.category.toLowerCase().includes(query)) ||
         (issue.status && issue.status.toLowerCase().includes(query))
       );
-      return results; // Ignore category/status when searching
+      return results;
     }
 
     // If category selected, ignore status
@@ -234,32 +174,24 @@ fetchIssues() {
   onTabClick(status: string) {
     this.filterStatus = status;
     this.fetchIssues();
-    // this.fetchAllIssuesForKPI();
   }
 
- assignDeveloper(developerId: number) {
-  this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
-    developerId: developerId
-  })
-  .subscribe({
-    next: (res: any) => {
-      this.selectedIssue.status = 'PENDING';  // Do not change status to INPROGRESS
-      this.selectedIssue.assignedDeveloper = developerId;
-      this.selectedIssue.developerName = res.developerName;  // Update developer name
-
-      // Manually trigger change detection to update the view
-      this.cdr.detectChanges();
-      this.refreshIssueList();  // Refresh the issue list to update the UI
-
-      // Optionally close the issue view
-      this.selectedIssue = null;
-    },
-    error: () => alert('Failed to assign developer')
-  });
-}
-
-
-
+  assignDeveloper(developerId: number) {
+    this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
+      developerId: developerId
+    })
+    .subscribe({
+      next: (res: any) => {
+        this.selectedIssue.status = 'PENDING';
+        this.selectedIssue.assignedDeveloper = developerId;
+        this.selectedIssue.developerName = res.developerName;
+        this.cdr.detectChanges();
+        this.refreshIssueList();
+        this.selectedIssue = null;
+      },
+      error: () => alert('Failed to assign developer')
+    });
+  }
 
   refreshIssueList() {
     this.fetchIssues();
@@ -269,18 +201,12 @@ fetchIssues() {
 
   getCategoryColor(category: string): string {
     switch ((category || '').toLowerCase()) {
-      case 'edu mail problem':
-        return ' #7321D7';
-      case 'payment problem':
-        return '  #B10F99';
-      case 'quota problem':
-        return '#0E9591';
-      case 'result problem':
-        return '#2E0D3C';
-      case 'login issue':
-        return '#9575cd';
-      default:
-        return '#cfd8dc';
+      case 'edu mail problem': return ' #7321D7';
+      case 'payment problem': return '  #B10F99';
+      case 'quota problem': return '#0E9591';
+      case 'result problem': return '#2E0D3C';
+      case 'login issue': return '#9575cd';
+      default: return '#cfd8dc';
     }
   }
 
@@ -296,8 +222,9 @@ fetchIssues() {
     this.rejectedCount = this.issues.filter(i => normalize(i.status) === 'REJECTED').length;
   }
 
+  // === IMPORTANT FIX #2: count over this.issues, not this.allIssues ===
   getCategoryCount(category: string): number {
-    return this.allIssues.filter(issue => issue.category === category).length;
+    return this.issues.filter(issue => issue.category === category).length; // <-- FIXED
   }
 
   showingAllIssues: boolean = true;
@@ -305,19 +232,8 @@ fetchIssues() {
   showingGraph: boolean = false;
   showingDevelopers: boolean = false;
 
-  showCategories() {
-    this.showingCategories = !this.showingCategories;
-  }
-
-  showAllIssues() {
-    this.showingAllIssues = !this.showingAllIssues;
-  }
-
-  showGraph() {
-    this.showingGraph = !this.showingGraph;
-  }
-
-  showDevelopers() {
-    this.showingDevelopers = !this.showingDevelopers;
-  }
+  showCategories() { this.showingCategories = !this.showingCategories; }
+  showAllIssues() { this.showingAllIssues = !this.showingAllIssues; }
+  showGraph() { this.showingGraph = !this.showingGraph; }
+  showDevelopers() { this.showingDevelopers = !this.showingDevelopers; }
 }

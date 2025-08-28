@@ -1,26 +1,40 @@
-// jwt-interceptor.service.ts
 import { Injectable } from '@angular/core';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+  HttpErrorResponse
+} from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
+import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
+  constructor(private auth: AuthenticationService, private router: Router) {}
 
-  constructor(private authService: AuthenticationService) {}
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = this.auth.getToken();
 
-intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.authService.getToken();  // Get token from AuthenticationService
+    let cloned = req;
     if (token) {
-        const clonedRequest = request.clone({
-            setHeaders: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        return next.handle(clonedRequest);
+      cloned = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+      console.log('[JwtInterceptor] attached token to:', req.url);
+    } else {
+      console.log('[JwtInterceptor] NO token for:', req.url);
     }
-    return next.handle(request);  // Continue without the token if it's missing
-}
 
-
+    return next.handle(cloned).pipe(
+      catchError((err: HttpErrorResponse) => {
+        if (err.status === 401) {
+          console.warn('[JwtInterceptor] 401 from:', req.method, req.url);
+          this.auth.logout();
+          this.router.navigate(['/login']);
+        }
+        return throwError(() => err);
+      })
+    );
+  }
 }

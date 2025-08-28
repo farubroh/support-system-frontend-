@@ -1,3 +1,4 @@
+// authentication.service.ts
 import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
@@ -5,9 +6,10 @@ export class AuthenticationService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'helpdeskUser';
 
-  login(user: any): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-    localStorage.setItem(this.TOKEN_KEY, user.token);
+  login(userWithToken: any): void {
+    // userWithToken should include { token, ...user }
+    localStorage.setItem(this.USER_KEY, JSON.stringify(userWithToken));
+    localStorage.setItem(this.TOKEN_KEY, userWithToken.token);
   }
 
   logout(): void {

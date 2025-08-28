@@ -34,41 +34,45 @@
         <div class="value">{{ issue.description }}</div>
       </div>
 
-      <div class="info-item">
-        <span class="label">Category:</span>
-        <span class="tag">{{ issue.category || 'No Category' }}</span>
-      </div>
+      <!-- issue-view-modal-user.component.html -->
+<div class="info-item">
+  <span class="label">Category:</span>
 
-      <!-- <div class="info-item" *ngIf="['INPROGRESS', 'COMPLETED', 'REJECTED'].includes(issue.status)">
-        <span class="label">Developer:</span>
-        <span class="value">{{ issue.developerName || 'Unknown Developer' }}</span>
-      </div> -->
+  <span class="tag" *ngIf="issue?.categories?.length; else noCat">
+    <ng-container *ngFor="let c of issue.categories; let last = last">
+      {{ c.categoryName }}<span *ngIf="!last">, </span>
+    </ng-container>
+  </span>
 
-      <!-- 📎 Uploaded Files -->
-      <div class="info-item" *ngIf="issue.files?.length">
-        <span class="label">Attachments:</span>
-        <div class="value tags">
-          <div class="file-link" *ngFor="let file of issue.files">
-            <a
-              [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Click to view"
-            >
-              📎 {{ file }}
-            </a>
-            <a
-              [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file"
-              download
-              title="Download file"
-              class="download-icon"
-            >
-              ⬇️
-            </a>
-          </div>
-        </div>
-      </div>
+  <ng-template #noCat>No Category</ng-template>
+</div>
+
+
+<!-- Attachments -->
+<div class="info-item" *ngIf="(issue.files?.length) || (files?.length)">
+  <span class="label">Attachments:</span>
+  <div class="value tags">
+    <div class="file-link" *ngFor="let file of (issue.files || files)">
+      <a
+        [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Click to view"
+      >
+        📎 {{ file }}
+      </a>
+      <a
+        [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file"
+        download
+        title="Download file"
+        class="download-icon"
+      >
+        ⬇️
+      </a>
     </div>
+  </div>
+</div>
+
 
     <!-- ✅ Status Reason (Success or Error) -->
     <div *ngIf="issue.status === 'COMPLETED'" class="status-msg success">
