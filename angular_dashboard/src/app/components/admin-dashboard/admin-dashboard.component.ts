@@ -18,13 +18,13 @@ declare var CircularProgressBar: any;
   imports: [
     IssueViewModalAdminComponent,
     CommonModule,
-    HttpClientModule,
+    
     NgCircleProgressModule,
     SafeHtmlPipe,
     FormsModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [HttpClient]
+  
 })
 export class AdminDashboardComponent implements OnInit {
   issues: any[] = [];
