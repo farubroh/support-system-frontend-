@@ -72,18 +72,22 @@ export class AdminDashboardComponent implements OnInit {
   constructor(private http: HttpClient, private sanitizer: DomSanitizer, private cdr: ChangeDetectorRef) {}
   isDesktopView = true;
 
-  ngOnInit() {
-    this.fetchIssues();
+ ngOnInit() {
+  this.fetchIssues();
 
+  // Ensure filterStatus is empty initially, no status selected
+  this.filterStatus = '';
+
+  this.isDesktopView = window.innerWidth >= 768;
+  window.addEventListener('resize', () => {
     this.isDesktopView = window.innerWidth >= 768;
-    window.addEventListener('resize', () => {
-      this.isDesktopView = window.innerWidth >= 768;
-    });
+  });
 
-    setInterval(() => {
-      this.fetchIssues();
-    }, 10000);
-  }
+  setInterval(() => {
+    this.fetchIssues();
+  }, 10000);
+}
+
 
   get searchActive(): boolean {
     return this.searchQuery.trim().length > 0;
@@ -116,55 +120,54 @@ export class AdminDashboardComponent implements OnInit {
       );
   }
 
-  // === IMPORTANT FIX #1: start filtering from this.issues, not this.allIssues ===
-  get filteredIssues(): any[] {
-    const normalize = (status: string) => (status || '').trim().toUpperCase();
-    let results = this.issues; // <-- FIXED
+ get filteredIssues(): any[] {
+  const normalize = (status: string) => (status || '').trim().toUpperCase();
+  let results = this.issues; // Start with all issues
 
-    // Search first
-    if (this.searchActive) {
-      const query = this.searchQuery.toLowerCase();
-      results = results.filter(issue =>
-        (issue.title && issue.title.toLowerCase().includes(query)) ||
-        (issue.category && issue.category.toLowerCase().includes(query)) ||
-        (issue.status && issue.status.toLowerCase().includes(query))
-      );
-      return results;
-    }
-
-    // If category selected, ignore status
-    if (this.selectedCategory) {
-      results = results.filter(issue => issue.category === this.selectedCategory);
-      return results;
-    }
-
-    // If status selected
-    if (this.filterStatus && this.filterStatus !== 'ALL') {
-      results = results.filter(issue => normalize(issue.status) === this.filterStatus);
-    }
-
-    return results;
+  // Search across all issues first
+  if (this.searchActive) {
+    const query = this.searchQuery.toLowerCase();
+    results = results.filter(issue =>
+      (issue.title && issue.title.toLowerCase().includes(query)) ||
+      (issue.category && issue.category.toLowerCase().includes(query)) ||
+      (issue.status && issue.status.toLowerCase().includes(query))
+    );
   }
 
-  setFilterStatus(status: string) {
-    if (this.searchActive) {
-      this.searchConflictMessage = 'Clear search to view status results.';
-    } else {
-      this.searchConflictMessage = '';
-      this.filterStatus = status;
-      this.selectedCategory = '';
-    }
+  // Now apply category filter (if selected)
+  if (this.selectedCategory) {
+    results = results.filter(issue => issue.category === this.selectedCategory);
   }
+
+  // Apply status filter if selected
+  if (this.filterStatus && this.filterStatus !== 'ALL') {
+    results = results.filter(issue => normalize(issue.status) === this.filterStatus);
+  }
+
+  return results;
+}
+
+
+ setFilterStatus(status: string) {
+  if (this.searchActive) {
+    this.searchConflictMessage = 'Clear search to view status results.';
+  } else {
+    this.searchConflictMessage = '';
+    this.filterStatus = status;
+    this.selectedCategory = '';  // Clear category selection when status is selected
+  }
+}
+
 
   selectCategory(category: string) {
-    if (this.searchActive) {
-      this.searchConflictMessage = 'Clear search to view category results.';
-    } else {
-      this.searchConflictMessage = '';
-      this.selectedCategory = category;
-      this.filterStatus = '';
-    }
+  if (this.searchActive) {
+    this.searchConflictMessage = 'Clear search to view category results.';
+  } else {
+    this.searchConflictMessage = '';
+    this.selectedCategory = category;
+    this.filterStatus = '';  // Clear status selection when category is selected
   }
+}
 
   clearSearch() {
     this.searchQuery = '';

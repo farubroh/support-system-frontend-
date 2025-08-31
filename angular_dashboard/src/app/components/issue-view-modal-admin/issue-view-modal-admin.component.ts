@@ -17,13 +17,14 @@ export class IssueViewModalAdminComponent {
   @Output() close = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
 
-  /** Normalized list for the UI (id + username only). */
   developers: UiDeveloper[] = [];
   assignedDeveloper: UiDeveloper | null = null;
   selectedDeveloper: UiDeveloper | null = null;
+  categoryList: string[] = []; // List of categories
 
-  searchQuery = '';
+  newCategory = '';
   showAssignBox = false;
+  showCategoryBox = false;
   showCommentSidebar = false;
 
   newComment = '';
@@ -32,38 +33,58 @@ export class IssueViewModalAdminComponent {
     { author: 'Omar Faruk', message: 'Added this card to PENDING.' }
   ];
 
+  searchQuery = '';
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    // console.log('ISSUE:', this.issue);
+    // Fetch developers
     this.http.get<any[]>('http://localhost:8085/api/developers').subscribe({
       next: (res: any[]) => {
-        // 🔧 Normalize backend { id, user:{username,...} } → { id, username }
         this.developers = (res || []).map((d: any) => ({
           id: d?.id,
           username: d?.user?.username ?? d?.username ?? `Developer #${d?.id}`
         }));
-
-        // resolve current developer id from name if needed
-        if (!this.issue.developerId && this.issue.developerName) {
-          const matched = this.developers.find(dev => dev.username === this.issue.developerName);
-          if (matched) this.issue.developerId = matched.id;
-        }
-
-        this.assignedDeveloper = this.developers.find(dev => dev.id === this.issue.developerId) ?? null;
       },
       error: () => alert('Failed to load developers')
     });
+
+   this.http.get<any[]>('http://localhost:8085/api/categories').subscribe({
+    next: (res: any[]) => {
+      console.log(res);  // Log the response to inspect the data
+      // Store only category names in categoryList
+      this.categoryList = res.map(category => category.categoryName);  // Extract categoryName from each object
+    },
+    error: () => alert('Failed to load categories')
+  });
   }
 
   toggleAssignBox() {
     this.showAssignBox = !this.showAssignBox;
     this.selectedDeveloper = null;
     this.searchQuery = '';
+    if (!this.developers.length) {
+      alert('No developers available');
+      this.showAssignBox = false;
+    }
   }
 
-  toggleCommentSidebar() {
-    this.showCommentSidebar = !this.showCommentSidebar;
+  toggleCategoryBox() {
+    this.showCategoryBox = !this.showCategoryBox;
+  }
+
+  addCategory() {
+    if (!this.newCategory.trim()) return;
+    
+    this.http.post('http://localhost:8085/api/categories', { category: this.newCategory }).subscribe({
+      next: (res) => {
+       
+        this.categoryList.push(this.newCategory);
+        this.newCategory = ''; // Reset the input field
+        this.showCategoryBox = false; // Close the category box
+      },
+      error: () => alert('Failed to add category')
+    });
   }
 
   selectDeveloper(dev: UiDeveloper) {
@@ -108,7 +129,6 @@ export class IssueViewModalAdminComponent {
     this.close.emit();
   }
 
-  /** NOTE: kept as-is to match your backend handler. */
   markComplete() {
     const payload = {
       status: 'COMPLETED',
@@ -129,5 +149,8 @@ export class IssueViewModalAdminComponent {
     if (!this.newComment.trim()) return;
     this.comments.unshift({ author: 'Admin', message: this.newComment.trim() });
     this.newComment = '';
+  }
+   toggleCommentSidebar() {
+    this.showCommentSidebar = !this.showCommentSidebar;
   }
 }
