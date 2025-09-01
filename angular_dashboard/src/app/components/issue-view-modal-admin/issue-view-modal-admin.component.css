@@ -42,7 +42,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap;  /* Prevent the wrapping of elements */
+  flex-wrap: nowrap;
   margin-bottom: 24px;
   padding: 12px 20px;
   color: #f9fafb;
@@ -57,11 +57,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-grow: 1;  /* Allow title to take up remaining space */
+  flex-grow: 1;
   flex-wrap: wrap;
-  white-space: nowrap;  /* Prevent title from wrapping */
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;  /* Display ellipsis if the title is too long */
+  text-overflow: ellipsis;
 }
 
 .badge.status-pill {
@@ -83,7 +83,7 @@
 
 .header-actions .btn-complete,
 .header-actions .btn-close {
-  max-width: 150px;  /* Ensure buttons don't stretch too much */
+  max-width: 150px;
 }
 
 .btn-close {
@@ -316,6 +316,13 @@
   color: white;
   cursor: pointer;
   font-weight: 500;
+}
+
+/* Selected state for category list items */
+.category-box .category-list li.selected {
+  background: rgba(59,130,246,0.10);
+  border: 1px solid rgba(59,130,246,0.25);
+  border-radius: 8px;
 }
 
 /* Responsive styles */

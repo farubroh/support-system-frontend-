@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 type UiDeveloper = { id: number; username: string };
@@ -54,20 +54,36 @@ export class IssueViewModalAdminComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
+  /** Attach JWT from localStorage to protected calls */
+  private get authOptions() {
+    const stored = localStorage.getItem('helpdeskUser');
+    const parsed = stored ? JSON.parse(stored) : null;
+    // Your backend returns { user, token } on /authenticate
+    const token  = parsed?.token ?? parsed?.jwt ?? parsed?.accessToken;
+    return token
+      ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) }
+      : {};
+  }
+
   ngOnInit() {
-    this.getDevelopers();
+    // categories are public GET; developers require JWT and are fetched when opening the assign box
     this.getCategories();
   }
 
+  /* ===== Data fetch ===== */
+
   private getDevelopers() {
-    this.http.get<any[]>(`${this.apiBase}/api/developers`).subscribe({
+    this.http.get<any[]>(`${this.apiBase}/api/developers`, this.authOptions).subscribe({
       next: (res: any[]) => {
         this.developers = (res || []).map((d: any) => ({
           id: d?.id,
           username: d?.user?.username ?? d?.username ?? `Developer #${d?.id}`
         }));
       },
-      error: () => alert('Failed to load developers')
+      error: (err) => {
+        console.error(err);
+        alert('Failed to load developers (are you logged in as ADMIN/DEVELOPER?)');
+      }
     });
   }
 
@@ -81,27 +97,32 @@ export class IssueViewModalAdminComponent implements OnInit {
     });
   }
 
-  /* Toggles */
+  /* ===== Toggles ===== */
+
   toggleAssignBox() {
     this.showAssignBox = !this.showAssignBox;
     this.selectedDeveloper = null;
     this.searchQuery = '';
 
-    // if opened and list empty, try (re-)fetch now
-    if (this.showAssignBox && !this.developers.length) {
+    // always refetch to ensure list is current
+    if (this.showAssignBox) {
       this.getDevelopers();
     }
   }
+
   toggleCategoryBox() {
     this.showCategoryBox = !this.showCategoryBox;
     if (this.showCategoryBox) this.getCategories(); // ensure latest list
   }
+
   toggleCommentSidebar() { this.showCommentSidebar = !this.showCommentSidebar; }
+
   toggleAllOff() {
     this.showAssignBox = this.showCategoryBox = this.showCommentSidebar = false;
   }
 
-  /* Developer selection */
+  /* ===== Developer selection / filter ===== */
+
   selectDeveloper(dev: UiDeveloper) { this.selectedDeveloper = dev; }
 
   filteredDevelopers(): UiDeveloper[] {
@@ -110,11 +131,17 @@ export class IssueViewModalAdminComponent implements OnInit {
     return this.developers.filter(dev => (dev.username || '').toLowerCase().includes(q));
   }
 
+  /* ===== Actions ===== */
+
   submitAssignment() {
     if (!this.selectedDeveloper) return;
     const payload = { developerId: this.selectedDeveloper.id };
 
-    this.http.post(`${this.apiBase}/api/issues/${this.issue.id}/assign`, payload).subscribe({
+    this.http.post(
+      `${this.apiBase}/api/issues/${this.issue.id}/assign`,
+      payload,
+      this.authOptions
+    ).subscribe({
       next: (res: any) => {
         // use server response when possible; otherwise update local
         this.issue.status = 'INPROGRESS';
@@ -125,7 +152,10 @@ export class IssueViewModalAdminComponent implements OnInit {
         this.refresh.emit();
         this.close.emit();
       },
-      error: () => alert('Failed to assign developer')
+      error: (e) => {
+        console.error(e);
+        alert('Failed to assign developer (admin/dev token required).');
+      }
     });
   }
 
@@ -140,9 +170,14 @@ export class IssueViewModalAdminComponent implements OnInit {
     const name = (categoryName || '').trim();
     if (!name) return;
 
+    // optimistic UI — show instantly
+    const prev = this.issue.category;
+    this.issue.category = name;
+
     this.http.put(
       `${this.apiBase}/api/issues/${this.issue.id}/category/by-name`,
-      { categoryName: name }
+      { categoryName: name },
+      this.authOptions
     ).subscribe({
       next: (updated: any) => {
         // Prefer server truth if it returns IssueDto with categories
@@ -151,7 +186,12 @@ export class IssueViewModalAdminComponent implements OnInit {
         this.showCategoryBox = false;
         this.refresh.emit();
       },
-      error: () => alert('Failed to update category')
+      error: (e) => {
+        console.error(e);
+        // revert on failure
+        this.issue.category = prev;
+        alert('Failed to update category (check login/token).');
+      }
     });
   }
 
@@ -160,8 +200,12 @@ export class IssueViewModalAdminComponent implements OnInit {
     const name = this.newCategory.trim();
     if (!name) return;
 
-    // 1) Create category in DB
-    this.http.post(`${this.apiBase}/api/categories`, { categoryName: name }).subscribe({
+    // 1) Create category in DB (protected)
+    this.http.post(
+      `${this.apiBase}/api/categories`,
+      { categoryName: name },
+      this.authOptions
+    ).subscribe({
       next: (res: any) => {
         const savedName = res?.categoryName?.trim() || name;
         if (!this.categoryList.includes(savedName)) this.categoryList.push(savedName);
@@ -170,7 +214,10 @@ export class IssueViewModalAdminComponent implements OnInit {
         // 2) Immediately set this category for the issue (DB + UI)
         this.setCategoryForIssue(savedName);
       },
-      error: () => alert('Failed to add category')
+      error: (e) => {
+        console.error(e);
+        alert('Failed to add category (requires admin token).');
+      }
     });
   }
 
@@ -188,7 +235,11 @@ export class IssueViewModalAdminComponent implements OnInit {
       completedAnalysis: 'Marked manually by admin'
     };
 
-    this.http.post(`${this.apiBase}/api/issues/${this.issue.id}/status`, payload).subscribe({
+    this.http.post(
+      `${this.apiBase}/api/issues/${this.issue.id}/status`,
+      payload,
+      this.authOptions
+    ).subscribe({
       next: (serverIssue: any) => {
         // adopt server truth if provided
         this.issue.status = serverIssue?.status ?? 'COMPLETED';
@@ -196,7 +247,10 @@ export class IssueViewModalAdminComponent implements OnInit {
         this.refresh.emit();
         this.close.emit();
       },
-      error: () => alert('Failed to mark as completed.')
+      error: (e) => {
+        console.error(e);
+        alert('Failed to mark as completed (check token/role).');
+      }
     });
   }
 
