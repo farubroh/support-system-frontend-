@@ -1,10 +1,8 @@
 <!-- Top bar -->
 <header class="topbar">
   <div class="left">
-    
     <div class="board-title">Developer Dashboard</div>
   </div>
-
 
   <div class="search">
     <input
@@ -15,14 +13,11 @@
     />
   </div>
 
-
   <div class="actions">
     <button class="icon" title="Notifications"><i class="fa-regular fa-bell"></i></button>
-    <button class="icon" title="Star"><i class="fa-regular fa-message"></i></button>
-    
+    <button class="icon" title="Messages"><i class="fa-regular fa-message"></i></button>
   </div>
 </header>
-
 
 <!-- Board -->
 <main class="board" cdkDropListGroup>
@@ -31,8 +26,7 @@
       <h3>{{ list.title }}</h3>
     </header>
 
-
-    <!-- IMPORTANT: give each list a unique id and connect them so cross-list dragging works -->
+    <!-- Each list has a unique id and is connected to others -->
     <div
       class="list__body"
       cdkDropList
@@ -51,7 +45,6 @@
           <span class="status" [class.done]="card.done">●</span>
         </div>
 
-
         <div class="content">
           <div class="title">
             <span *ngIf="card.done" class="check">✔</span>
@@ -65,7 +58,6 @@
           </div>
         </div>
 
-
         <div class="right" (click)="$event.stopPropagation()">
           <button class="tiny" (click)="markDone(card)" title="Toggle done">✓</button>
           <button class="tiny danger" (click)="deleteCard(list, card)" title="Delete">✕</button>
@@ -73,18 +65,15 @@
       </article>
     </div>
 
-
     <footer class="list__footer">
       <button class="add" (click)="addCard(list)">＋ Add a card</button>
     </footer>
   </section>
 
-
   <section class="list list--ghost">
     <button class="add-list" (click)="addList()">＋ Add another list</button>
   </section>
 </main>
-
 
 <!-- Details drawer -->
 <aside class="details" [class.open]="selected() !== null" (click)="closeDetails()">
@@ -94,47 +83,85 @@
       <button class="close" (click)="closeDetails()">✕</button>
     </header>
 
-
     <div class="details__body" *ngIf="selected() as s">
+      <!-- Status -->
       <div class="row">
         <label>Status</label>
-        <button class="pill" [class.on]=s.done (click)="markDone(s)">
-          {{ s.done ? 'Done' : 'Open' }}
-        </button>
+        <span class="status-badge"
+              [class.open]="s.status === 'PENDING'"
+              [class.in-progress]="s.status === 'INPROGRESS'"
+              [class.closed]="s.status === 'COMPLETED'"
+              [class.on-hold]="s.status === 'REJECTED'">
+          {{ s.status }}
+        </span>
       </div>
 
-
+      <!-- Reporter -->
       <div class="row">
-        <label>Subtitle</label>
-        <input
-          type="text"
-          [value]="s.subtitle || ''"
-          placeholder="[optional]"
-          (change)="updateSubtitle(s, ($any($event.target)).value)"
-        />
+        <label>Reporter</label>
+        <div>{{ s.subtitle || '—' }}</div>
       </div>
 
-
-      <div class="meta grid" *ngIf="s.meta">
-        <div><strong>👁</strong> {{ s.meta.views || 0 }}</div>
-        <div><strong>💬</strong> {{ s.meta.comments || 0 }}</div>
-        <div><strong>📎</strong> {{ s.meta.attachments || 0 }}</div>
-      </div>
-
-
+      <!-- Description -->
+      <label class="muted">Description</label>
       <textarea
-        rows="8"
+        rows="6"
         placeholder="Description…"
         [value]="description()"
         (input)="description.set(($any($event.target)).value)"
       ></textarea>
+
+      <!-- Files -->
+      <div class="files">
+        <div class="files__header">
+          <strong>Attachments</strong>
+          <span *ngIf="loadingDetails">Loading…</span>
+          <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
+        </div>
+
+        <div class="files__list" *ngIf="selectedFiles.length > 0">
+          <a
+            class="file-chip"
+            *ngFor="let f of selectedFiles"
+            [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f"
+            target="_blank"
+            rel="noopener"
+          >📎 {{ f }}</a>
+        </div>
+      </div>
+
+      <!-- Reasons (contextual) -->
+      <ng-container [ngSwitch]="s.status">
+        <!-- When already COMPLETED: show only completed reason -->
+        <div class="row" *ngSwitchCase="'COMPLETED'">
+          <label>Completed reason</label>
+          <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
+        </div>
+
+        <!-- When already REJECTED: show only rejection reason -->
+        <div class="row" *ngSwitchCase="'REJECTED'">
+          <label>Rejection reason</label>
+          <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
+        </div>
+
+        <!-- When PENDING/INPROGRESS: allow both (fill whichever you’ll use) -->
+        <ng-container *ngSwitchDefault>
+          <div class="row">
+            <label>Completed reason</label>
+            <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
+          </div>
+          <div class="row">
+            <label>Rejection reason</label>
+            <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
+          </div>
+        </ng-container>
+      </ng-container>
     </div>
 
-
     <footer class="details__footer">
-      <button class="primary" (click)="closeDetails()">Close</button>
+      <button class="primary" (click)="completeFromDetails()">Mark Completed</button>
+      <button class="primary danger" (click)="rejectFromDetails()">Reject</button>
+      <button class="primary muted" (click)="closeDetails()">Close</button>
     </footer>
   </div>
 </aside>
-
-

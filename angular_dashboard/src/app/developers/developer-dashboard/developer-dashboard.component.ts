@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal, effect } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
@@ -48,8 +48,7 @@ interface Card {
   description?: string;
   done?: boolean;
   status: StatusKey;
-  // keep references if needed
-  createdBy?: UserDto;
+  createdBy?: UserDto; // reporter
   raw?: DeveloperSpecificIssueDto;
 }
 
@@ -74,6 +73,13 @@ export class DeveloperDashboardComponent implements OnInit {
   selected = signal<Card | null>(null);
   description = signal<string>('');
 
+  // extra details for selected card
+  loadingDetails = false;
+  selectedFiles: string[] = [];
+  selectedIssuerUserId: number | null = null; // needed to build file URLs
+  completeReason = '';
+  rejectReason = '';
+
   // lists
   lists = signal<List[]>([]);
 
@@ -92,14 +98,25 @@ export class DeveloperDashboardComponent implements OnInit {
   });
 
   ngOnInit() {
-    const user = this.auth.getUser();
-    if (!user || !user.id) return;
+    const userId = this.getUserId();
+    if (!userId) {
+      console.error('[DeveloperBoard] No userId found in auth payload.');
+      return;
+    }
 
     // Load issues bucketed by status for this developer (by userId)
-    this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${user.id}/issues`)
-      .subscribe(dto => {
-        this.inflate(dto);
+    this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${userId}/issues`)
+      .subscribe({
+        next: (dto) => this.inflate(dto),
+        error: (e) => console.error('Failed to load developer issues', e)
       });
+  }
+
+  /** Supports several login payload shapes */
+  private getUserId(): number | null {
+    const u: any = this.auth.getUser();
+    if (!u) return null;
+    return u.id ?? u?.user?.id ?? u?.usrId ?? null;
   }
 
   /** Builds board lists from backend dto. */
@@ -125,24 +142,24 @@ export class DeveloperDashboardComponent implements OnInit {
     ]);
   }
 
-  /** Used by *ngFor trackBy */
   trackById = (_: number, item: Card) => item.id;
 
-  /** Lists connected for cross-list dragging. */
   connectedTo(i: number): string[] {
     const ids = this.lists().map((_, idx) => `list-${idx}`);
     ids.splice(i, 1);
     return ids;
   }
 
-  /** Handle dnd. Also updates backend status when moved across lists. */
+  /** Drag & drop across lists:
+   *  - No prompts, no alerts.
+   *  - Reasons are optional; dev can fill in from the drawer later.
+   */
   drop(e: CdkDragDrop<Card[]>) {
     if (e.previousContainer === e.container) {
       moveItemInArray(e.container.data, e.previousIndex, e.currentIndex);
       return;
     }
 
-    // compute from/to status keys
     const fromIdx = this.indexFromListId(e.previousContainer.id);
     const toIdx   = this.indexFromListId(e.container.id);
     if (fromIdx === -1 || toIdx === -1) return;
@@ -151,67 +168,149 @@ export class DeveloperDashboardComponent implements OnInit {
     const toKey   = this.lists()[toIdx].key;
 
     // optimistic UI
-    transferArrayItem(
-      e.previousContainer.data,
-      e.container.data,
-      e.previousIndex,
-      e.currentIndex
-    );
+    transferArrayItem(e.previousContainer.data, e.container.data, e.previousIndex, e.currentIndex);
 
     const moved = e.container.data[e.currentIndex];
     const prevStatus = moved.status;
     moved.status = toKey;
     moved.done = toKey === 'COMPLETED';
 
-    // call backend to update status
-    const user = this.auth.getUser();
+    // send update with no forced reasons
     const payload = {
-      workedBy: user?.id,               // developer’s userId
+      workedBy: this.getUserId(),
       fromStatus: fromKey,
       toStatus: toKey,
-      rejectionReason: toKey === 'REJECTED' ? 'Rejected by developer' : null,
-      completedAnalysis: toKey === 'COMPLETED' ? 'Marked as completed' : null
+      rejectionReason: null,
+      completedAnalysis: null
     };
 
     this.http.post(`http://localhost:8085/api/issues/${moved.id}/status`, payload).subscribe({
       next: () => {},
       error: () => {
-        // revert UI if failed
-        transferArrayItem(
-          e.container.data,
-          e.previousContainer.data,
-          e.currentIndex,
-          e.previousIndex
-        );
+        // revert on failure
+        transferArrayItem(e.container.data, e.previousContainer.data, e.currentIndex, e.previousIndex);
         moved.status = prevStatus;
         moved.done = prevStatus === 'COMPLETED';
-        alert('Failed to update status.');
+        console.warn('Failed to update status.');
       }
     });
   }
 
   private indexFromListId(id: string): number {
-    // id format is "list-<index>"
     const idx = Number((id || '').split('-')[1]);
     return Number.isFinite(idx) ? idx : -1;
-    }
+  }
 
-  /** Cards query filter used by template. */
   filteredLists(): List[] {
     return this.filtered();
   }
 
+  // -------------------------
+  // Details Drawer
+  // -------------------------
   openCard(card: Card) {
     this.selected.set(card);
     this.description.set(card.description ?? '');
+    this.completeReason = '';
+    this.rejectReason = '';
+    this.selectedFiles = [];
+    this.selectedIssuerUserId = null;
+
+    // load files & reasons for this issue using the admin-by-status endpoint
+    this.loadingDetails = true;
+    this.http.get<any[]>(`http://localhost:8085/api/issues/status/${card.status}`).subscribe({
+      next: (rows) => {
+        const row = (rows || []).find((r: any) => r.id === card.id);
+        if (row) {
+          this.selectedFiles = row.files || [];
+          this.selectedIssuerUserId = row.user?.id ?? null;
+          this.completeReason = row.completedReason || '';
+          this.rejectReason   = row.rejectedReason  || '';
+        }
+        this.loadingDetails = false;
+      },
+      error: () => { this.loadingDetails = false; }
+    });
   }
 
   closeDetails() {
     this.selected.set(null);
+    this.completeReason = '';
+    this.rejectReason = '';
+    this.selectedFiles = [];
+    this.selectedIssuerUserId = null;
   }
 
+  /** Mark (or re-save) as Completed with optional reason. */
+  completeFromDetails() {
+    const s = this.selected();
+    if (!s) return;
+
+    const payload = {
+      workedBy: this.getUserId(),
+      fromStatus: s.status,
+      toStatus: 'COMPLETED' as StatusKey,
+      rejectionReason: null,
+      completedAnalysis: (this.completeReason || '').trim() || null
+    };
+
+    if (s.status !== 'COMPLETED') this.moveCard(s, s.status, 'COMPLETED');
+
+    this.http.post(`http://localhost:8085/api/issues/${s.id}/status`, payload).subscribe({
+      next: () => { this.closeDetails(); },
+      error: () => {
+        if (s.status !== 'COMPLETED') this.moveCard(s, 'COMPLETED', s.status);
+        console.warn('Failed to complete/update reason.');
+      }
+    });
+  }
+
+  /** Mark (or re-save) as Rejected with optional reason. */
+  rejectFromDetails() {
+    const s = this.selected();
+    if (!s) return;
+
+    const payload = {
+      workedBy: this.getUserId(),
+      fromStatus: s.status,
+      toStatus: 'REJECTED' as StatusKey,
+      rejectionReason: (this.rejectReason || '').trim() || null,
+      completedAnalysis: null
+    };
+
+    if (s.status !== 'REJECTED') this.moveCard(s, s.status, 'REJECTED');
+
+    this.http.post(`http://localhost:8085/api/issues/${s.id}/status`, payload).subscribe({
+      next: () => { this.closeDetails(); },
+      error: () => {
+        if (s.status !== 'REJECTED') this.moveCard(s, 'REJECTED', s.status);
+        console.warn('Failed to reject/update reason.');
+      }
+    });
+  }
+
+  /** Utility to move a card between lists in local state. */
+  private moveCard(card: Card, from: StatusKey, to: StatusKey) {
+    const lists = this.lists();
+
+    const fromList = lists.find(l => l.key === from);
+    const toList   = lists.find(l => l.key === to);
+    if (!fromList || !toList) return;
+
+    fromList.cards = fromList.cards.filter(c => c.id !== card.id);
+    const clone: Card = { ...card, status: to, done: to === 'COMPLETED' };
+    toList.cards = [clone, ...toList.cards];
+
+    this.lists.set(lists.map(l => {
+      if (l.key === from) return { ...l, cards: fromList.cards };
+      if (l.key === to)   return { ...l, cards: toList.cards };
+      return l;
+    }));
+  }
+
+  // UI helpers
   markDone(card: Card) {
-    // toggle UI only; status change should be done via drag to Completed/Back
+    // visual only (real status change should be via drag or drawer buttons)
     card.done = !card.done;
   }
 
