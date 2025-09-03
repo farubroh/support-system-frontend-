@@ -36,22 +36,23 @@ export class AdminDashboardComponent implements OnInit {
   allIssuesCache: any[] = [];   // global cache across all statuses (for counts & ALL view)
 
   // UI state
-  activeTab: string = 'PENDING'; // which server status we fetch: PENDING/INPROGRESS/COMPLETED/REJECTED/ALL
+  activeTab: string = 'ALL';     // default to ALL on load
   loading: boolean = true;
   selectedIssue: any = null;
   isDarkMode = false;
   isDesktopView = true;
 
-  // Status counts (sidebar) — you can compute from cache or fetch from server
+  // Status counts (sidebar)
   pendingCount: number = 0;
   inProgressCount: number = 0;
   completedCount: number = 0;
   rejectedCount: number = 0;
 
   // Filters
-  filterStatus: string = ''; // client-side status filter (used for ALL view if desired)
-  categoryList: string[] = []; // dynamic categories from API
+  filterStatus: string = '';       // client-side status highlight
+  categoryList: string[] = [];     // dynamic categories from API
   selectedCategory: string = '';
+  selectedDeveloperName: string = ''; // developer filter
   searchQuery: string = '';
   searchConflictMessage: string = '';
 
@@ -60,6 +61,12 @@ export class AdminDashboardComponent implements OnInit {
   showingCategories: boolean = true;
   showingGraph: boolean = false;
   showingDevelopers: boolean = false;
+
+  // Developers (sidebar list)
+  developerList: string[] = [];
+
+  // State helpers
+  hasLoadedCache = false; // used to avoid early "No issues found" flash on ALL
 
   // Unused but kept for compatibility with your template
   user = { username: 'Admin', role: 'Admin' };
@@ -83,10 +90,11 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.fetchIssues();
+    // Initial loads
+    this.fetchIssues();            // will early-return for ALL
     this.loadCategories();
-    this.fetchAllIssuesCache();   // build global cache for counts & ALL view
-    this.updateCountsFromCache(); // compute sidebar counts from cache (initially empty; will update after cache loads)
+    this.fetchAllIssuesCache();    // builds the ALL cache
+    this.updateCountsFromCache();  // first pass (empty)
 
     this.filterStatus = ''; // no client-side status filter initially
 
@@ -136,6 +144,9 @@ export class AdminDashboardComponent implements OnInit {
   /** Load all statuses once into cache for global counts & ALL view */
   fetchAllIssuesCache() {
     const base = 'http://localhost:8085/api/issues/status';
+    // If user is on ALL view, show loading while we refresh
+    if (this.activeTab === 'ALL') this.loading = true;
+
     forkJoin([
       this.http.get<any[]>(`${base}/PENDING`),
       this.http.get<any[]>(`${base}/INPROGRESS`),
@@ -144,9 +155,17 @@ export class AdminDashboardComponent implements OnInit {
     ]).subscribe({
       next: (lists) => {
         this.allIssuesCache = (lists || []).flat().filter(Boolean);
-        this.updateCountsFromCache(); // keep sidebar numbers in sync
+        this.updateCountsFromCache();
+        this.rebuildDeveloperListFromCache();
+        this.hasLoadedCache = true;
+        this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Failed to load all issues cache', err)
+      error: (err) => {
+        console.error('Failed to load all issues cache', err);
+        this.hasLoadedCache = true;
+        this.loading = false;
+      }
     });
   }
 
@@ -160,12 +179,24 @@ export class AdminDashboardComponent implements OnInit {
     this.rejectedCount   = list.filter(i => norm(i.status) === 'REJECTED').length;
   }
 
+  /** Build developer list from the cache (names with at least one issue) */
+  private rebuildDeveloperListFromCache() {
+    const names = new Set<string>();
+    for (const i of this.allIssuesCache) {
+      if (i?.developerName && String(i.developerName).trim().length > 0) {
+        names.add(String(i.developerName).trim());
+      }
+    }
+    this.developerList = Array.from(names).sort((a, b) => a.localeCompare(b));
+  }
+
   /** Load categories from backend (public GET in your SecurityConfig) */
   loadCategories() {
     this.http.get<CategoryDto[]>(`http://localhost:8085/api/categories`)
       .subscribe({
         next: (list) => {
           this.categoryList = (list || []).map(c => c.categoryName);
+          // Note: actual zero-count hiding is handled in the HTML via *ngIf="getCategoryCount(category) > 0"
         },
         error: (err) => {
           console.error('Failed to load categories', err);
@@ -186,7 +217,6 @@ export class AdminDashboardComponent implements OnInit {
           if (created?.categoryName && !this.categoryList.includes(created.categoryName)) {
             this.categoryList = [...this.categoryList, created.categoryName];
           }
-          // Optionally re-cache issues if new category impacts views/counts later
         },
         error: () => alert('Failed to create category')
       });
@@ -219,10 +249,31 @@ export class AdminDashboardComponent implements OnInit {
       results = results.filter(i => i.category === this.selectedCategory);
     }
 
+    // Developer filter
+    if (this.selectedDeveloperName) {
+      if (this.selectedDeveloperName === '__UNASSIGNED__') {
+        results = results.filter(i => !i?.developerName || !String(i.developerName).trim());
+      } else {
+        const target = String(this.selectedDeveloperName).trim();
+        results = results.filter(i => String(i?.developerName).trim() === target);
+      }
+    }
+
     // Optional: client-side status filter (useful only for ALL view)
     if (this.activeTab === 'ALL' && this.filterStatus) {
       results = results.filter(i => normalize(i.status) === this.filterStatus);
     }
+
+    // ✅ Sort: unassigned first, then ascending by createdAt (older first)
+    results.sort((a, b) => {
+      const aUnassigned = !a?.developerName || !String(a.developerName).trim();
+      const bUnassigned = !b?.developerName || !String(b.developerName).trim();
+      if (aUnassigned !== bUnassigned) return aUnassigned ? -1 : 1;
+
+      const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aTime - bTime; // ascending (older first)
+    });
 
     return results;
   }
@@ -234,17 +285,21 @@ export class AdminDashboardComponent implements OnInit {
     return this.allIssuesCache.filter(i => norm(i.category) === target).length;
   }
 
-  /** Left “Problem Status” clicks — load that status from the server */
+  /** Sidebar: Problem Status clicks — load that status from the server */
   setFilterStatus(status: string) {
-  // optional: clear search so results aren't hidden
-  this.searchQuery = '';
-  this.searchConflictMessage = '';
+    // optional: clear search so results aren't hidden
+    this.searchQuery = '';
+    this.searchConflictMessage = '';
 
-  this.selectedCategory = '';   // don’t mix status + category
-  this.filterStatus = status;   // <-- keep for HIGHLIGHT
-  this.activeTab = status;      // fetch from server for this status
-  this.fetchIssues();
-}
+    // don’t mix with category/developer filters
+    this.selectedCategory = '';
+    this.selectedDeveloperName = '';
+
+    this.filterStatus = status;   // for highlight
+    this.activeTab = status;      // fetch from server for this status
+    this.fetchIssues();
+  }
+
   selectCategory(category: string) {
     if (this.searchActive) {
       this.searchConflictMessage = 'Clear search to view category results.';
@@ -252,11 +307,25 @@ export class AdminDashboardComponent implements OnInit {
       this.searchConflictMessage = '';
       this.selectedCategory = category;
 
-      // If you're on a specific status and the issue in this category is in a different status,
-      // you might want ALL to ensure visibility:
-      // this.activeTab = 'ALL';
-      // this.fetchIssues(); // not needed for ALL since we rely on cache
+      // Ensure visibility across statuses by using ALL
+      this.activeTab = 'ALL';
     }
+  }
+
+  getDeveloperCount(name: string): number {
+    const norm = (s: string) => (s || '').trim();
+    if (name === '__UNASSIGNED__') {
+      return this.allIssuesCache.filter(i => !norm(i?.developerName)).length;
+    }
+    const target = norm(name);
+    return this.allIssuesCache.filter(i => norm(i?.developerName) === target).length;
+  }
+
+  selectDeveloper(name: string) {
+    this.selectedDeveloperName = name;
+    this.selectedCategory = ''; // don’t mix filters
+    this.searchConflictMessage = '';
+    this.activeTab = 'ALL'; // ensure visibility across statuses
   }
 
   clearSearch() {
@@ -266,10 +335,12 @@ export class AdminDashboardComponent implements OnInit {
 
   /** Top tabs → switch server status and fetch (if you enable tabs in HTML) */
   onTabClick(status: string) {
-  this.activeTab = status;
-  this.filterStatus = status === 'ALL' ? '' : status; // highlight current tab (or none on ALL)
-  this.fetchIssues();
-}
+    this.activeTab = status;
+    this.filterStatus = status === 'ALL' ? '' : status; // highlight current tab (or none on ALL)
+    this.selectedCategory = '';
+    this.selectedDeveloperName = '';
+    this.fetchIssues();
+  }
 
   /** Assign developer (modal action) */
   assignDeveloper(developerId: number) {
@@ -313,9 +384,14 @@ export class AdminDashboardComponent implements OnInit {
     this.isDarkMode = !this.isDarkMode;
   }
 
-  // Sidebar toggles (unchanged)
+  // Sidebar toggles
   showCategories() { this.showingCategories = !this.showingCategories; }
   showAllIssues() { this.showingAllIssues = !this.showingAllIssues; }
   showGraph() { this.showingGraph = !this.showingGraph; }
-  showDevelopers() { this.showingDevelopers = !this.showingDevelopers; }
+  showDevelopers() {
+    this.showingDevelopers = !this.showingDevelopers;
+    if (this.showingDevelopers && !this.hasLoadedCache) {
+      this.fetchAllIssuesCache();
+    }
+  }
 }
