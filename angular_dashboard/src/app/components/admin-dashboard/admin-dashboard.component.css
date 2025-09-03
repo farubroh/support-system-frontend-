@@ -8,6 +8,80 @@ body, html {
   font-size: 16px;
   
 }
+
+/* Small, attached user details popover */
+.user-popover {
+  position: absolute;
+  z-index: 9999;
+  min-width: 260px;
+  max-width: 320px;
+  background: #ffffff;
+  border: 1px solid #e6e8ec;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+  padding: 10px 12px 12px;
+}
+
+.user-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.user-popover-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #222;
+}
+
+.user-popover-close {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  color: #999;
+}
+.user-popover-close:hover { color: #555; }
+
+.user-popover-body .row {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dashed #eee;
+}
+.user-popover-body .row:last-child { border-bottom: none; }
+
+.user-popover-body .k {
+  color: #666;
+  font-size: 12px;
+}
+.user-popover-body .v {
+  color: #111;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Small arrow pointing to the username */
+.user-popover-arrow {
+  position: absolute;
+  top: -6px;
+  left: 14px;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-left: 1px solid #e6e8ec;
+  border-top: 1px solid #e6e8ec;
+  transform: rotate(45deg);
+}
+
+/* Make sure the page can position the popover correctly on small screens */
+.main-area { position: relative; }
+
 /* Style for the Users Info column */
 /* + Add Category Button */
 .add-category-btn {

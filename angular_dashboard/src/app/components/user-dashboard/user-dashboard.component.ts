@@ -31,7 +31,13 @@ export class DashboardComponent implements OnInit {
   issues: any[] = [];
   selectedIssue: any = null;
   loading: boolean = true;
-  activeTab: string = 'PENDING';
+
+  /**
+   * 🔹 Initial tab is now ALL so nothing specific (like Pending) looks selected on first load.
+   * We add an "ALL" tab in statusTabs.
+   */
+  activeTab: string = 'ALL';
+
   showPlusMessage = true;
   showCreateModal: boolean = false;
 
@@ -41,112 +47,152 @@ export class DashboardComponent implements OnInit {
   // NEW: controls desktop filter menu open/close state
   isFilterOpen: boolean = false;
 
- constructor(
-  private http: HttpClient,
-  private router: Router,
-  private authService: AuthenticationService
-) {}
-
-
   statusTabs = [
-    { key: 'PENDING', label: 'Pending', icon: 'fa-regular fa-hourglass-half' },
-    { key: 'INPROGRESS', label: 'In Progress', icon: 'fa-solid fa-spinner' },
-    { key: 'COMPLETED', label: 'Completed', icon: 'fa-solid fa-circle-check' },
-    { key: 'REJECTED', label: 'Rejected', icon: 'fa-solid fa-circle-xmark' }
+    { key: 'ALL',        label: 'All' },
+    { key: 'PENDING',    label: 'Pending' },
+    { key: 'INPROGRESS', label: 'In Progress' },
+    { key: 'COMPLETED',  label: 'Completed' },
+    { key: 'REJECTED',   label: 'Rejected' }
   ];
 
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private authService: AuthenticationService
+  ) {}
+
   ngOnInit() {
-  this.checkScreenSize();
-  window.addEventListener('resize', this.checkScreenSize.bind(this));
-  this.startPlusMessageLoop();
-  
-  
+    this.checkScreenSize();
+    window.addEventListener('resize', this.checkScreenSize.bind(this));
+    this.startPlusMessageLoop();
 
-
-  this.user = this.authService.getUser();  // ✅ get from localStorage via service
-  if (this.user) {
-    this.fetchNoteData();
-    if (this.currentView === 'ISSUES') {
-      this.fetchIssues();
-    } else {
+    this.user = this.authService.getUser();  // ✅ get from localStorage via service
+    if (this.user) {
+      // Initial load: show ALL issues combined, sorted DESC
       this.fetchAllIssuesForHome();
-    }
-    
 
-    setInterval(() => {
-      
-      
-      this.fetchNoteData();
-    }, 1000);
-  } else {
-    // Optional: hard redirect if somehow landed here without user
-    this.router.navigate(['/login']);
-  }
-}
-  checkScreenSize() {
-  this.isMobileView = window.innerWidth < 768;
-}
-
-  fetchIssues() {
-  this.loading = true;
-  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
-  this.http.get<any[]>(url).subscribe({
-    next: (res) => {
-      
-      console.log("Fetched issues:", res); // Ensure the issues are fetched correctly
-      this.issues = res.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    },
-    error: (err) => {
-      console.error("Error fetching issues:", err);
-      this.issues = [];
-    },
-    complete: () => {
-      setTimeout(() => {
-        this.loading = false;
+      // Optional: lightweight KPI refresh loop you had
+      setInterval(() => {
+        this.fetchNoteData();
       }, 1000);
+    } else {
+      this.router.navigate(['/login']);
     }
-  });
-}
-
-getFileName(filePath: string): string {
-    const fileName = filePath.split('/').pop();  // Get the last part of the path
-    return fileName ? fileName : 'Unknown file';  // Return the file name or a fallback
   }
 
-
-isSidebarOpen = false; // Start with the sidebar open
-
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
+  // ========= Sorting helpers =========
+  private sortByCreatedAtAsc(list: any[]): any[] {
+    return [...list].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
   }
-  // UPDATED: closes filter menu after tab click
+
+  private sortByCreatedAtDesc(list: any[]): any[] {
+    return [...list].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  // ========= Screen / layout =========
+  isMobileView: boolean = false;
+  checkScreenSize() {
+    this.isMobileView = window.innerWidth < 768;
+  }
+
+  // ========= Tab click behavior =========
   onTabClick(tabKey: string) {
-  this.activeTab = tabKey;  // Set active status tab
+    this.activeTab = tabKey;
 
-  // Fetch the issues for the selected status tab
-  this.fetchIssues();  
+    // Sorting rule:
+    // - ALL => DESC (newest first)
+    // - specific status => ASC (oldest first)
+    if (tabKey === 'ALL') {
+      this.fetchAllIssuesForHome();   // will set DESC inside
+    } else {
+      this.fetchIssues();             // will set ASC inside
+    }
 
-  // Close desktop filter menu after selection
-  this.isFilterOpen = false;
+    this.isFilterOpen = false;
 
-  // Handle mobile view, show issues under the sidebar
-  if (this.isMobileView) {
-    // Ensure mobile issues are shown
-    this.showIssuesBelowSidebar(tabKey);
+    if (this.isMobileView) {
+      this.showIssuesBelowSidebar(tabKey);
+    }
   }
-}
 
-showIssuesBelowSidebar(tabKey: string) {
-  // Update the issues list for mobile view
-  this.fetchIssues(); // Re-fetch issues whenever the tab is clicked
-}
-
-
-
-  // NEW: toggles desktop filter menu open/close
-  toggleFilterMenu() {
-    this.isFilterOpen = !this.isFilterOpen;
+  showIssuesBelowSidebar(_tabKey: string) {
+    // In current implementation, fetch methods already updated the list.
+    // Kept for compatibility with your previous structure.
   }
+
+  // ========= Fetchers =========
+  fetchIssues() {
+    if (!this.user?.id) return;
+    this.loading = true;
+
+    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${this.activeTab}`;
+    this.http.get<any[]>(url).subscribe({
+      next: (res) => {
+        // ✅ Specific status → ascending
+        this.issues = this.sortByCreatedAtAsc(Array.isArray(res) ? res : []);
+      },
+      error: (err) => {
+        console.error("Error fetching issues:", err);
+        this.issues = [];
+      },
+      complete: () => {
+        setTimeout(() => { this.loading = false; }, 300);
+      }
+    });
+  }
+
+  /**
+   * Loads all statuses (PENDING/INPROGRESS/COMPLETED/REJECTED) for the user,
+   * combines them, and sorts DESC for the ALL view.
+   */
+  fetchAllIssuesForHome() {
+    if (!this.user?.id) return;
+    this.loading = true;
+
+    const statuses = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
+    let combinedIssues: any[] = [];
+    let completedCalls = 0;
+
+    statuses.forEach(status => {
+      const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
+      this.http.get<any[]>(url).subscribe({
+        next: (res) => {
+          if (res) {
+            combinedIssues = combinedIssues.concat(
+              res.map(issue => ({ ...issue, status }))
+            );
+          }
+        },
+        error: (err) => {
+          console.error(`Error fetching ${status} issues`, err);
+        },
+        complete: () => {
+          completedCalls++;
+          if (completedCalls === statuses.length) {
+            // ✅ ALL view → descending
+            this.issues = this.sortByCreatedAtDesc(combinedIssues);
+            this.loading = false;
+          }
+        }
+      });
+    });
+  }
+
+  // ========= Misc existing helpers =========
+  getFileName(filePath: string): string {
+    const fileName = filePath.split('/').pop();
+    return fileName ? fileName : 'Unknown file';
+  }
+
+  isSidebarOpen = false;
+  toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; }
+
+  // Not used for selection now, but keep for styling if needed
+  toggleFilterMenu() { this.isFilterOpen = !this.isFilterOpen; }
 
   getStatusColor = getStatusColor;
 
@@ -158,153 +204,60 @@ showIssuesBelowSidebar(tabKey: string) {
     return 'inprogress';
   }
 
-  handleView(issue: any) {
-    this.selectedIssue = issue;
-  }
-
-  handleClose() {
-    this.selectedIssue = null;
-  }
+  handleView(issue: any) { this.selectedIssue = issue; }
+  handleClose() { this.selectedIssue = null; }
 
   getCategoryIcon(category: string | null | undefined): string {
     if (!category) return 'fa-solid fa-circle-question';
-
     const cat = category.toLowerCase();
-
     if (cat.includes('edu mail problem')) return 'fa-solid fa-envelope-circle-check';
     if (cat.includes('payment problem')) return 'fa-solid fa-bangladeshi-taka-sign';
     if (cat.includes('result problem')) return 'fa-solid fa-graduation-cap';
-    if (cat.includes('quota problem')) return 'bi bi-shield-check text-success fs-4' ;
+    if (cat.includes('quota problem')) return 'bi bi-shield-check text-success fs-4';
     if (cat.includes('upload')) return 'fa-solid fa-upload';
     if (cat.includes('profile')) return 'fa-solid fa-user-gear';
     if (cat.includes('result')) return 'fa-solid fa-chart-line';
-
     return 'fa-solid fa-circle-question';
   }
 
-  toggleCreateModal() {
-    this.showCreateModal = !this.showCreateModal;
-  }
-
-  navigateToCreateIssue(): void {
-    this.router.navigate(['/create-issue']);
-  }
+  toggleCreateModal() { this.showCreateModal = !this.showCreateModal; }
+  navigateToCreateIssue(): void { this.router.navigate(['/create-issue']); }
 
   startPlusMessageLoop(): void {
     setInterval(() => {
       this.showPlusMessage = true;
-      setTimeout(() => {
-        this.showPlusMessage = false;
-      }, 100000);
+      setTimeout(() => { this.showPlusMessage = false; }, 100000);
     }, 100000);
   }
 
   currentView: string = 'HOME';
 
-  // fetchTotalUsers() {
-  //   this.http.get<any>('http://localhost:8085/api/issues/users/total').subscribe({
-  //     next: (data) => {
-  //       this.totalUsers = data.count;
-  //     },
-  //     error: (err) => {
-  //       console.error("Error fetching total users:", err);
-  //     }
-  //   });
-  // }
-
-  // fetchTotalIssues() {
-  //   this.http.get<any>('http://localhost:8085/api/issues/issues/total').subscribe({
-  //     next: (data) => {
-        
-        
-  //       this.totalIssues = data.count;
-  //     },
-  //     error: (err) => {
-  //       console.error("Error fetching total issues:", err);
-  //     }
-  //   });
-  // }
-  
   totalPendingIssuesUser: number = 0;
-  totalIssuesDate: string = ''; // For displaying the date when total issues are fetched
-  latestIssueDate: string = ''; // For displaying the date of latest issue for the user
+  totalIssuesDate: string = '';
+  latestIssueDate: string = '';
 
   fetchPendingIssuesForUser() {
-  const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=PENDING`; // URL to get pending issues for the logged-in user
-  this.http.get<any[]>(url).subscribe({
-    next: (res) => {
-      // Set the total number of pending issues for the user
-      // console.log("Pending issues for user:", res);
-      this.totalPendingIssuesUser = res.length;
-
-      // Check if there are any pending issues, then set the date of the latest one
-      if (res.length > 0) {
-        const latestIssue = res[0]; // Assuming the first issue in the list is the latest one
-        this.latestIssueDate = new Date(latestIssue.createdDate).toLocaleDateString(); // Adjust according to your data structure
-      } else {
-        this.latestIssueDate = 'No Pending Issues';
+    if (!this.user?.id) return;
+    const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=PENDING`;
+    this.http.get<any[]>(url).subscribe({
+      next: (res) => {
+        this.totalPendingIssuesUser = res.length;
+        if (res.length > 0) {
+          const latestIssue = res[0];
+          this.latestIssueDate = new Date(latestIssue.createdDate).toLocaleDateString();
+        } else {
+          this.latestIssueDate = 'No Pending Issues';
+        }
+      },
+      error: (err) => {
+        console.error("Error fetching pending issues for user:", err);
       }
-    },
-    error: (err) => {
-      console.error("Error fetching pending issues for user:", err);
-    }
-  });
-}
-
+    });
+  }
 
   todayIssueCount: number = 0;
   userIssueRank: number = -1;
   userRankString: string = '';
-
-  // fetchTodayStats() {
-  //   if (!this.user || !this.user.id) {
-  //     return;
-  //   }
-
-  //   this.http.get<any>(`http://localhost:8085/api/issues/issues/today/user-rank/${this.user.id}`).subscribe({
-  //     next: (res) => {
-  //       this.todayIssueCount = res.totalTodayIssues;
-  //       this.userIssueRank = res.userRank;
-
-  //       if (this.userIssueRank > 0) {
-  //         this.userRankString = this.getOrdinalSuffix(this.userIssueRank);
-  //       } else {
-  //         this.userRankString = '';
-  //       }
-  //     },
-  //     error: (err) => {
-  //       console.error("Failed to fetch today's issue stats", err);
-  //     }
-  //   });
-  // }
-
-  fetchAllIssuesForHome() {
-    this.loading = true;
-    const statuses = ['PENDING', 'INPROGRESS', 'COMPLETED', 'REJECTED'];
-    let combinedIssues: any[] = [];
-    let completedCalls = 0;
-
-    statuses.forEach(status => {
-      const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
-      this.http.get<any[]>(url).subscribe({
-        next: (res) => {
-          // console.log(`Fetched ${status} issues:`, res);
-          if(res)
-          combinedIssues = combinedIssues.concat(res.map(issue => ({ ...issue, status })));
-        },
-        error: (err) => {
-          console.error(`Error fetching ${status} issues`, err);
-        },
-        complete: () => {
-          completedCalls++;
-          if (completedCalls === statuses.length) {
-            this.issues = combinedIssues;
-            this.loading = false;
-          }
-        }
-      });
-    });
-  }
 
   getOrdinalSuffix(n: number): string {
     const j = n % 10, k = n % 100;
@@ -313,98 +266,52 @@ showIssuesBelowSidebar(tabKey: string) {
     if (j === 3 && k !== 13) return `${n}rd`;
     return `${n}th`;
   }
-  isMobileView: boolean = false;
-
-  totalPendingIssues: number = 0;
-latestUserPendingIssueId: number | null = null;
-currentDate: string = new Date().toDateString();
-
-
-  fetchNoteData() {
-  if (!this.user || !this.user.id || !this.allIssues.length) return;
-
-  const pendingAll = this.allIssues.filter(
-    issue => issue.status?.toUpperCase() === 'PENDING'
-  );
-
-  const userPending = pendingAll.filter(
-    issue => issue.user?.id === this.user.id
-  );
-
-  this.totalPendingIssues = userPending.length;
-
-  if (userPending.length > 0) {
-    // 🔹 Find the user's pending issue with the highest ID
-    const userLatest = userPending.reduce((max, curr) => curr.id > max.id ? curr : max);
-
-    this.latestUserPendingIssueId = userLatest.id;
-
-    // 🔹 Find its position in the global list (sorted by ID ascending)
-    const sortedAll = pendingAll.sort((a, b) => a.id - b.id);
-    const position = sortedAll.findIndex(i => i.id === userLatest.id) + 1;
-
-    // Replace the displayed ID with its position in the global pending list
-    this.latestUserPendingIssueId = position;
-  } else {
-    this.latestUserPendingIssueId = null;
-  }
-}
-
-
 
   getCategoryColor(category: string): string {
     switch ((category || '').toLowerCase()) {
-      case 'edu mail problem':
-        return '#f48fb1';
-      case 'payment problem':
-        return '#ffb74d';
-      case 'quota problem':
-        return '#81c784';
-      case 'result problem':
-        return '#64b5f6';
-      case 'login issue':
-        return '#9575cd';
-      default:
-        return '#cfd8dc';
+      case 'edu mail problem': return '#f48fb1';
+      case 'payment problem': return '#ffb74d';
+      case 'quota problem': return '#81c784';
+      case 'result problem': return '#64b5f6';
+      case 'login issue': return '#9575cd';
+      default: return '#cfd8dc';
     }
   }
+
   allIssues: any[] = [];
-totalPendingIssuesAllUsers: number = 0;
+  totalPendingIssuesAllUsers: number = 0;
 
-createIssue() {
-  this.showCreateModal = true; // Show modal instead of navigating
-}
+  createIssue() { this.showCreateModal = true; }
+  closeCreateModal() { this.showCreateModal = false; }
 
+  // KPI helper you call in a timer
+  fetchNoteData() {
+    if (!this.user || !this.user.id || !this.allIssues.length) return;
 
-closeCreateModal() {
-  this.showCreateModal = false;
-}
+    const pendingAll = this.allIssues.filter(
+      issue => issue.status?.toUpperCase() === 'PENDING'
+    );
 
+    const userPending = pendingAll.filter(
+      issue => issue.user?.id === this.user.id
+    );
 
-// fetchAllIssuesForKPI() {
-//   console.log('API call triggered');
-//   this.http.get<any[]>(`http://localhost:8085/api/issues/all_admin`).subscribe(
-//     (res) => {
-//       console.log('Raw response:', res);
+    this.totalPendingIssues = userPending.length;
 
-//       this.allIssues = Array.isArray(res) ? res : [];
+    if (userPending.length > 0) {
+      const userLatest = userPending.reduce((max, curr) => curr.id > max.id ? curr : max);
+      this.latestUserPendingIssueId = userLatest.id;
 
-//       // Filter all issues with status 'PENDING' for all users
-//       const pendingIssues = this.allIssues.filter(
-//         issue => issue.status?.toUpperCase() === 'PENDING'
-//       );
+      const sortedAll = pendingAll.sort((a, b) => a.id - b.id);
+      const position = sortedAll.findIndex(i => i.id === userLatest.id) + 1;
 
-//       // Update the total pending issues for all users
-//       this.totalPendingIssuesAllUsers = pendingIssues.length;
+      this.latestUserPendingIssueId = position;
+    } else {
+      this.latestUserPendingIssueId = null;
+    }
+  }
 
-//       console.log('Total Pending Issues for All Users:', this.totalPendingIssuesAllUsers);
-//     },
-//     (err) => {
-//       console.error('Failed to fetch all issues:', err);
-//       this.allIssues = [];
-//     }
-//   );
-// }
-
-
+  totalPendingIssues: number = 0;
+  latestUserPendingIssueId: number | null = null;
+  currentDate: string = new Date().toDateString();
 }

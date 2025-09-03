@@ -11,7 +11,7 @@
     <!-- Header -->
     <div class="issue-header">
       <div class="title-section">
-        <h2 [title]="issue?.title || ''">{{ issue.title }}</h2>
+        <h2 [title]="issue.title || ''">{{ issue.title }}</h2>
       </div>
       <div class="header-actions">
         <button class="btn-complete" *ngIf="issue?.status !== 'COMPLETED'" (click)="markComplete()">
@@ -100,7 +100,7 @@
     <div class="info-section">
       <div class="info-item">
         <span class="label">Status:</span>
-        <span class="value pill" [ngClass]="issue.status?.toLowerCase()">{{ issue.status }}</span>
+        <span class="value pill" [ngClass]="issue.status.toLowerCase()">{{ issue.status }}</span>
       </div>
 
       <div class="info-item" *ngIf="issue?.deadline">
@@ -110,7 +110,7 @@
 
       <div class="info-item info-description">
         <span class="label">Description:</span>
-        <div class="value description" [title]="issue?.description || ''">
+        <div class="value description" [title]="issue.description || ''">
           {{ issue.description }}
         </div>
       </div>

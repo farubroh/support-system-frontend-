@@ -2,7 +2,8 @@ import {
   Component,
   OnInit,
   CUSTOM_ELEMENTS_SCHEMA,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  HostListener
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -82,6 +83,12 @@ export class AdminDashboardComponent implements OnInit {
     { key: 'COMPLETED', label: 'Completed' },
     { key: 'REJECTED', label: 'Rejected' }
   ];
+
+  // ===== User popover state =====
+  userPopoverVisible = false;
+  userPopoverX = 0;
+  userPopoverY = 0;
+  userPopoverData: any = null;
 
   constructor(
     private http: HttpClient,
@@ -196,7 +203,6 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (list) => {
           this.categoryList = (list || []).map(c => c.categoryName);
-          // Note: actual zero-count hiding is handled in the HTML via *ngIf="getCategoryCount(category) > 0"
         },
         error: (err) => {
           console.error('Failed to load categories', err);
@@ -302,11 +308,16 @@ export class AdminDashboardComponent implements OnInit {
 
   selectCategory(category: string) {
     if (this.searchActive) {
+      this.searchQuery = '';
+      this.selectedDeveloperName = '';
+      
+      this.filterStatus = '';
       this.searchConflictMessage = 'Clear search to view category results.';
     } else {
       this.searchConflictMessage = '';
       this.selectedCategory = category;
-
+      this.selectedDeveloperName = '';
+      this.filterStatus = '';
       // Ensure visibility across statuses by using ALL
       this.activeTab = 'ALL';
     }
@@ -324,7 +335,10 @@ export class AdminDashboardComponent implements OnInit {
   selectDeveloper(name: string) {
     this.selectedDeveloperName = name;
     this.selectedCategory = ''; // don’t mix filters
+    this.searchQuery = '';
     this.searchConflictMessage = '';
+    this.filterStatus = '';
+
     this.activeTab = 'ALL'; // ensure visibility across statuses
   }
 
@@ -365,6 +379,34 @@ export class AdminDashboardComponent implements OnInit {
 
   refreshIssueList() {
     this.fetchIssues();
+  }
+
+  // ===== Row-click to open issue details =====
+  openIssue(issue: any) {
+    this.selectedIssue = issue;
+  }
+
+  // ===== User popover controls =====
+  showUserDetails(ev: MouseEvent, user: any) {
+    ev.stopPropagation();
+    const target = ev.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+
+    // Place the popover just below the clicked element (with small gap)
+    this.userPopoverX = rect.left + window.scrollX;
+    this.userPopoverY = rect.bottom + window.scrollY + 6;
+    this.userPopoverData = user;
+    this.userPopoverVisible = true;
+  }
+
+  closeUserDetails() {
+    this.userPopoverVisible = false;
+    this.userPopoverData = null;
+  }
+
+  @HostListener('document:click')
+  handleDocClick() {
+    if (this.userPopoverVisible) this.closeUserDetails();
   }
 
   getStatusColor = getStatusColor;

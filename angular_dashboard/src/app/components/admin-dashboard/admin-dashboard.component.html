@@ -144,9 +144,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let issue of filteredIssues; let i = index">
+              <tr *ngFor="let issue of filteredIssues; let i = index"
+                  (click)="openIssue(issue)">
                 <td>{{ i + 1 }}</td>
+
+                <!-- Title -->
                 <td>{{ issue.title }}</td>
+
+                <!-- Category -->
                 <td>
                   <span
                     class="category-badge"
@@ -155,11 +160,17 @@
                     {{ issue.category || 'No Category' }}
                   </span>
                 </td>
+
+                <!-- Users Info (click to open small attached popover) -->
                 <td>
-                  <div class="user-info" [ngStyle]="{ 'text-align': 'left' }">
+                  <div class="user-info"
+                       [ngStyle]="{ 'text-align': 'left' }"
+                       (click)="showUserDetails($event, issue.user)">
                     {{ issue.user?.username }} - {{ issue.user?.department }} - {{ issue.user?.designation }}
                   </div>
                 </td>
+
+                <!-- Issue date -->
                 <td>{{ issue.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</td>
 
                 <!-- Assigned Developer column -->
@@ -168,16 +179,16 @@
                   <button
                     *ngIf="!issue.developerName"
                     class="view-btn"
-                    (click)="selectedIssue = issue"
+                    (click)="$event.stopPropagation(); openIssue(issue)"
                   >
                     View
                   </button>
 
-                  <!-- If assigned: show Assigned + developer name -->
+                  <!-- If assigned: keep Assigned button inert -->
                   <button
                     *ngIf="issue.developerName"
                     class="assigned-btn"
-                    (click)="selectedIssue = issue"
+                    (click)="$event.stopPropagation()"
                   >
                     Assigned
                   </button>
@@ -207,3 +218,23 @@
   (close)="selectedIssue = null"
   (refresh)="fetchIssues()">
 </app-issue-view-modal-admin>
+
+<!-- 👤 Small, attached user popover -->
+<div
+  *ngIf="userPopoverVisible"
+  class="user-popover"
+  (click)="$event.stopPropagation()"
+  [ngStyle]="{ top: userPopoverY + 'px', left: userPopoverX + 'px' }"
+>
+  <div class="user-popover-header">
+    <span class="user-popover-name">{{ userPopoverData?.username || 'User' }}</span>
+    <button class="user-popover-close" (click)="closeUserDetails()">×</button>
+  </div>
+  <div class="user-popover-body">
+    <div class="row"><span class="k">Department:</span><span class="v">{{ userPopoverData?.department || '—' }}</span></div>
+    <div class="row"><span class="k">Designation:</span><span class="v">{{ userPopoverData?.designation || '—' }}</span></div>
+    <div class="row" *ngIf="userPopoverData?.email"><span class="k">Email:</span><span class="v">{{ userPopoverData?.email }}</span></div>
+    <div class="row" *ngIf="userPopoverData?.phone"><span class="k">Phone:</span><span class="v">{{ userPopoverData?.phone }}</span></div>
+  </div>
+  <div class="user-popover-arrow"></div>
+</div>
