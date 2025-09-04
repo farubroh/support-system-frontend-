@@ -90,6 +90,9 @@ export class AdminDashboardComponent implements OnInit {
   userPopoverY = 0;
   userPopoverData: any = null;
 
+  // Category Color Mapping
+  categoryColorMap: { [key: string]: string } = {};  // Explicit type definition
+
   constructor(
     private http: HttpClient,
     private sanitizer: DomSanitizer,
@@ -203,11 +206,30 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (list) => {
           this.categoryList = (list || []).map(c => c.categoryName);
+          
+          // Precompute category colors once category list is loaded
+          this.precomputeCategoryColors();
         },
         error: (err) => {
           console.error('Failed to load categories', err);
         }
       });
+  }
+
+  /** Precompute colors for categories */
+  precomputeCategoryColors() {
+    const categoryColors = [
+      '#7321D7', '#B10F99', '#0E9591', '#2E0D3C', '#9575cd',
+      '#4CAF50', '#FF9800', '#9C27B0', '#3F51B5', '#FF5722',
+      '#8BC34A', '#2196F3', '#00BCD4', '#FFEB3B', '#607D8B',
+      '#FFC107'
+    ];
+
+    // Cache the color mapping based on the category list
+    this.categoryColorMap = this.categoryList.reduce((map: { [key: string]: string }, category, index) => {
+      map[category.toLowerCase()] = categoryColors[index % categoryColors.length];
+      return map;
+    }, {} as { [key: string]: string });
   }
 
   /** Add new category via prompt() then POST and refresh list */
@@ -222,6 +244,8 @@ export class AdminDashboardComponent implements OnInit {
         next: (created) => {
           if (created?.categoryName && !this.categoryList.includes(created.categoryName)) {
             this.categoryList = [...this.categoryList, created.categoryName];
+            // Recompute category colors with the new category added
+            this.precomputeCategoryColors();
           }
         },
         error: () => alert('Failed to create category')
@@ -412,14 +436,10 @@ export class AdminDashboardComponent implements OnInit {
   getStatusColor = getStatusColor;
 
   getCategoryColor(category: string): string {
-    switch ((category || '').toLowerCase()) {
-      case 'edu mail problem': return '#7321D7';
-      case 'payment problem': return '#B10F99';
-      case 'quota problem': return '#0E9591';
-      case 'result problem': return '#2E0D3C';
-      case 'login issue': return '#9575cd';
-      default: return '#cfd8dc';
-    }
+    const normalizedCategory = (category || '').toLowerCase();
+    
+    // Retrieve color from the precomputed mapping
+    return this.categoryColorMap[normalizedCategory] || '#cfd8dc';  // Fallback to default color
   }
 
   toggleDarkMode() {

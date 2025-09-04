@@ -59,6 +59,7 @@
             *ngIf="getCategoryCount(category) > 0"
             [class.highlighted]="selectedCategory === category"
             (click)="selectCategory(category)"
+            
           >
             {{ category }} - {{ getCategoryCount(category) }}
           </div>
@@ -78,13 +79,7 @@
 
       <!-- Developers list (like categories; includes Unassigned) -->
       <li *ngIf="showingDevelopers">
-        <div
-          class="case-card"
-          [class.highlighted]="selectedDeveloperName === '__UNASSIGNED__'"
-          (click)="selectDeveloper('__UNASSIGNED__')"
-        >
-          Unassigned - {{ getDeveloperCount('__UNASSIGNED__') }}
-        </div>
+        
 
         <div
           class="case-card"
@@ -145,7 +140,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let issue of filteredIssues; let i = index"
-                  (click)="openIssue(issue)">
+                  (click)="openIssue(issue)" [style.cursor]="'pointer'">
                 <td>{{ i + 1 }}</td>
 
                 <!-- Title -->
@@ -161,13 +156,24 @@
                   </span>
                 </td>
 
-                <!-- Users Info (click to open small attached popover) -->
+                <!-- Users Info (hover to show user details) -->
                 <td>
-                  <div class="user-info"
-                       [ngStyle]="{ 'text-align': 'left' }"
-                       (click)="showUserDetails($event, issue.user)">
-                    {{ issue.user?.username }} - {{ issue.user?.department }} - {{ issue.user?.designation }}
-                  </div>
+                  <!-- User Info -->
+<div class="user-info"
+     [ngStyle]="{ 'text-align': 'left' }"
+     (mouseenter)="showUserDetails($event, issue.user)"
+     (mouseleave)="closeUserDetails()">
+  <span>{{ issue.user?.username }}</span>
+  <span [ngClass]="{
+      'status-pending': issue.status === 'PENDING',
+      'status-inprogress': issue.status === 'INPROGRESS',
+      'status-completed': issue.status === 'COMPLETED',
+      'status-rejected': issue.status === 'REJECTED'
+    }">
+    - {{ issue.status }}
+  </span>
+</div>
+
                 </td>
 
                 <!-- Issue date -->
@@ -175,28 +181,37 @@
 
                 <!-- Assigned Developer column -->
                 <td>
-                  <!-- If not assigned: show View -->
-                  <button
-                    *ngIf="!issue.developerName"
-                    class="view-btn"
-                    (click)="$event.stopPropagation(); openIssue(issue)"
-                  >
-                    View
-                  </button>
+  <!-- View Button (when no developer assigned) -->
+  <button
+    *ngIf="!issue.developerName"
+    class="view-btn"
+    (click)="$event.stopPropagation(); openIssue(issue)"
+  >
+    View
+  </button>
 
-                  <!-- If assigned: keep Assigned button inert -->
-                  <button
-                    *ngIf="issue.developerName"
-                    class="assigned-btn"
-                    (click)="$event.stopPropagation()"
-                  >
-                    Assigned
-                  </button>
+  <!-- Assigned Button (for assigned issues with developer) -->
+  <button
+    *ngIf="issue.developerName"
+    class="assigned-btn"
+    [ngClass]="{ 'completed-btn': issue.status === 'COMPLETED' }"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Conditional Text based on Status -->
+    <span *ngIf="issue.status === 'COMPLETED'">
+      Completed by: {{ issue.developerName }}
+    </span>
+    
+    <span *ngIf="issue.status === 'REJECTED'">
+      Rejected by: {{ issue.developerName }}
+    </span>
 
-                  <div *ngIf="issue.developerName">
-                    <span>Assigned to: {{ issue.developerName }}</span>
-                  </div>
-                </td>
+    <span *ngIf="issue.status !== 'COMPLETED' && issue.status !== 'REJECTED'">
+      Assigned to: {{ issue.developerName }}
+    </span>
+  </button>
+</td>
+
               </tr>
             </tbody>
           </table>
