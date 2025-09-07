@@ -36,33 +36,46 @@
       (cdkDropListDropped)="drop($event)"
     >
       <article
-        class="card"
-        *ngFor="let card of list.cards; trackBy: trackById"
-        cdkDrag
-        (click)="openCard(card)"
-      >
-        <div class="left">
-          <span class="status" [class.done]="card.done">●</span>
-        </div>
+  class="card"
+  *ngFor="let card of list.cards; trackBy: trackById"
+  cdkDrag
+  (click)="openCard(card)"
+>
+  <div class="left">
+    <span class="status" [class.done]="card.done">●</span>
+  </div>
 
-        <div class="content">
-          <div class="title">
-            <span *ngIf="card.done" class="check">✔</span>
-            {{ card.title }}
-            <span *ngIf="card.subtitle" class="tag">{{ card.subtitle }}</span>
-          </div>
-          <div class="meta" *ngIf="card.meta as m">
-            <span *ngIf="m.views">👁 {{ m.views }}</span>
-            <span *ngIf="m.comments">💬 {{ m.comments }}</span>
-            <span *ngIf="m.attachments">📎 {{ m.attachments }}</span>
-          </div>
-        </div>
+  <div class="content">
+    <div class="title">
+      <span *ngIf="card.done" class="check">✔</span>
+      {{ card.title }}
+      <span *ngIf="card.subtitle" class="tag">{{ card.subtitle }}</span>
+    </div>
+    <div class="meta" *ngIf="card.meta as m">
+      <span *ngIf="m.views">👁 {{ m.views }}</span>
+      <span *ngIf="m.comments">💬 {{ m.comments }}</span>
+      <span *ngIf="m.attachments">📎 {{ m.attachments }}</span>
+    </div>
+    
+    <!-- Display Category Color with Title and Username -->
+    <div class="category-info" *ngIf="card.raw?.issue?.category">
+  <span class="category-color" 
+        [ngStyle]="{ 'background-color': getCategoryColor(card.raw?.issue?.category || '') }">
+  </span>
+  <div class="category-details">
+    <div class="category-title">{{ card.title }}</div>
+    <div class="category-username">{{ card.raw?.createdBy?.username || '—' }}</div>
+    <div class="category-name">{{ card.raw?.issue?.category || 'Uncategorized' }}</div>
+  </div>
+</div>
 
-        <div class="right" (click)="$event.stopPropagation()">
-          <button class="tiny" (click)="markDone(card)" title="Toggle done">✓</button>
-          <button class="tiny danger" (click)="deleteCard(list, card)" title="Delete">✕</button>
-        </div>
-      </article>
+
+  </div>
+
+  <div class="right" (click)="$event.stopPropagation()">
+  </div>
+</article>
+
     </div>
 
     <footer class="list__footer">
@@ -96,7 +109,7 @@
 
       <!-- Reporter -->
       <div class="row">
-        <label>Reporter</label>
+        <label>Username</label>
         <div>{{ s.subtitle || '—' }}</div>
       </div>
 

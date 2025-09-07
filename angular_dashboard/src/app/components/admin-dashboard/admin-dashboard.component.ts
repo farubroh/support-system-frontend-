@@ -259,54 +259,61 @@ export class AdminDashboardComponent implements OnInit {
 
   /** Table source + filtering pipeline */
   get filteredIssues(): any[] {
-    // Base list depends on activeTab
-    const baseList = this.activeTab === 'ALL' ? this.allIssuesCache : this.issues;
-    const normalize = (status: string) => (status || '').trim().toUpperCase();
-    let results = [...baseList];
+  // Base list depends on activeTab
+  const baseList = this.activeTab === 'ALL' ? this.allIssuesCache : this.issues;
+  let results = [...baseList];
 
-    // Search filter
-    if (this.searchActive) {
-      const q = this.searchQuery.toLowerCase();
-      results = results.filter(issue =>
-        (issue.title && issue.title.toLowerCase().includes(q)) ||
-        (issue.category && issue.category.toLowerCase().includes(q)) ||
-        (issue.status && (issue.status + '').toLowerCase().includes(q))
-      );
-    }
-
-    // Category filter
-    if (this.selectedCategory) {
-      results = results.filter(i => i.category === this.selectedCategory);
-    }
-
-    // Developer filter
-    if (this.selectedDeveloperName) {
-      if (this.selectedDeveloperName === '__UNASSIGNED__') {
-        results = results.filter(i => !i?.developerName || !String(i.developerName).trim());
-      } else {
-        const target = String(this.selectedDeveloperName).trim();
-        results = results.filter(i => String(i?.developerName).trim() === target);
-      }
-    }
-
-    // Optional: client-side status filter (useful only for ALL view)
-    if (this.activeTab === 'ALL' && this.filterStatus) {
-      results = results.filter(i => normalize(i.status) === this.filterStatus);
-    }
-
-    // ✅ Sort: unassigned first, then ascending by createdAt (older first)
-    results.sort((a, b) => {
-      const aUnassigned = !a?.developerName || !String(a.developerName).trim();
-      const bUnassigned = !b?.developerName || !String(b.developerName).trim();
-      if (aUnassigned !== bUnassigned) return aUnassigned ? -1 : 1;
-
-      const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return aTime - bTime; // ascending (older first)
-    });
-
-    return results;
+  // Search filter
+  if (this.searchActive) {
+    const q = this.searchQuery.toLowerCase();
+    results = results.filter(issue =>
+      (issue.title && issue.title.toLowerCase().includes(q)) ||
+      (issue.category && issue.category.toLowerCase().includes(q)) ||
+      (issue.status && (issue.status + '').toLowerCase().includes(q))
+    );
   }
+
+  // Category filter
+  if (this.selectedCategory) {
+    results = results.filter(i => i.category === this.selectedCategory);
+  }
+
+  // Developer filter
+  if (this.selectedDeveloperName) {
+    if (this.selectedDeveloperName === '__UNASSIGNED__') {
+      results = results.filter(i => !i?.developerName || !String(i.developerName).trim());
+    } else {
+      const target = String(this.selectedDeveloperName).trim();
+      results = results.filter(i => String(i?.developerName).trim() === target);
+    }
+  }
+
+  // Optional: client-side status filter (useful only for ALL view)
+  if (this.activeTab === 'ALL' && this.filterStatus) {
+    results = results.filter(i => (i.status || '').toUpperCase() === this.filterStatus);
+  }
+
+  // ✅ Sort: unassigned first, then ascending by createdAt (older first)
+  results.sort((a, b) => {
+    const aUnassigned = !a?.developerName || !String(a.developerName).trim();
+    const bUnassigned = !b?.developerName || !String(b.developerName).trim();
+    if (aUnassigned !== bUnassigned) return aUnassigned ? -1 : 1;
+
+    const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return aTime - bTime; // ascending (older first)
+  });
+
+  // Add reason to the results for completed/rejected issues
+  results = results.map(issue => {
+    if (issue.status === 'COMPLETED' || issue.status === 'REJECTED') {
+      issue.reason = issue.status === 'COMPLETED' ? issue.completedReason : issue.rejectionReason;
+    }
+    return issue;
+  });
+
+  return results;
+}
 
   /** Count issues per category — based on global cache for always-correct numbers */
   getCategoryCount(category: string): number {

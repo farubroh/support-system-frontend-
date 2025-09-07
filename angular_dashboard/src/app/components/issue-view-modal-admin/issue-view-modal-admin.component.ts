@@ -31,6 +31,7 @@ export class IssueViewModalAdminComponent implements OnInit {
   @Input() issue!: Issue;
   @Output() close = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
+  
 
   apiBase = 'http://localhost:8085';
 

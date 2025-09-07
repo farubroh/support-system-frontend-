@@ -18,6 +18,7 @@ interface IssueDto {
   rejectedAt?: string;
   completedReason?: string;
   rejectionReason?: string;
+   category?: string; 
 }
 
 interface UserDto {
@@ -57,6 +58,11 @@ interface List {
   key: StatusKey;
   cards: Card[];
 }
+interface CategoryDto {
+  categoryId: number; // ID of the category
+  categoryName: string; // Name of the category
+}
+
 
 @Component({
   selector: 'app-developer-dashboard',
@@ -68,6 +74,9 @@ interface List {
 export class DeveloperDashboardComponent implements OnInit {
   constructor(private http: HttpClient, private auth: AuthenticationService) {}
 
+     categoryColorMap: { [key: string]: string } = {};
+  categoryList: string[] = [];
+  
   // search + details pane
   query = signal<string>('');
   selected = signal<Card | null>(null);
@@ -98,19 +107,60 @@ export class DeveloperDashboardComponent implements OnInit {
   });
 
   ngOnInit() {
-    const userId = this.getUserId();
-    if (!userId) {
-      console.error('[DeveloperBoard] No userId found in auth payload.');
-      return;
-    }
+  const userId = this.getUserId();
+  if (!userId) {
+    console.error('[DeveloperBoard] No userId found in auth payload.');
+    return;
+  }
 
-    // Load issues bucketed by status for this developer (by userId)
-    this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${userId}/issues`)
+  // load categories first
+  this.loadCategories();
+
+  // then load issues for this developer
+  this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${userId}/issues`)
+    .subscribe({
+      next: (dto) => this.inflate(dto),
+      error: (e) => console.error('Failed to load developer issues', e)
+    });
+}
+
+  loadCategories() {
+    this.http.get<CategoryDto[]>(`http://localhost:8085/api/categories`)
       .subscribe({
-        next: (dto) => this.inflate(dto),
-        error: (e) => console.error('Failed to load developer issues', e)
+        next: (list) => {
+          this.categoryList = (list || []).map(c => c.categoryName);
+          
+          // Precompute category colors once category list is loaded
+          this.precomputeCategoryColors();
+        },
+        error: (err) => {
+          console.error('Failed to load categories', err);
+        }
       });
   }
+
+  /** Precompute colors for categories */
+  precomputeCategoryColors() {
+    const categoryColors = [
+      '#7321D7', '#B10F99', '#0E9591', '#2E0D3C', '#9575cd',
+      '#4CAF50', '#FF9800', '#9C27B0', '#3F51B5', '#FF5722',
+      '#8BC34A', '#2196F3', '#00BCD4', '#FFEB3B', '#607D8B',
+      '#FFC107'
+    ];
+
+    // Cache the color mapping based on the category list
+    this.categoryColorMap = this.categoryList.reduce((map: { [key: string]: string }, category, index) => {
+      map[category.toLowerCase()] = categoryColors[index % categoryColors.length];
+      return map;
+    }, {} as { [key: string]: string });
+  }
+  getCategoryColor(category: string): string {
+  const normalizedCategory = (category || '').toLowerCase();
+  
+  // Retrieve color from the precomputed mapping
+  return this.categoryColorMap[normalizedCategory] || '#cfd8dc';  // Fallback to default color
+}
+
 
   /** Supports several login payload shapes */
   private getUserId(): number | null {
@@ -121,26 +171,27 @@ export class DeveloperDashboardComponent implements OnInit {
 
   /** Builds board lists from backend dto. */
   private inflate(dto: IssuesOfDeveloperDto) {
-    const mapCards = (arr: DeveloperSpecificIssueDto[], key: StatusKey): Card[] =>
-      (arr || []).map(d => ({
-        id: d.issue.issueId,
-        title: d.issue.title,
-        subtitle: d.createdBy?.username ?? null,
-        meta: { views: 0, comments: 0, attachments: 0 },
-        description: d.issue.description ?? '',
-        done: key === 'COMPLETED',
-        status: key,
-        createdBy: d.createdBy,
-        raw: d
-      }));
+  const mapCards = (arr: DeveloperSpecificIssueDto[], key: StatusKey): Card[] =>
+    (arr || []).map(d => ({
+      id: d.issue.issueId,
+      title: d.issue.title,
+      subtitle: d.createdBy?.username ?? null,
+      meta: { views: 0, comments: 0, attachments: 0 },
+      description: d.issue.description ?? '',
+      done: key === 'COMPLETED',
+      status: key,
+      createdBy: d.createdBy,
+      raw: d
+    }));
 
-    this.lists.set([
-      { title: 'Pending',     key: 'PENDING',    cards: mapCards(dto.PENDING, 'PENDING') },
-      { title: 'In Progress', key: 'INPROGRESS', cards: mapCards(dto.INPROGRESS, 'INPROGRESS') },
-      { title: 'Completed',   key: 'COMPLETED',  cards: mapCards(dto.COMPLETED, 'COMPLETED') },
-      { title: 'Rejected',    key: 'REJECTED',   cards: mapCards(dto.REJECTED, 'REJECTED') }
-    ]);
-  }
+  this.lists.set([
+    { title: 'Pending',     key: 'PENDING',    cards: mapCards(dto.PENDING, 'PENDING') },
+    { title: 'In Progress', key: 'INPROGRESS', cards: mapCards(dto.INPROGRESS, 'INPROGRESS') },
+    { title: 'Completed',   key: 'COMPLETED',  cards: mapCards(dto.COMPLETED, 'COMPLETED') },
+    { title: 'Rejected',    key: 'REJECTED',   cards: mapCards(dto.REJECTED, 'REJECTED') }
+  ]);
+}
+
 
   trackById = (_: number, item: Card) => item.id;
 
@@ -154,47 +205,54 @@ export class DeveloperDashboardComponent implements OnInit {
    *  - No prompts, no alerts.
    *  - Reasons are optional; dev can fill in from the drawer later.
    */
-  drop(e: CdkDragDrop<Card[]>) {
-    if (e.previousContainer === e.container) {
-      moveItemInArray(e.container.data, e.previousIndex, e.currentIndex);
-      return;
-    }
-
-    const fromIdx = this.indexFromListId(e.previousContainer.id);
-    const toIdx   = this.indexFromListId(e.container.id);
-    if (fromIdx === -1 || toIdx === -1) return;
-
-    const fromKey = this.lists()[fromIdx].key;
-    const toKey   = this.lists()[toIdx].key;
-
-    // optimistic UI
-    transferArrayItem(e.previousContainer.data, e.container.data, e.previousIndex, e.currentIndex);
-
-    const moved = e.container.data[e.currentIndex];
-    const prevStatus = moved.status;
-    moved.status = toKey;
-    moved.done = toKey === 'COMPLETED';
-
-    // send update with no forced reasons
-    const payload = {
-      workedBy: this.getUserId(),
-      fromStatus: fromKey,
-      toStatus: toKey,
-      rejectionReason: null,
-      completedAnalysis: null
-    };
-
-    this.http.post(`http://localhost:8085/api/issues/${moved.id}/status`, payload).subscribe({
-      next: () => {},
-      error: () => {
-        // revert on failure
-        transferArrayItem(e.container.data, e.previousContainer.data, e.currentIndex, e.previousIndex);
-        moved.status = prevStatus;
-        moved.done = prevStatus === 'COMPLETED';
-        console.warn('Failed to update status.');
-      }
-    });
+drop(e: CdkDragDrop<Card[]>) {
+  if (e.previousContainer === e.container) {
+    moveItemInArray(e.container.data, e.previousIndex, e.currentIndex);
+    return;
   }
+
+  const fromIdx = this.indexFromListId(e.previousContainer.id);
+  const toIdx = this.indexFromListId(e.container.id);
+  if (fromIdx === -1 || toIdx === -1) return;
+
+  const fromKey = this.lists()[fromIdx].key;
+  const toKey = this.lists()[toIdx].key;
+
+  // Prevent moving a card out of "REJECTED" status
+  if (fromKey === 'REJECTED' && toKey !== 'REJECTED') {
+    return; // Do nothing if trying to move from REJECTED to another status
+  }
+
+  // optimistic UI
+  transferArrayItem(e.previousContainer.data, e.container.data, e.previousIndex, e.currentIndex);
+
+  const moved = e.container.data[e.currentIndex];
+  const prevStatus = moved.status;
+  moved.status = toKey;
+
+  if (toKey === 'REJECTED') {
+    this.openCard(moved); // Show details for rejection reason
+  }
+
+  // send update with no forced reasons
+  const payload = {
+    workedBy: this.getUserId(),
+    fromStatus: fromKey,
+    toStatus: toKey,
+    rejectionReason: null,
+    completedAnalysis: null
+  };
+
+  this.http.post(`http://localhost:8085/api/issues/${moved.id}/status`, payload).subscribe({
+    next: () => {},
+    error: () => {
+      // revert on failure
+      transferArrayItem(e.container.data, e.previousContainer.data, e.currentIndex, e.previousIndex);
+      moved.status = prevStatus;
+      console.warn('Failed to update status.');
+    }
+  });
+}
 
   private indexFromListId(id: string): number {
     const idx = Number((id || '').split('-')[1]);
@@ -209,29 +267,30 @@ export class DeveloperDashboardComponent implements OnInit {
   // Details Drawer
   // -------------------------
   openCard(card: Card) {
-    this.selected.set(card);
-    this.description.set(card.description ?? '');
-    this.completeReason = '';
-    this.rejectReason = '';
-    this.selectedFiles = [];
-    this.selectedIssuerUserId = null;
+  this.selected.set(card);
+  this.description.set(card.description ?? '');
+  this.completeReason = card.raw?.issue.completedReason || '';  // Set the completed reason
+  this.rejectReason = card.raw?.issue.rejectionReason || '';   // Set the rejection reason
+  this.selectedFiles = [];
+  this.selectedIssuerUserId = null;
 
-    // load files & reasons for this issue using the admin-by-status endpoint
-    this.loadingDetails = true;
-    this.http.get<any[]>(`http://localhost:8085/api/issues/status/${card.status}`).subscribe({
-      next: (rows) => {
-        const row = (rows || []).find((r: any) => r.id === card.id);
-        if (row) {
-          this.selectedFiles = row.files || [];
-          this.selectedIssuerUserId = row.user?.id ?? null;
-          this.completeReason = row.completedReason || '';
-          this.rejectReason   = row.rejectedReason  || '';
-        }
-        this.loadingDetails = false;
-      },
-      error: () => { this.loadingDetails = false; }
-    });
-  }
+  // load files & reasons for this issue using the admin-by-status endpoint
+  this.loadingDetails = true;
+  this.http.get<any[]>(`http://localhost:8085/api/issues/status/${card.status}`).subscribe({
+    next: (rows) => {
+      const row = (rows || []).find((r: any) => r.id === card.id);
+      if (row) {
+        this.selectedFiles = row.files || [];
+        this.selectedIssuerUserId = row.user?.id ?? null;
+        this.completeReason = row.completedReason || this.completeReason; // Update if necessary
+        this.rejectReason = row.rejectedReason || this.rejectReason;      // Update if necessary
+      }
+      this.loadingDetails = false;
+    },
+    error: () => { this.loadingDetails = false; }
+  });
+}
+
 
   closeDetails() {
     this.selected.set(null);
@@ -345,4 +404,5 @@ export class DeveloperDashboardComponent implements OnInit {
   updateSubtitle(card: Card, value: string) {
     card.subtitle = value;
   }
+  
 }

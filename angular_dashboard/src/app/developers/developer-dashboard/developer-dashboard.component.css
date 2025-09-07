@@ -20,9 +20,43 @@
   background-color: #f2f4f8;
 }
 
-* { box-sizing: border-box; }
+
+* { box-sizing: border-box;
+background-color: #f2f4f8; }
 
 html, body { height: 100%; }
+.category-info {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.category-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.category-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-title {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.category-username {
+  font-size: 12px;
+  color: gray;
+}
+
+.category-name {
+  font-size: 12px;
+  color: #555;
+}
 
 body {
   margin: 0;
@@ -32,6 +66,17 @@ body {
     "Helvetica Neue", Arial;
   -webkit-font-smoothing: antialiased;
 }
+/* Global background */
+body {
+  background-color: #f2f4f8;
+}
+
+/* Card background */
+.card {
+  background: #ffffff; /* Ensure card background is white */
+}
+
+/* You may want to adjust borders of cards or containers if necessary */
 
 /* ==========================
    Top Bar
@@ -45,7 +90,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 12px 18px;
-  background-color: #ffffff;
+  background-color: white;
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   transition: background 0.3s ease;
@@ -57,9 +102,11 @@ body {
   font-weight: 600;
   font-size: 24px;
   color: var(--text);
+  background-color: white;
 }
 
-.topbar .search { display: flex; justify-content: center; }
+.topbar .search { display: flex; justify-content: center;
+background-color: white;}
 
 .topbar .search input {
   width: min(620px, 100%);
@@ -76,10 +123,11 @@ body {
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
 }
 
-.topbar .actions { display: flex; align-items: center; gap: 8px; }
+.topbar .actions { display: flex; align-items: center; gap: 8px;
+background-color: white; }
 
 .topbar .actions .icon {
-  background: #ffffff;
+  background-color: white;
   border: 1px solid #e2e8f0;
   color: var(--muted);
   border-radius: 8px;
@@ -112,6 +160,7 @@ body {
    Lists
    ========================== */
 .list {
+  
   display: grid;
   grid-template-rows: auto 1fr auto;
   height: calc(100vh - 160px);
@@ -127,6 +176,7 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 .list__header {
+  
   padding: 12px 14px;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
@@ -134,9 +184,11 @@ body {
   align-items: center;
   justify-content: space-between;
 }
-.list__header h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text); }
+.list__header h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--text);
+background-color: white; }
 
 .list__body {
+  background-color: white;
   padding: 12px;
   background: var(--list);
   overflow: auto;
@@ -206,9 +258,10 @@ body {
 .card .content .title { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
 .card .content .check { color: var(--accent); }
 .card .tag {
+  
   font-size: 11px;
-  color: var(--accent);
-  background: rgba(59, 130, 246, 0.1);
+  color: white;
+  background: linear-gradient(135deg, #1e88e5, #42a5f5);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 999px;
   padding: 2px 6px;
