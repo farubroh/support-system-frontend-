@@ -219,4 +219,9 @@ export class IssueViewModalAdminComponent implements OnInit {
   }
 
   onCloseModal() { this.close.emit(); }
+  // Add this in your component where the issue's rejection reason is accessed
+get rejectionReason() {
+  return this.issue?.status === 'REJECTED' ? this.issue?.rejectionReason : null;
+}
+
 }

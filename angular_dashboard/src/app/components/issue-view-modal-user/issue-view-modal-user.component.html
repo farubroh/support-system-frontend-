@@ -2,12 +2,12 @@
   <div class="issue-card refined">
     <!-- 🔝 Header -->
     <div class="issue-header">
-      <div class="title-section">
+      <!-- <div class="title-section">
         <h2>
           {{ issue.title }}
           
         </h2>
-      </div>
+      </div> -->
       <div class="header-actions">
         <button class="btn-close" (click)="onCloseModal()" aria-label="Close">
           <i class="bi bi-x-lg"></i>
@@ -22,6 +22,11 @@
       <div class="info-item">
         <span class="label">Status:</span>
         <span class="value pill" [ngClass]="issue.status?.toLowerCase()">{{ issue.status }}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Titile:</span>
+        <div class="value">{{ issue.title }}</div>
       </div>
 
       <!-- <div class="info-item" *ngIf="issue.deadline">

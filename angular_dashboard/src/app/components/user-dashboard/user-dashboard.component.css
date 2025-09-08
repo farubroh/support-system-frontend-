@@ -4,7 +4,7 @@
   gap: 20px;
   padding: 20px;
   font-family: 'Segoe UI', sans-serif;
-  background: #f6f6f6;
+ 
   height: 100vh;
   box-sizing: border-box;
   transition: background-color 0.3s ease;
@@ -456,7 +456,7 @@ Key
   flex: 1 1 70%;
   overflow-y: auto;
   padding: 20px;
-  background: #F6F7FF;
+ 
 }
 
 .task-list {
@@ -466,7 +466,7 @@ Key
 }
 
 .task-item {
-  background: #fff;
+ 
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.06);
@@ -589,7 +589,7 @@ Key
   .task-list-section {
     margin-top: 20px; /* Space between sidebar and task list */
     padding: 15px;
-    background: #f6f6f6;
+    
   }
 
   .create-issue-button-wrapper {

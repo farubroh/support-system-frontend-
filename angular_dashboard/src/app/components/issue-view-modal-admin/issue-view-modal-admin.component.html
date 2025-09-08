@@ -146,9 +146,11 @@
     <div *ngIf="issue?.status === 'COMPLETED'" class="status-msg success">
       ✅ {{ issue.completedReason || 'No reason provided' }}
     </div>
-    <div *ngIf="issue?.status === 'REJECTED'" class="status-msg error">
-      {{ issue.rejectionReason || 'No reason provided' }}
-    </div>
+    <!-- Show rejection reason if status is REJECTED -->
+<div *ngIf="issue?.status === 'REJECTED'" class="status-msg error">
+  {{ issue.rejectionReason || 'No reason provided' }}
+</div>
+
   </div>
 
   <!-- Comment Sidebar -->

@@ -122,44 +122,52 @@ export class DeveloperDashboardComponent implements OnInit {
       next: (dto) => this.inflate(dto),
       error: (e) => console.error('Failed to load developer issues', e)
     });
+
+  // Set an interval to auto-refresh pending issues every 10 seconds (or as needed)
+  setInterval(() => {
+    this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${userId}/issues`)
+      .subscribe({
+        next: (dto) => this.inflate(dto),
+        error: (e) => console.error('Failed to load developer issues', e)
+      });
+  }, 100000); // Refresh every 10 seconds
 }
 
+
   loadCategories() {
-    this.http.get<CategoryDto[]>(`http://localhost:8085/api/categories`)
-      .subscribe({
-        next: (list) => {
-          this.categoryList = (list || []).map(c => c.categoryName);
-          
-          // Precompute category colors once category list is loaded
-          this.precomputeCategoryColors();
-        },
-        error: (err) => {
-          console.error('Failed to load categories', err);
-        }
-      });
-  }
+  this.http.get<CategoryDto[]>(`http://localhost:8085/api/categories`)
+    .subscribe({
+      next: (list) => {
+        this.categoryList = (list || []).map(c => c.categoryName);
+        this.precomputeCategoryColors();
+      },
+      error: (err) => {
+        console.error('Failed to load categories', err);
+      }
+    });
+}
 
-  /** Precompute colors for categories */
-  precomputeCategoryColors() {
-    const categoryColors = [
-      '#7321D7', '#B10F99', '#0E9591', '#2E0D3C', '#9575cd',
-      '#4CAF50', '#FF9800', '#9C27B0', '#3F51B5', '#FF5722',
-      '#8BC34A', '#2196F3', '#00BCD4', '#FFEB3B', '#607D8B',
-      '#FFC107'
-    ];
+precomputeCategoryColors() {
+  const categoryColors = [
+    '#7321D7', '#B10F99', '#0E9591', '#2E0D3C', '#9575cd',
+    '#4CAF50', '#FF9800', '#9C27B0', '#3F51B5', '#FF5722',
+    '#8BC34A', '#2196F3', '#00BCD4', '#FFEB3B', '#607D8B',
+    '#FFC107'
+  ];
 
-    // Cache the color mapping based on the category list
-    this.categoryColorMap = this.categoryList.reduce((map: { [key: string]: string }, category, index) => {
-      map[category.toLowerCase()] = categoryColors[index % categoryColors.length];
-      return map;
-    }, {} as { [key: string]: string });
-  }
-  getCategoryColor(category: string): string {
+  // Cache the color mapping based on the category list
+  this.categoryColorMap = this.categoryList.reduce((map: { [key: string]: string }, category, index) => {
+    map[category.toLowerCase()] = categoryColors[index % categoryColors.length];
+    return map;
+  }, {} as { [key: string]: string });
+}
+
+getCategoryColor(category: string): string {
   const normalizedCategory = (category || '').toLowerCase();
-  
   // Retrieve color from the precomputed mapping
   return this.categoryColorMap[normalizedCategory] || '#cfd8dc';  // Fallback to default color
 }
+
 
 
   /** Supports several login payload shapes */
