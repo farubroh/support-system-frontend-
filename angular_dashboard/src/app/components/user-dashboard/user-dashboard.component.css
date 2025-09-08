@@ -335,7 +335,7 @@
 
 /* Hover: smooth gradient and lift */
 .task-tabs button:hover {
-  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  background: black;
   color: white;
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
@@ -343,7 +343,7 @@
 
 /* Active Tab */
 .task-tabs .active {
-  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  background: black;
   color: white;
   box-shadow: 0 6px 14px rgba(99, 102, 241, 0.4);
   transform: translateY(-1px);
@@ -362,13 +362,13 @@
 
 .category-badge {
   padding: 4px 10px;
-  border-radius: 38px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   display: inline-block;
   text-transform: capitalize;
   color: #fff;
-  width: 100px; /* Fixed size for category */
+  width: 150px; /* Fixed size for category */
   text-align: center;
 }
 .category-badge:hover {
@@ -409,7 +409,7 @@
 /* Center Section */
 .center-section {
   background: #f2f4f8;
-  border-radius: 20px;
+  
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -616,8 +616,10 @@ Key
 
   .task-main {
     display: flex;
-    flex-direction: column; /* Stack items vertically for mobile */
+    flex-direction: row; /* Stack items vertically for mobile */
     gap: 6px;
+    justify-content: center;
+    align-items: flex-start;
   }
 
   .task-left {
@@ -652,13 +654,13 @@ Key
     display: inline-block;
     text-transform: capitalize;
     color: #fff;
-    width: auto;
+    width: 150px;
     text-align: center;
   }
 }
 .task-description {
   font-size: 13px;           /* smaller font */
   color: rgba(0, 0, 0, 0.4); /* 40% visible */
-  margin-top: 6px;
+  /* margin-top: 6px; */
   line-height: 1.4;
 }

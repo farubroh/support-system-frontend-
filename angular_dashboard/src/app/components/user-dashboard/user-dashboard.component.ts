@@ -8,6 +8,8 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { CreateIssueComponent } from "../create-issue/create-issue.component";
 import { AuthenticationService } from '../../authentication.service';
 
+type CategoryDto = { categoryId: number; categoryName: string };
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -46,6 +48,7 @@ export class DashboardComponent implements OnInit {
 
   // NEW: controls desktop filter menu open/close state
   isFilterOpen: boolean = false;
+  categoryColorMap: { [key: string]: string } = {};
 
   statusTabs = [
     { key: 'ALL',        label: 'All' },
@@ -65,7 +68,7 @@ export class DashboardComponent implements OnInit {
     this.checkScreenSize();
     window.addEventListener('resize', this.checkScreenSize.bind(this));
     this.startPlusMessageLoop();
-
+    this.loadCategories(); 
     this.user = this.authService.getUser();  // ✅ get from localStorage via service
     if (this.user) {
       // Initial load: show ALL issues combined, sorted DESC
@@ -78,6 +81,35 @@ export class DashboardComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  loadCategories() {
+    this.http.get<CategoryDto[]>('http://localhost:8085/api/categories')
+      .subscribe({
+        next: (list) => {
+          const categoryColors = [
+            '#7321D7', '#B10F99', '#0E9591', '#2E0D3C', '#9575cd',
+            '#4CAF50', '#FF9800', '#9C27B0', '#3F51B5', '#FF5722',
+            '#8BC34A', '#2196F3', '#00BCD4', '#FFEB3B', '#607D8B',
+            '#FFC107'
+          ];
+
+          // Precompute category colors once category list is loaded
+          this.categoryColorMap = list.reduce((map: { [key: string]: string }, category, index) => {
+            map[category.categoryName.toLowerCase()] = categoryColors[index % categoryColors.length];
+            return map;
+          }, {});
+        },
+        error: (err) => {
+          console.error('Failed to load categories', err);
+        }
+      });
+  }
+
+  /** Get category color */
+  getCategoryColor(category: string): string {
+    const normalizedCategory = (category || '').toLowerCase();
+    return this.categoryColorMap[normalizedCategory] || '#cfd8dc';  // Fallback to default color
   }
 
   // ========= Sorting helpers =========
@@ -267,16 +299,7 @@ export class DashboardComponent implements OnInit {
     return `${n}th`;
   }
 
-  getCategoryColor(category: string): string {
-    switch ((category || '').toLowerCase()) {
-      case 'edu mail problem': return '#f48fb1';
-      case 'payment problem': return '#ffb74d';
-      case 'quota problem': return '#81c784';
-      case 'result problem': return '#64b5f6';
-      case 'login issue': return '#9575cd';
-      default: return '#cfd8dc';
-    }
-  }
+
 
   allIssues: any[] = [];
   totalPendingIssuesAllUsers: number = 0;
