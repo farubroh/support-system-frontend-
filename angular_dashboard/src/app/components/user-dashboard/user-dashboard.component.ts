@@ -337,4 +337,21 @@ export class DashboardComponent implements OnInit {
   totalPendingIssues: number = 0;
   latestUserPendingIssueId: number | null = null;
   currentDate: string = new Date().toDateString();
+
+
+deleteIssue(issue: any, event: Event) {
+this.http.delete(`http://localhost:8085/api/issues/${issue.id}`).subscribe({
+  next: () => {
+    this.issues = this.issues.filter(i => i.id !== issue.id);
+    alert('Issue deleted successfully.');
+  },
+  error: (err) => {
+    console.error('Error deleting issue:', err);
+    alert('Failed to delete issue. Please try again.');
+  }
+});
+
+}
+
+
 }

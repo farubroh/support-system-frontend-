@@ -23,6 +23,18 @@
   backdrop-filter: blur(5px);
   z-index: 998;
 }
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #dc2626; /* red */
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+.delete-btn:hover {
+  color: #b91c1c;
+}
 
 .create-modal {
   position: fixed;

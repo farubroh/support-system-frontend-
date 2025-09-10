@@ -23,6 +23,10 @@ export class IssueViewModalUserComponent {
       message: 'Please wait while we review your issue.'
     }
   ];
+  ngOnInit() {
+  console.log(this.issue); // Check if 'completedReason' and 'rejectionReason' are populated
+}
+
 
   toggleCommentSidebar() {
     this.showCommentSidebar = !this.showCommentSidebar;

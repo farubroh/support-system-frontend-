@@ -17,7 +17,7 @@ type Issue = {
   files?: string[];
   deadline?: string;
   completedReason?: string;
-  rejectionReason?: string;
+  rejectionReason?: string; 
 };
 
 @Component({
@@ -55,8 +55,18 @@ export class IssueViewModalAdminComponent implements OnInit {
 
   constructor(private http: HttpClient, private auth: AuthenticationService) {}
 
-  ngOnInit() { this.getCategories(); }
-
+ 
+  ngOnInit() { 
+    console.log('Issue Data:', this.issue); 
+     console.log('Rejected Reason:', this.issue?.rejectionReason);
+    this.getCategories(); 
+    this.getDevelopers();
+    console.log('Issue data:', this.issue);
+    if (this.issue.status === 'REJECTED') {
+    console.log('Rejection Reason:', this.issue.rejectionReason);
+  }
+  }
+  
   private getDevelopers() {
     this.http.get<any[]>(`${this.apiBase}/api/developers`).subscribe({
       next: (res: any[]) => {
@@ -68,8 +78,12 @@ export class IssueViewModalAdminComponent implements OnInit {
       error: (err) => {
         console.error(err);
         alert('Failed to load developers (are you logged in as ADMIN/DEVELOPER?)');
+        console.error('Error fetching issue data', err)
       }
     });
+    
+  
+
   }
 
   private getCategories() {
@@ -209,6 +223,7 @@ export class IssueViewModalAdminComponent implements OnInit {
           alert('Failed to mark as completed (check token/role).');
         }
       });
+      
   }
 
   submitComment() {
@@ -220,8 +235,13 @@ export class IssueViewModalAdminComponent implements OnInit {
 
   onCloseModal() { this.close.emit(); }
   // Add this in your component where the issue's rejection reason is accessed
-get rejectionReason() {
-  return this.issue?.status === 'REJECTED' ? this.issue?.rejectionReason : null;
+get rejectedReason() {
+  if (this.issue?.status === 'REJECTED') {
+    console.log('Rejection reason:', this.issue?.rejectionReason);
+    return this.issue?.rejectionReason || 'No reason provided';
+  }
+  return null;
 }
+
 
 }

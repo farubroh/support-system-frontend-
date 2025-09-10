@@ -412,5 +412,7 @@ drop(e: CdkDragDrop<Card[]>) {
   updateSubtitle(card: Card, value: string) {
     card.subtitle = value;
   }
+
+  
   
 }
