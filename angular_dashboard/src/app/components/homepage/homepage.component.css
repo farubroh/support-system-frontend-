@@ -1,0 +1,142 @@
+.dashboard-wrapper {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 220px;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .logo {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #0079bf;
+  margin-bottom: 30px;
+}
+
+.sidebar .menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar .menu li {
+  display: flex;
+  align-items: center;
+  padding: 15px 10px;
+  cursor: pointer;
+  color: #555;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  transition: background 0.3s;
+}
+
+.sidebar .menu li:hover {
+  background: #f0f0f0;
+}
+
+.sidebar .menu i {
+  margin-right: 15px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1c3b57; /* darker/navy */
+  color: #fff;
+  padding: 10px 20px;
+}
+
+.topbar .left {
+  display: flex;
+  align-items: center;
+}
+
+.topbar .left i {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.topbar .left .home-text {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.topbar .right {
+  display: flex;
+  align-items: center;
+}
+
+.topbar .right i {
+  margin-left: 20px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.topbar .right .user-circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #0099cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15px;
+}
+
+.topbar .right .user-circle i {
+  color: #fff;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  background: #f5f6fa;
+}
+
+.content h2 {
+  margin-bottom: 30px;
+}
+
+.profile-card {
+  background: #fff;
+  padding: 40px;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.profile-card .profile-img {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #0099cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  color: #fff;
+}
+
+.footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  color: #888;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+

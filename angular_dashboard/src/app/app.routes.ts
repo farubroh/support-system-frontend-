@@ -7,8 +7,10 @@ import { IssueTableComponent } from './components/issue-table/issue-table.compon
 import { DeveloperDashboardComponent } from './developers/developer-dashboard/developer-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthGuard } from './auth.guard';
+import { HomepageComponent } from './components/homepage/homepage.component';
 
 export const routes: Routes = [
+  { path: '', component: HomepageComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
