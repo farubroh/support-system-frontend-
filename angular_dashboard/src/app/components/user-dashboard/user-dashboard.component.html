@@ -57,6 +57,12 @@
           <!-- <div class="task-created-date">
             <small>{{ issue.createdAt | date: 'short' }}</small>
           </div> -->
+
+          <button *ngIf="issue.status === 'PENDING'"
+                  class="delete-btn"
+                  (click)="deleteIssue(issue, $event)">
+            <i class="bi bi-trash"></i>
+          </button>
         </div>
       </div>
       <div class="task-description">
@@ -86,9 +92,11 @@
                 <div class="task-created-date">
   <small>{{ issue.createdAt | date: 'short' }}</small>
   <!-- 🗑️ Delete button -->
-  <button class="delete-btn" (click)="deleteIssue(issue, $event)">
-    <i class="bi bi-trash"></i>
-  </button>
+            <button *ngIf="issue.status === 'PENDING'"
+                              class="delete-btn"
+                              (click)="deleteIssue(issue, $event)">
+                        <i class="bi bi-trash"></i>
+                      </button>
 </div>
 
               </div>
