@@ -1,15 +1,29 @@
 <div class="dashboard-wrapper">
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="logo">
-      <h2>IUMS</h2>
+    <!-- User Profile -->
+    <div class="profile-section" *ngIf="user">
+      <div class="avatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div class="user-info">
+        <h3>{{ user.username }}</h3>
+      
+      </div>
     </div>
+
+    <!-- Menu -->
     <ul class="menu">
-      <li><i class="fa-solid fa-house icon"></i> Home</li>
-      <li><i class="fa-solid fa-briefcase icon"></i> Job Listings</li>
-      <li><i class="fa-solid fa-users icon"></i> Candidates <span class="new">New</span></li>
-      <li><i class="fa-solid fa-chart-line icon"></i> Reports</li>
-      <li><i class="fa-solid fa-gear icon"></i> Settings</li>
+      <li (click)="goToHelpDesk()">
+        <i class="fa-solid fa-ticket"></i> Help Desk
+      </li>
+      <li>
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </li>
+      
+      <li (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </li>
     </ul>
   </aside>
 
@@ -17,27 +31,33 @@
   <div class="main-content">
     <!-- Topbar -->
     <header class="topbar">
-      
       <div class="right">
         <i class="fa-solid fa-bell"></i>
         <i class="fa-solid fa-envelope"></i>
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <div class="user-circle">
-          <i class="fa-solid fa-user"></i>
-        </div>
+        <i class="fa-solid fa-user"></i>
       </div>
     </header>
 
     <!-- Content -->
     <div class="content">
-      <h2>User Home</h2>
-      <div class="profile-card">
-        <div class="profile-img">
-          <i class="fa-solid fa-user"></i>
+      
+
+      <div class="profile-card" *ngIf="user">
+        <div class="profile-left">
+          <div class="profile-img">
+            <i class="fa-solid fa-user"></i>
+          </div>
+        </div>
+        <div class="profile-right">
+          <h3>{{ user.username }}</h3>
+          <p><strong>Designation:</strong> {{ user.designation }}</p>
+          <p><strong>Department:</strong> {{ user.department }}</p>
+          <p><strong>Email:</strong> {{ user.email || 'No email available' }}</p>
         </div>
       </div>
     </div>
 
+    <!-- Footer -->
     <footer class="footer">
       2025 © - Ahsanullah University of Science and Technology
     </footer>

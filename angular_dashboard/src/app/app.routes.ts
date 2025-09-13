@@ -10,12 +10,11 @@ import { AuthGuard } from './auth.guard';
 import { HomepageComponent } from './components/homepage/homepage.component';
 
 export const routes: Routes = [
-  { path: '', component: HomepageComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
-  { path: 'create-issue', component: CreateIssueComponent, canActivate: [AuthGuard] },
-  { path: 'table-test', component: IssueTableComponent, canActivate: [AuthGuard] },
-  { path: 'developer', component: DeveloperDashboardComponent, canActivate: [AuthGuard] },
+{ path: 'login', component: LoginComponent },
+{ path: 'home', component: HomepageComponent, canActivate: [AuthGuard] },
+{ path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+{ path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
+{ path: 'developer', component: DeveloperDashboardComponent, canActivate: [AuthGuard] },
+
 ];
