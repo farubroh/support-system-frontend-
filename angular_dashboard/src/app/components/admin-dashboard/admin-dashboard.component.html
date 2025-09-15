@@ -191,25 +191,29 @@
   </button>
 
   <!-- Assigned Button (for assigned issues with developer) -->
-  <button
-    *ngIf="issue.developerName"
-    class="assigned-btn"
-    [ngClass]="{ 'completed-btn': issue.status === 'COMPLETED' }"
-    (click)="$event.stopPropagation()"
-  >
-    <!-- Conditional Text based on Status -->
-    <span *ngIf="issue.status === 'COMPLETED'">
-      Completed by: {{ issue.developerName }}
-    </span>
-    
-    <span *ngIf="issue.status === 'REJECTED'">
-      Rejected by: {{ issue.developerName }}
-    </span>
+<button
+  *ngIf="issue.developerName"
+  class="assigned-btn"
+  [ngClass]="{
+    'completed-btn': issue.status === 'COMPLETED',
+    'rejected-btn': issue.status === 'REJECTED'
+  }"
+  (click)="$event.stopPropagation()"
+>
+  <!-- Conditional Text based on Status -->
+  <span *ngIf="issue.status === 'COMPLETED'">
+    Completed by: {{ issue.developerName }}
+  </span>
+  
+  <span *ngIf="issue.status === 'REJECTED'">
+    Rejected by: {{ issue.developerName }}
+  </span>
 
-    <span *ngIf="issue.status !== 'COMPLETED' && issue.status !== 'REJECTED'">
-      Assigned to: {{ issue.developerName }}
-    </span>
-  </button>
+  <span *ngIf="issue.status !== 'COMPLETED' && issue.status !== 'REJECTED'">
+    Assigned to: {{ issue.developerName }}
+  </span>
+</button>
+
 </td>
 
               </tr>

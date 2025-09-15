@@ -44,13 +44,13 @@ html, body {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgb(42, 59, 76);
+  background: #C2CBDB;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   margin-right: 12px;
-  color: white;
+  color: black;
 }
 
 .user-info h3 {
@@ -90,9 +90,9 @@ html, body {
 }
 
 .sidebar .menu li:hover {
-  background: rgb(42, 59, 76);
+  background: #C2CBDB;
   transform: translateX(5px);
-  color:white;
+  color:black;
 }
 
 /* Main Content */
@@ -108,7 +108,7 @@ html, body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  background: rgb(42, 59, 76);
+  background: #018002;
   color: #fff;
   padding: 12px 25px;
   border-radius: 10px;
@@ -166,12 +166,12 @@ html, body {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: #6c7c8a;
+  background: #C2CBDB;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 45px;
-  color: #fff;
+  color: black;
 }
 
 .profile-right h3 {

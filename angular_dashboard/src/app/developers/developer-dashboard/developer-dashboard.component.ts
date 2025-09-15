@@ -120,6 +120,7 @@ export class DeveloperDashboardComponent implements OnInit {
   this.http.get<IssuesOfDeveloperDto>(`http://localhost:8085/api/developers/${userId}/issues`)
     .subscribe({
       next: (dto) => this.inflate(dto),
+      
       error: (e) => console.error('Failed to load developer issues', e)
     });
 
@@ -275,10 +276,23 @@ drop(e: CdkDragDrop<Card[]>) {
   // Details Drawer
   // -------------------------
   openCard(card: Card) {
+  // Debug print full card details
+  console.log('📝 Issue Details:', {
+    id: card.id,
+    title: card.title,
+    description: card.description,
+    status: card.status,
+    subtitle: card.subtitle,
+    createdBy: card.createdBy,
+    rawIssue: card.raw?.issue,
+    meta: card.meta,
+    rawFull: card.raw
+  });
+
   this.selected.set(card);
   this.description.set(card.description ?? '');
-  this.completeReason = card.raw?.issue.completedReason || '';  // Set the completed reason
-  this.rejectReason = card.raw?.issue.rejectionReason || '';   // Set the rejection reason
+  this.completeReason = card.raw?.issue.completedReason || '';
+  this.rejectReason = card.raw?.issue.rejectionReason || '';
   this.selectedFiles = [];
   this.selectedIssuerUserId = null;
 
@@ -287,12 +301,17 @@ drop(e: CdkDragDrop<Card[]>) {
   this.http.get<any[]>(`http://localhost:8085/api/issues/status/${card.status}`).subscribe({
     next: (rows) => {
       const row = (rows || []).find((r: any) => r.id === card.id);
+
       if (row) {
         this.selectedFiles = row.files || [];
         this.selectedIssuerUserId = row.user?.id ?? null;
-        this.completeReason = row.completedReason || this.completeReason; // Update if necessary
-        this.rejectReason = row.rejectedReason || this.rejectReason;      // Update if necessary
+        this.completeReason = row.completedReason || this.completeReason;
+        this.rejectReason = row.rejectedReason || this.rejectReason;
+
+        // Print backend row too
+        console.log('📂 Extra Backend Data:', row);
       }
+
       this.loadingDetails = false;
     },
     error: () => { this.loadingDetails = false; }
@@ -308,6 +327,7 @@ drop(e: CdkDragDrop<Card[]>) {
     this.selectedIssuerUserId = null;
   }
 
+  
   /** Mark (or re-save) as Completed with optional reason. */
   completeFromDetails() {
     const s = this.selected();
@@ -413,6 +433,17 @@ drop(e: CdkDragDrop<Card[]>) {
     card.subtitle = value;
   }
 
-  
+  userInfoVisible = false;
+userInfo: UserDto | null = null;
+showUserInfo(user: UserDto | null) {
+  this.userInfo = user;
+  this.userInfoVisible = true;
+}
+
+hideUserInfo() {
+  this.userInfoVisible = false;
+  this.userInfo = null;
+}
+
   
 }
