@@ -96,79 +96,99 @@
     </header>
 
     <div class="details__body" *ngIf="selected() as s">
-      <!-- Status -->
-      <div class="row">
-        <label>Status</label>
-        <span class="status-badge"
-              [class.open]="s.status === 'PENDING'"
-              [class.in-progress]="s.status === 'INPROGRESS'"
-              [class.closed]="s.status === 'COMPLETED'"
-              [class.on-hold]="s.status === 'REJECTED'">
-          {{ s.status }}
-        </span>
+  <!-- 30%: DETAILS -->
+  <section class="col col--details">
+    <!-- Status -->
+    <div class="row">
+      <h4>Status:</h4>
+      <span class="status-badge"
+            [class.open]="s.status === 'PENDING'"
+            [class.in-progress]="s.status === 'INPROGRESS'"
+            [class.closed]="s.status === 'COMPLETED'"
+            [class.on-hold]="s.status === 'REJECTED'">
+        {{ s.status }}
+      </span>
+    </div>
+
+    <!-- Reporter -->
+    <div class="row">
+      <label>Username:</label>
+      <div>{{ s.subtitle || '—' }}</div>
+    </div>
+    
+
+    <!-- Description -->
+    <label class="muted">Description:</label>
+    <textarea
+      rows="4"
+      placeholder="Description…"
+      [value]="description()"
+      (input)="description.set(($any($event.target)).value)"
+    ></textarea>
+
+    <!-- Files -->
+    <div class="files">
+      <div class="files__header">
+        <strong>Attachments:</strong>
+        <span *ngIf="loadingDetails">Loading…</span>
+        <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
       </div>
 
-      <!-- Reporter -->
-      <div class="row">
-        <label>Username</label>
-        <div>{{ s.subtitle || '—' }}</div>
+      <div class="files__list" *ngIf="selectedFiles.length > 0">
+        <a
+          class="file-chip"
+          *ngFor="let f of selectedFiles"
+          [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f"
+          target="_blank"
+          rel="noopener"
+        >📎 {{ f }}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 40%: COMMENTS -->
+  <section class="col col--comments">
+    <h4>Write your comments</h4>
+    <div class="comment-box">
+      <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+      <button (click)="submitComment()">Post Comment</button>
+    </div>
+    <!-- (Optional) place a comments list here later -->
+  </section>
+
+  <!-- 30%: ACTIONS / REASONS -->
+  <section class="col col--actions">
+    <h4>Actions</h4>
+
+    <!-- Reasons (contextual) – moved here -->
+    <ng-container [ngSwitch]="s.status">
+      <!-- When already COMPLETED: show only completed reason -->
+      <div class="row" *ngSwitchCase="'COMPLETED'">
+        <label>Completed reason:</label>
+        <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
       </div>
 
-      <!-- Description -->
-      <label class="muted">Description</label>
-      <textarea
-        rows="6"
-        placeholder="Description…"
-        [value]="description()"
-        (input)="description.set(($any($event.target)).value)"
-      ></textarea>
-
-      <!-- Files -->
-      <div class="files">
-        <div class="files__header">
-          <strong>Attachments</strong>
-          <span *ngIf="loadingDetails">Loading…</span>
-          <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
-        </div>
-
-        <div class="files__list" *ngIf="selectedFiles.length > 0">
-          <a
-            class="file-chip"
-            *ngFor="let f of selectedFiles"
-            [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f"
-            target="_blank"
-            rel="noopener"
-          >📎 {{ f }}</a>
-        </div>
+      <!-- When already REJECTED: show only rejection reason -->
+      <div class="row" *ngSwitchCase="'REJECTED'">
+        <label>Rejection reason:</label>
+        <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
       </div>
 
-      <!-- Reasons (contextual) -->
-      <ng-container [ngSwitch]="s.status">
-        <!-- When already COMPLETED: show only completed reason -->
-        <div class="row" *ngSwitchCase="'COMPLETED'">
-          <label>Completed reason</label>
+      <!-- When PENDING/INPROGRESS: allow both (fill whichever you’ll use) -->
+      <ng-container *ngSwitchDefault>
+        <div class="row">
+          <label>Completed reason:</label>
           <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
         </div>
-
-        <!-- When already REJECTED: show only rejection reason -->
-        <div class="row" *ngSwitchCase="'REJECTED'">
-          <label>Rejection reason</label>
+        <div class="row">
+          <label>Rejection reason:</label>
           <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
         </div>
-
-        <!-- When PENDING/INPROGRESS: allow both (fill whichever you’ll use) -->
-        <ng-container *ngSwitchDefault>
-          <div class="row">
-            <label>Completed reason</label>
-            <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
-          </div>
-          <div class="row">
-            <label>Rejection reason</label>
-            <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
-          </div>
-        </ng-container>
       </ng-container>
-    </div>
+    </ng-container>
+  </section>
+</div>
+
 
     <footer class="details__footer">
       <button class="primary" (click)="completeFromDetails()">Mark Completed</button>

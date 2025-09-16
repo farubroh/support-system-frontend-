@@ -444,6 +444,20 @@ hideUserInfo() {
   this.userInfoVisible = false;
   this.userInfo = null;
 }
+newComment = '';
+
+submitComment() {
+  const s = this.selected();
+  if (!s) return;
+  const msg = (this.newComment || '').trim();
+  if (!msg) return;
+
+  // TODO: replace with your real API call
+  console.log('Posting comment for issue', s.id, ':', msg);
+
+  // clear
+  this.newComment = '';
+}
 
   
 }

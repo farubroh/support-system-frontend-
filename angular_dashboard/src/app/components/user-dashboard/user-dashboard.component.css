@@ -617,9 +617,7 @@ Key
   }
 
   /* Optional: Adjust the task list to fit better */
-  .task-item {
-    padding: 10px; /* Slightly reduce padding */
-  }
+ 
 
   .task-meta {
     font-size: 10px; /* Adjust font size for mobile */
@@ -630,7 +628,7 @@ Key
   .task-item {
     display: flex;
     flex-direction: column;  /* Stack items vertically */
-    gap: 8px;  /* Space between title, date, and category */
+    gap: 4px;  /* Space between title, date, and category */
     padding: 10px;
   }
 
@@ -639,7 +637,7 @@ Key
   border: none;
   cursor: pointer;
   color: #dc2626; /* red */
-  margin-left: 8px;
+  margin-left: 260px;
   font-size: 14px;
   }
 

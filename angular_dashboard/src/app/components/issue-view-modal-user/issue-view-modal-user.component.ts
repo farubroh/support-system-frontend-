@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-issue-view-modal-user',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './issue-view-modal-user.component.html',
   styleUrls: ['./issue-view-modal-user.component.css']
 })
@@ -15,7 +16,7 @@ export class IssueViewModalUserComponent {
 @Input() files: string[] | null = null;
 
 
-  showCommentSidebar = false;
+  showCommentSidebar = true;
   newComment = '';
   comments: { author: string; message: string }[] = [
     {

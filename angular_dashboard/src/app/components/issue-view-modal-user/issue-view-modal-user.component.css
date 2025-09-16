@@ -8,6 +8,7 @@
   align-items: center;
   z-index: 1000;
   padding: 20px;
+  
 }
 .avatar {
   width: 28px;
@@ -15,22 +16,126 @@
   border-radius: 50%;
   object-fit: cover;
 }
+.issue-body {
+  display: flex;
+  gap: 20px; /* Space between issue details and comment section */
+  align-items: baseline;
+}
 
+.issue-details {
+  flex: 0 0 40%; /* The issue details will take 60% of the width */
+  padding-right: 20px; /* Optional: space between the issue details and the comment section */
+  border-right: 1px solid rgba(200, 200, 200, 0.3); /* Optional: a border between the two sections */
+}
+
+.comment-section {
+  flex: 0 0 50%; /* The comment section will take 35% of the width */
+ 
+  padding-left: 20px; /* Optional: space between the comment section and issue details */
+}
+
+
+
+
+
+.comment-box button:hover {
+  background: linear-gradient(135deg, #1565c0, #1e88e5);
+  box-shadow: 0 6px 14px rgba(33, 150, 243, 0.3);
+  transform: scale(1.05);
+}
+
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #f9fafb;
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-meta {
+  font-weight: bold;
+  color: #e5e7eb;
+}
+
+.comment-box textarea {
+  background: #f2f4f8;
+  color: black;
+  border: 1px solid #444;
+}
+
+
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.status-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 16px;
+  margin-top: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  line-height: 1.5;
+}
+
+.status-msg.success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #065f46;
+}
+
+.status-msg.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+}
+
+.status-msg::before {
+  flex-shrink: 0;
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .issue-body {
+    flex-direction: column; /* Stack issue details and comment section vertically on small screens */
+  }
+
+  .issue-details {
+    flex: 0 0 100%;
+    padding-right: 0;
+  }
+
+  .comment-section {
+    flex: 0 0 100%;
+    padding-left: 0;
+  }
+}
 
 .issue-card.refined {
-  background: rgba(255, 255, 255, 0.15);
+  background: white;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border: 1px solid rgba(200, 200, 200, 0.3);
-  border-radius: 18px;
-  width: 540px;
+ 
+ 
   max-height: 88vh;
   overflow-y: auto;
-  padding: 28px;
+  padding: 40px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   animation: fadeIn 0.3s ease-in-out;
   color: #1f2937;
   height: auto;
+  width: 70%;
 }
 
 @keyframes fadeIn {
@@ -43,10 +148,10 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  
   /* background-color: black; */
   /* border-radius: 20px; */
-  padding: 12px 20px;
+  
   color: #f9fafb;
 }
 
@@ -296,25 +401,28 @@
 }
 
 .comment-box textarea {
-  width: 100%;
+  width: 95%;
   height: 100px;
   resize: none;
   border-radius: 8px;
   padding: 8px;
   border: none;
-  margin-top: 12px;
+  
 }
 
 .comment-box button {
-  margin-top: 8px;
-  width: 100%;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  background: #2563eb;
+  background: linear-gradient(135deg, #1e88e5, #42a5f5);
   color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  
   cursor: pointer;
+  font-size: 13px;
   font-weight: 500;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  transform: scale(1);
 }
 
 /* Responsive styles */
@@ -322,7 +430,7 @@
   .issue-card.refined {
     width: 95vw;
     height: auto;
-    padding: 20px;
+    padding: 30px;
     max-height: 90vh;
   }
 

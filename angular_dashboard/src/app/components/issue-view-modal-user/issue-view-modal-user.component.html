@@ -2,12 +2,6 @@
   <div class="issue-card refined">
     <!-- 🔝 Header -->
     <div class="issue-header">
-      <!-- <div class="title-section">
-        <h2>
-          {{ issue.title }}
-          
-        </h2>
-      </div> -->
       <div class="header-actions">
         <button class="btn-close" (click)="onCloseModal()" aria-label="Close">
           <i class="bi bi-x-lg"></i>
@@ -15,94 +9,71 @@
       </div>
     </div>
 
-    
+    <!-- 🧾 Issue Details and Comment Section -->
+    <div class="issue-body">
+      <!-- Left Side: Issue Details -->
+      <div class="issue-details">
+        <div class="info-section">
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <span class="value pill" [ngClass]="issue.status?.toLowerCase()">{{ issue.status }}</span>
+          </div>
 
-    <!-- 🧾 Description + Info -->
-    <div class="info-section">
-      <div class="info-item">
-        <span class="label">Status:</span>
-        <span class="value pill" [ngClass]="issue.status?.toLowerCase()">{{ issue.status }}</span>
-      </div>
+          <div class="info-item">
+            <span class="label">Title:</span>
+            <div class="value">{{ issue.title }}</div>
+          </div>
 
-      <div class="info-item">
-        <span class="label">Titile:</span>
-        <div class="value">{{ issue.title }}</div>
-      </div>
+          <div class="info-item">
+            <span class="label">Description:</span>
+            <div class="value">{{ issue.description }}</div>
+          </div>
 
-      <!-- <div class="info-item" *ngIf="issue.deadline">
-        <span class="label">Deadline:</span>
-        <span class="value">{{ issue.deadline }}</span>
-      </div> -->
+          <div class="info-item">
+            <span class="label">Category:</span>
+            <span class="tag" *ngIf="issue?.categories?.length; else noCat">
+              <ng-container *ngFor="let c of issue.categories; let last = last">
+                {{ c.categoryName }}<span *ngIf="!last">, </span>
+              </ng-container>
+            </span>
+            <ng-template #noCat>No Category</ng-template>
+          </div>
 
-      <div class="info-item">
-        <span class="label">Description:</span>
-        <div class="value">{{ issue.description }}</div>
-      </div>
+          <div class="info-item" *ngIf="(issue.files?.length) || (files?.length)">
+            <span class="label">Attachments:</span>
+            <div class="value tags">
+              <div class="file-link" *ngFor="let file of (issue.files || files)">
+                <a [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file" target="_blank" rel="noopener noreferrer" title="Click to view">
+                  📎 {{ file }}
+                </a>
+                <a [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file" download title="Download file" class="download-icon">
+                  ⬇️
+                </a>
+              </div>
+            </div>
+          </div>
 
-      <!-- issue-view-modal-user.component.html -->
-<div class="info-item">
-  <span class="label">Category:</span>
-
-  <span class="tag" *ngIf="issue?.categories?.length; else noCat">
-    <ng-container *ngFor="let c of issue.categories; let last = last">
-      {{ c.categoryName }}<span *ngIf="!last">, </span>
-    </ng-container>
-  </span>
-
-  <ng-template #noCat>No Category</ng-template>
-</div>
-
-
-<!-- Attachments -->
-<div class="info-item" *ngIf="(issue.files?.length) || (files?.length)">
-  <span class="label">Attachments:</span>
-  <div class="value tags">
-    <div class="file-link" *ngFor="let file of (issue.files || files)">
-      <a
-        [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file"
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Click to view"
-      >
-        📎 {{ file }}
-      </a>
-      <a
-        [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file"
-        download
-        title="Download file"
-        class="download-icon"
-      >
-        ⬇️
-      </a>
-    </div>
-  </div>
-</div>
-
-
-    <!-- ✅ Status Reason (Success or Error) -->
-    <div *ngIf="issue.status === 'COMPLETED'" class="status-msg success">
-      ✅ {{ issue.completedReason || 'No reason provided' }}
-    </div>
-    <div *ngIf="issue.status === 'REJECTED'" class="status-msg error">
-      ❌ {{ issue.rejectionReason || 'No reason provided' }}
-    </div>
-  </div>
-
-  <!-- 💬 Comment Sidebar -->
-  <div *ngIf="showCommentSidebar" class="comment-sidebar">
-    <h4>Comments</h4>
-    <div *ngFor="let cmt of comments" class="comment">
-      <img src="/assets/images/male.jpg" class="avatar" />
-      <div class="comment-body">
-        <div class="comment-meta">
-          <strong>{{ cmt.author }}</strong>
+          <!-- Status Reason (Success or Error) -->
+          <div *ngIf="issue.status === 'COMPLETED'" class="status-msg success">
+            ✅ {{ issue.completedReason || 'No reason provided' }}
+          </div>
+          <div *ngIf="issue.status === 'REJECTED'" class="status-msg error">
+            ❌ {{ issue.rejectionReason || 'No reason provided' }}
+          </div>
         </div>
-        <p>{{ cmt.message }}</p>
       </div>
-    </div>
-    <div class="comment-box">
-     
-      <button (click)="submitComment()">Post Comment</button>
+
+      <!-- Right Side: Comment Section -->
+      <div class="comment-section">
+        <h4>Write your comments:</h4>
+       
+
+        <!-- Comment Input Box -->
+        <div class="comment-box">
+          <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+          <button (click)="submitComment()">Post Comment</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -421,11 +421,12 @@ body, html {
 
 /* Category Badge Styling */
 .category-badge {
-  padding: 2px 6px;
+  padding: 4px 6px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   display: inline-block;
+  width: 120px;
 }
 
 /* Dark Mode Support */
