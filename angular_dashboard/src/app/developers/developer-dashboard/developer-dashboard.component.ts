@@ -92,6 +92,14 @@ export class DeveloperDashboardComponent implements OnInit {
   // lists
   lists = signal<List[]>([]);
 
+
+
+  issues: any[] = [];
+  selectedIssue: any = null;
+  newComment: string = '';
+  comments: { author: string; message: string }[] = [];
+
+
   // derive filtered view
   private readonly filtered = computed<List[]>(() => {
     const q = this.query().toLowerCase().trim();
@@ -112,7 +120,7 @@ export class DeveloperDashboardComponent implements OnInit {
     console.error('[DeveloperBoard] No userId found in auth payload.');
     return;
   }
-
+  this.fetchIssues();
   // load categories first
   this.loadCategories();
 
@@ -133,6 +141,43 @@ export class DeveloperDashboardComponent implements OnInit {
       });
   }, 100000); // Refresh every 10 seconds
 }
+fetchIssues() {
+  const userId = this.getUserId();
+  if (!userId) return;
+  this.http.get<any[]>(`http://localhost:8085/api/developers/${userId}/issues`)
+    .subscribe(issues => { this.issues = issues; });
+}
+
+  fetchComments(issueId: number) {
+    this.http.get<{ id: number; content: string; userDto: any; developerDto: any; createdAt: string }[]>(`http://localhost:8085/api/comments/issue/${issueId}`)
+      .subscribe(comments => {
+        this.comments = comments.map(c => ({
+          author: c.userDto.username,
+          message: c.content
+        }));
+      });
+  }
+
+  submitComment() {
+    if (!this.newComment.trim()) return;
+
+    const commentPayload = {
+      issueId: this.selectedIssue.id,
+      userId: this.selectedIssue.user.id,
+      developerId: this.selectedIssue.assignedTo.id,
+      content: this.newComment.trim()
+    };
+
+    this.http.post<{ id: number; content: string; userDto: any; developerDto: any; createdAt: string }>('http://localhost:8085/api/comments/add', commentPayload)
+      .subscribe(comment => {
+        this.comments.unshift({
+          author: comment.userDto.username,
+          message: comment.content
+        });
+        this.newComment = ''; // Reset the comment box
+      });
+  }
+
 
 
   loadCategories() {
@@ -319,14 +364,7 @@ drop(e: CdkDragDrop<Card[]>) {
 }
 
 
-  closeDetails() {
-    this.selected.set(null);
-    this.completeReason = '';
-    this.rejectReason = '';
-    this.selectedFiles = [];
-    this.selectedIssuerUserId = null;
-  }
-
+ 
   
   /** Mark (or re-save) as Completed with optional reason. */
   completeFromDetails() {
@@ -444,20 +482,16 @@ hideUserInfo() {
   this.userInfoVisible = false;
   this.userInfo = null;
 }
-newComment = '';
 
-submitComment() {
-  const s = this.selected();
-  if (!s) return;
-  const msg = (this.newComment || '').trim();
-  if (!msg) return;
 
-  // TODO: replace with your real API call
-  console.log('Posting comment for issue', s.id, ':', msg);
+openIssue(issue: any) {
+    this.selectedIssue = issue;
+    this.fetchComments(issue.id);
+  }
 
-  // clear
-  this.newComment = '';
-}
+  closeDetails() {
+    this.selectedIssue = null;
+  }
 
   
 }

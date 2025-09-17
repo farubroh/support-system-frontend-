@@ -53,6 +53,7 @@ handleSubmit(event: Event): void {
 
 
         if (res && res.token) {
+          localStorage.setItem('authToken', res.token);
   this.authService.login({ ...res.user, token: res.token });
 
   // Navigate to homepage first

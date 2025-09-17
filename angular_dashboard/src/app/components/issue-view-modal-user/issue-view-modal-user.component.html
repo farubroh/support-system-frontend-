@@ -66,8 +66,14 @@
       <!-- Right Side: Comment Section -->
       <div class="comment-section">
         <h4>Write your comments:</h4>
-       
-
+        
+        <div *ngFor="let comment of comments">
+          <div class="comment">
+            <div class="author">{{ comment.author }}</div>
+            <div class="message">{{ comment.message }}</div>
+          </div>
+        </div>
+        
         <!-- Comment Input Box -->
         <div class="comment-box">
           <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>

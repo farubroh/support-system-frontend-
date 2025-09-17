@@ -5,12 +5,8 @@
   </div>
 
   <div class="search">
-    <input
-      type="search"
-      placeholder="Search cards…"
-      [value]="query()"
-      (input)="query.set(($any($event.target)).value)"
-    />
+    <input type="search" placeholder="Search cards…" [value]="query()"
+      (input)="query.set(($any($event.target)).value)" />
   </div>
 
   <div class="actions">
@@ -27,55 +23,44 @@
     </header>
 
     <!-- Each list has a unique id and is connected to others -->
-    <div
-      class="list__body"
-      cdkDropList
-      [id]="'list-'+i"
-      [cdkDropListData]="list.cards"
-      [cdkDropListConnectedTo]="connectedTo(i)"
-      (cdkDropListDropped)="drop($event)"
-    >
-      <article
-  class="card"
-  *ngFor="let card of list.cards; trackBy: trackById"
-  cdkDrag
-  (click)="openCard(card)"
->
-  <div class="left">
-    <span class="status" [class.done]="card.done">●</span>
-  </div>
+    <div class="list__body" cdkDropList [id]="'list-'+i" [cdkDropListData]="list.cards"
+      [cdkDropListConnectedTo]="connectedTo(i)" (cdkDropListDropped)="drop($event)">
+      <article class="card" *ngFor="let card of list.cards; trackBy: trackById" cdkDrag (click)="openCard(card)">
+        <div class="left">
+          <span class="status" [class.done]="card.done">●</span>
+        </div>
 
-  <div class="content">
-    <div class="title">
-      
-      {{ card.title }}
-      <span *ngIf="card.subtitle" class="tag">{{ card.subtitle }}</span>
-    </div>
-    <div class="meta" *ngIf="card.meta as m">
-      <span *ngIf="m.views">👁 {{ m.views }}</span>
-      <span *ngIf="m.comments">💬 {{ m.comments }}</span>
-      <span *ngIf="m.attachments">📎 {{ m.attachments }}</span>
-    </div>
-    
-    <!-- Display Category Color with Title and Username -->
-    <div class="category-info" *ngIf="card.raw?.issue?.category">
-  <span class="category-color" 
-        [ngStyle]="{ 'background-color': getCategoryColor(card.raw?.issue?.category || '') }">
-  </span>
-  <div class="category-details">
-    <div class="category-title">{{ card.title }}</div>
-    <div class="category-username">{{ card.raw?.createdBy?.username || '—' }}</div>
-    <div class="category-name">{{ card.raw?.issue?.category || 'Uncategorized' }}</div>
-  </div>
-</div>
+        <div class="content">
+          <div class="title">
+
+            {{ card.title }}
+            <span *ngIf="card.subtitle" class="tag">{{ card.subtitle }}</span>
+          </div>
+          <div class="meta" *ngIf="card.meta as m">
+            <span *ngIf="m.views">👁 {{ m.views }}</span>
+            <span *ngIf="m.comments">💬 {{ m.comments }}</span>
+            <span *ngIf="m.attachments">📎 {{ m.attachments }}</span>
+          </div>
+
+          <!-- Display Category Color with Title and Username -->
+          <div class="category-info" *ngIf="card.raw?.issue?.category">
+            <span class="category-color"
+              [ngStyle]="{ 'background-color': getCategoryColor(card.raw?.issue?.category || '') }">
+            </span>
+            <div class="category-details">
+              <div class="category-title">{{ card.title }}</div>
+              <div class="category-username">{{ card.raw?.createdBy?.username || '—' }}</div>
+              <div class="category-name">{{ card.raw?.issue?.category || 'Uncategorized' }}</div>
+            </div>
+          </div>
 
 
 
-  </div>
+        </div>
 
-  <div class="right" (click)="$event.stopPropagation()">
-  </div>
-</article>
+        <div class="right" (click)="$event.stopPropagation()">
+        </div>
+      </article>
 
     </div>
 
@@ -84,7 +69,7 @@
     </footer>
   </section>
 
-  
+
 </main>
 
 <!-- Details drawer -->
@@ -96,98 +81,94 @@
     </header>
 
     <div class="details__body" *ngIf="selected() as s">
-  <!-- 30%: DETAILS -->
-  <section class="col col--details">
-    <!-- Status -->
-    <div class="row">
-      <h4>Status:</h4>
-      <span class="status-badge"
-            [class.open]="s.status === 'PENDING'"
-            [class.in-progress]="s.status === 'INPROGRESS'"
-            [class.closed]="s.status === 'COMPLETED'"
+      <!-- 30%: DETAILS -->
+      <section class="col col--details">
+        <!-- Status -->
+        <div class="row">
+          <h4>Status:</h4>
+          <span class="status-badge" [class.open]="s.status === 'PENDING'"
+            [class.in-progress]="s.status === 'INPROGRESS'" [class.closed]="s.status === 'COMPLETED'"
             [class.on-hold]="s.status === 'REJECTED'">
-        {{ s.status }}
-      </span>
-    </div>
-
-    <!-- Reporter -->
-    <div class="row">
-      <label>Username:</label>
-      <div>{{ s.subtitle || '—' }}</div>
-    </div>
-    
-
-    <!-- Description -->
-    <label class="muted">Description:</label>
-    <textarea
-      rows="4"
-      placeholder="Description…"
-      [value]="description()"
-      (input)="description.set(($any($event.target)).value)"
-    ></textarea>
-
-    <!-- Files -->
-    <div class="files">
-      <div class="files__header">
-        <strong>Attachments:</strong>
-        <span *ngIf="loadingDetails">Loading…</span>
-        <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
-      </div>
-
-      <div class="files__list" *ngIf="selectedFiles.length > 0">
-        <a
-          class="file-chip"
-          *ngFor="let f of selectedFiles"
-          [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f"
-          target="_blank"
-          rel="noopener"
-        >📎 {{ f }}</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 40%: COMMENTS -->
-  <section class="col col--comments">
-    <h4>Write your comments</h4>
-    <div class="comment-box">
-      <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
-      <button (click)="submitComment()">Post Comment</button>
-    </div>
-    <!-- (Optional) place a comments list here later -->
-  </section>
-
-  <!-- 30%: ACTIONS / REASONS -->
-  <section class="col col--actions">
-    <h4>Actions</h4>
-
-    <!-- Reasons (contextual) – moved here -->
-    <ng-container [ngSwitch]="s.status">
-      <!-- When already COMPLETED: show only completed reason -->
-      <div class="row" *ngSwitchCase="'COMPLETED'">
-        <label>Completed reason:</label>
-        <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
-      </div>
-
-      <!-- When already REJECTED: show only rejection reason -->
-      <div class="row" *ngSwitchCase="'REJECTED'">
-        <label>Rejection reason:</label>
-        <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
-      </div>
-
-      <!-- When PENDING/INPROGRESS: allow both (fill whichever you’ll use) -->
-      <ng-container *ngSwitchDefault>
-        <div class="row">
-          <label>Completed reason:</label>
-          <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
+            {{ s.status }}
+          </span>
         </div>
+
+        <!-- Reporter -->
         <div class="row">
-          <label>Rejection reason:</label>
-          <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
+          <label>Username:</label>
+          <div>{{ s.subtitle || '—' }}</div>
         </div>
-      </ng-container>
-    </ng-container>
-  </section>
-</div>
+
+
+        <!-- Description -->
+        <label class="muted">Description:</label>
+        <textarea rows="4" placeholder="Description…" [value]="description()"
+          (input)="description.set(($any($event.target)).value)"></textarea>
+
+        <!-- Files -->
+        <div class="files">
+          <div class="files__header">
+            <strong>Attachments:</strong>
+            <span *ngIf="loadingDetails">Loading…</span>
+            <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
+          </div>
+
+          <div class="files__list" *ngIf="selectedFiles.length > 0">
+            <a class="file-chip" *ngFor="let f of selectedFiles"
+              [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f" target="_blank"
+              rel="noopener">📎 {{ f }}</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 40%: COMMENTS -->
+      <section class="col col--comments">
+        <h4>Write your comments</h4>
+        <div *ngFor="let comment of comments">
+          <div class="comment">
+            <div class="author">{{ comment.author }}</div>
+            <div class="message">{{ comment.message }}</div>
+          </div>
+        </div>
+        <div class="comment-box">
+          <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+          <button (click)="submitComment()">Post Comment</button>
+        </div>
+        <!-- (Optional) place a comments list here later -->
+      </section>
+
+      <!-- 30%: ACTIONS / REASONS -->
+      <section class="col col--actions">
+        <h4>Actions</h4>
+
+        <!-- Reasons (contextual) – moved here -->
+        <ng-container [ngSwitch]="s.status">
+          <!-- When already COMPLETED: show only completed reason -->
+          <div class="row" *ngSwitchCase="'COMPLETED'">
+            <label>Completed reason:</label>
+            <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
+          </div>
+
+          <!-- When already REJECTED: show only rejection reason -->
+          <div class="row" *ngSwitchCase="'REJECTED'">
+            <label>Rejection reason:</label>
+            <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
+          </div>
+
+          <!-- When PENDING/INPROGRESS: allow both (fill whichever you’ll use) -->
+          <ng-container *ngSwitchDefault>
+            <div class="row">
+              <label>Completed reason:</label>
+              <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
+            </div>
+            <div class="row">
+              <label>Rejection reason:</label>
+              <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
+            </div>
+          </ng-container>
+        </ng-container>
+      </section>
+    </div>
 
 
     <footer class="details__footer">
