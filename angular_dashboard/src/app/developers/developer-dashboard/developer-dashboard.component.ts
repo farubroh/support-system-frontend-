@@ -97,7 +97,7 @@ export class DeveloperDashboardComponent implements OnInit {
   issues: any[] = [];
   selectedIssue: any = null;
   newComment: string = '';
-  comments: { author: string; message: string }[] = [];
+  comments: { author: string; message: string; time: string }[] = [];
 
 
   // derive filtered view
@@ -148,35 +148,62 @@ fetchIssues() {
     .subscribe(issues => { this.issues = issues; });
 }
 
-  fetchComments(issueId: number) {
-    this.http.get<{ id: number; content: string; userDto: any; developerDto: any; createdAt: string }[]>(`http://localhost:8085/api/comments/issue/${issueId}`)
-      .subscribe(comments => {
-        this.comments = comments.map(c => ({
-          author: c.userDto.username,
-          message: c.content
-        }));
-      });
-  }
-
-  submitComment() {
-    if (!this.newComment.trim()) return;
-
-    const commentPayload = {
-      issueId: this.selectedIssue.id,
-      userId: this.selectedIssue.user.id,
-      developerId: this.selectedIssue.assignedTo.id,
-      content: this.newComment.trim()
-    };
-
-    this.http.post<{ id: number; content: string; userDto: any; developerDto: any; createdAt: string }>('http://localhost:8085/api/comments/add', commentPayload)
-      .subscribe(comment => {
-        this.comments.unshift({
-          author: comment.userDto.username,
-          message: comment.content
+ // Load comments for selected card
+fetchComments(issueId: number) {
+  this.http
+    .get<{ id: number; comment: string; createdByDto: any; developerDto: any; createdAt: string }[]>(
+      `http://localhost:8085/api/comments/issue/${issueId}`
+    )
+    .subscribe({
+      next: (res) => {
+        this.comments = res.map((c) => {
+          const date = new Date(c.createdAt);
+          return {
+            author: c.createdByDto?.username ?? 'Unknown',
+            message: c.comment,
+            time: date.toLocaleString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              month: 'short',
+              day: 'numeric'
+            })
+          };
         });
-        this.newComment = ''; // Reset the comment box
+      },
+      error: (err) => console.error('[comments/load] failed:', err),
+    });
+}
+
+// Post a new comment
+submitComment() {
+  const content = this.newComment.trim();
+  if (!content) return;
+
+  const card = this.selected();
+  if (!card?.raw?.issue) return;
+
+  const currentUser = this.auth.getUser();
+
+  const payload = {
+    issueId: card.raw.issue.issueId,
+    userId: currentUser?.id ?? null,
+    developerId: this.getUserId(),
+    content
+  };
+
+  this.http.post<any>('http://localhost:8085/api/comments/add', payload).subscribe({
+    next: (res) => {
+      const date = new Date();
+      this.comments.unshift({
+        author: res?.userDto?.username ?? currentUser?.username ?? 'You',
+        message: res?.content ?? content,
+        time: date.toLocaleTimeString(),
       });
-  }
+      this.newComment = '';
+    },
+    error: (err) => console.error('[comments/add] failed:', err),
+  });
+}
 
 
 
@@ -320,20 +347,7 @@ drop(e: CdkDragDrop<Card[]>) {
   // -------------------------
   // Details Drawer
   // -------------------------
-  openCard(card: Card) {
-  // Debug print full card details
-  console.log('📝 Issue Details:', {
-    id: card.id,
-    title: card.title,
-    description: card.description,
-    status: card.status,
-    subtitle: card.subtitle,
-    createdBy: card.createdBy,
-    rawIssue: card.raw?.issue,
-    meta: card.meta,
-    rawFull: card.raw
-  });
-
+openCard(card: Card) {
   this.selected.set(card);
   this.description.set(card.description ?? '');
   this.completeReason = card.raw?.issue.completedReason || '';
@@ -341,26 +355,22 @@ drop(e: CdkDragDrop<Card[]>) {
   this.selectedFiles = [];
   this.selectedIssuerUserId = null;
 
-  // load files & reasons for this issue using the admin-by-status endpoint
+  // Load attachments
   this.loadingDetails = true;
   this.http.get<any[]>(`http://localhost:8085/api/issues/status/${card.status}`).subscribe({
     next: (rows) => {
       const row = (rows || []).find((r: any) => r.id === card.id);
-
       if (row) {
         this.selectedFiles = row.files || [];
         this.selectedIssuerUserId = row.user?.id ?? null;
-        this.completeReason = row.completedReason || this.completeReason;
-        this.rejectReason = row.rejectedReason || this.rejectReason;
-
-        // Print backend row too
-        console.log('📂 Extra Backend Data:', row);
       }
-
       this.loadingDetails = false;
     },
     error: () => { this.loadingDetails = false; }
   });
+
+  // 🔥 Load comments for this issue
+  this.fetchComments(card.id);
 }
 
 

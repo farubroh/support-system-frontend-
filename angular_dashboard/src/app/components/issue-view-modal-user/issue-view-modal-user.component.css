@@ -10,6 +10,53 @@
   padding: 20px;
   
 }
+.icon{
+ 
+  color: black;
+  margin-right: 10px;
+}
+
+.comment .author {
+  display: flex;             /* turn into flex container */
+  justify-content: space-between; /* spread items left & right */
+  align-items: center;       /* vertical alignment */
+  width: 100%;               /* ensure it spans full width */
+  font-weight: bold;
+  color: #374151;
+}
+
+.comment .time {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: auto;
+    
+  
+}
+
+.comment .message {
+  font-size: 14px;
+  color: #1f2937;
+  
+  padding: 10px 10px;
+  border-radius: 8px;
+  background: #f2f4f8;
+  width: 95%; /* Ensure it takes up 100% of the available space */
+  word-wrap: break-word; /* Ensure long words wrap within the box */
+  overflow-wrap: break-word; /* Prevent overflow */
+}
+
+.comment-section::-webkit-scrollbar {
+  width: 8px; /* Custom scrollbar width */
+}
+
+.comment-section::-webkit-scrollbar-thumb {
+  background-color: #888; /* Custom scrollbar thumb color */
+  border-radius: 10px;
+}
+
+.comment-section::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Hover effect for the scrollbar */
+}
 .avatar {
   width: 28px;
   height: 28px;
@@ -30,10 +77,12 @@
 
 .comment-section {
   flex: 0 0 50%; /* The comment section will take 35% of the width */
- 
-  padding-left: 20px; /* Optional: space between the comment section and issue details */
+  padding-left: 20px;
+  max-height: 400px; /* Set a fixed height */
+  overflow-y: auto;  /* Enable vertical scrolling when content exceeds max height */
+  background-color: #fff; /* Optional: add a background color for better visibility */
+  border-radius: 10px; /* Optional: border radius for better aesthetics */
 }
-
 
 
 
@@ -47,9 +96,13 @@
 .comment {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 4px;
   margin-bottom: 12px;
   color: #f9fafb;
+  align-items: baseline;
+  flex-direction: column;
+  margin-bottom: 20px;
+  
 }
 
 .comment-body {
@@ -423,6 +476,8 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   transform: scale(1);
+  margin-bottom: 20px;
+  margin-top: 6px;
 }
 
 /* Responsive styles */

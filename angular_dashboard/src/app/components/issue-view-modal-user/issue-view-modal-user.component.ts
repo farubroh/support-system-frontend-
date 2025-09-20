@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AuthenticationService } from '../../authentication.service'; // adjust path
 
 @Component({
@@ -18,7 +18,7 @@ export class IssueViewModalUserComponent implements OnInit {
 
   showCommentSidebar = true;
   newComment = '';
-  comments: { author: string; message: string }[] = [];
+  comments: { author: string; message: string; time: string }[] = [];
 
   constructor(private http: HttpClient, private auth: AuthenticationService) {}
 
@@ -36,35 +36,52 @@ export class IssueViewModalUserComponent implements OnInit {
     this.showCommentSidebar = !this.showCommentSidebar;
   }
 
- submitComment() {
+submitComment() {
   const content = this.newComment.trim();
   if (!content) return;
 
   const currentUser = this.auth.getUser();
   const issueId = this.issue?.id;
-  const userId = currentUser?.id; // logged-in user's id
-  const developerId = this.issue?.assignedTo?.id ?? null; // If developer is not assigned, make sure it can be null
+  const userId = currentUser?.id;
 
-  // Prepare the request body as a JSON object
-  const body = {
-    issueId: issueId,
-    userId: userId,
-    developerId: developerId, // Ensure this is not null if not required
-    content: content
-  };
+  // Get developerId based on the current issue status
+  let developerId = null;
+  if (this.issue?.resolvedBy?.id) {
+    developerId = this.issue.resolvedBy.id;
+  } else if (this.issue?.rejectedBy?.id) {
+    developerId = this.issue.rejectedBy.id;
+  } else if (this.issue?.assignedTo?.id) {
+    developerId = this.issue.assignedTo.id;
+  }
+
+  const params = new HttpParams()
+    .set('issueId', issueId.toString())
+    .set('userId', userId.toString())
+    .set('developerId', developerId ? developerId.toString() : '')
+    .set('comment', content);
 
   this.http.post<any>(
-    'http://localhost:8085/api/comments/add',
-    body,  // Send the body as JSON
-    {
-      headers: this.authHeader().set('Content-Type', 'application/json') // Set to application/json
-    }
+    'http://localhost:8085/api/comments/add', 
+    params,
+    { headers: this.authHeader() }
   ).subscribe({
     next: (res) => {
       console.log('[comments/add] success:', res);
+      const date = new Date();
+      const time = date.toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }).toLowerCase();
+
       this.comments.unshift({
         author: res?.userDto?.username ?? currentUser?.username ?? 'You',
-        message: res?.content ?? content
+        message: res?.content ?? content,
+        time: time,
       });
       this.newComment = '';  // Clear the input after submission
     },
@@ -75,22 +92,40 @@ export class IssueViewModalUserComponent implements OnInit {
 }
 
 
-  loadComments() {
-    this.http.get<{ id: number; content: string; userDto: any; developerDto: any; createdAt: string }[]>(
-      `http://localhost:8085/api/comments/issue/${this.issue.id}`,
-      { headers: this.authHeader() } // Add headers for authentication
-    ).subscribe({
-      next: (res) => {
-        this.comments = res.map((comment) => ({
-          author: comment.userDto?.username ?? 'Unknown',
-          message: comment.content,
-        }));
-      },
-      error: (err) => {
-        console.error('[comments/load] failed:', err);
-      }
-    });
-  }
+
+loadComments() {
+  this.http.get<{ id: number; comment: string; createdByDto: any; developerDto: any; createdAt: string }[]>(
+    `http://localhost:8085/api/comments/issue/${this.issue.id}`,
+    { headers: this.authHeader() } // Add headers for authentication
+  ).subscribe({
+    next: (res) => {
+      console.log('Comments loaded:', res); // Inspect the response data
+
+      this.comments = res.map((comment) => {
+        const date = new Date(comment.createdAt);
+        const time = date.toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          
+          
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        })
+
+        return {
+          author: comment.createdByDto?.username ?? 'Unknown', // Getting the username from createdByDto
+          message: comment.comment, // Getting the comment content
+          time: time,
+        };
+      });
+    },
+    error: (err) => {
+      console.error('[comments/load] failed:', err);
+    }
+  });
+}
+
 
   onCloseModal() {
     this.close.emit();

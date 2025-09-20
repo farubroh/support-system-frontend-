@@ -64,21 +64,25 @@
       </div>
 
       <!-- Right Side: Comment Section -->
-      <div class="comment-section">
+      <div class="comment-section" *ngIf="issue.status !== 'PENDING'">
         <h4>Write your comments:</h4>
-        
-        <div *ngFor="let comment of comments">
-          <div class="comment">
-            <div class="author">{{ comment.author }}</div>
-            <div class="message">{{ comment.message }}</div>
-          </div>
-        </div>
-        
         <!-- Comment Input Box -->
         <div class="comment-box">
           <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
           <button (click)="submitComment()">Post Comment</button>
         </div>
+
+
+
+        <div *ngFor="let comment of comments">
+          <div class="comment">
+            
+            <div class="author"> <span class="icon"><i class="fa-solid fa-user"></i></span>{{ comment.author }} <span class="time">{{ comment.time }}</span></div>
+        <div class="message">{{ comment.message }}</div>
+          </div>
+        </div>
+        
+        
       </div>
     </div>
   </div>
