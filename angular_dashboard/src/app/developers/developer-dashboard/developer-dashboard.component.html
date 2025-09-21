@@ -124,16 +124,23 @@
       <!-- 40%: COMMENTS -->
       <section class="col col--comments">
         <h4>Write your comments</h4>
-        <div *ngFor="let comment of comments">
-          <div class="comment">
-            <div class="author">{{ comment.author }}</div>
-            <div class="message">{{ comment.message }}</div>
-          </div>
-        </div>
-        <div class="comment-box">
-          <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
-          <button (click)="submitComment()">Post Comment</button>
-        </div>
+        
+        <div class="comments-section">
+  <!-- Comment box -->
+  <div class="comment-box">
+    <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+    <button (click)="submitComment()">Post</button>
+  </div>
+
+  <!-- Comment list -->
+  <div class="comment-list">
+    <div class="comment" *ngFor="let c of comments">
+      <div class="comment-header">{{ c.author }} · {{ c.time }}</div>
+      <div class="comment-body">{{ c.message }}</div>
+    </div>
+  </div>
+</div>
+
         <!-- (Optional) place a comments list here later -->
       </section>
 

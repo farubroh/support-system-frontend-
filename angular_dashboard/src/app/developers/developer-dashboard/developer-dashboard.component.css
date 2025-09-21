@@ -31,6 +31,18 @@ html, body { height: 100%; }
   margin-top: 8px;
 }
 
+.comments-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;            /* take full column height */
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0; 
+}
+
 .category-color {
   width: 10px;
   height: 10px;
@@ -375,10 +387,21 @@ background-color: white;}
 
 .col { display: grid; gap: 6px; align-content: start;
 justify-content: center; }
-.col--details  {}
-.col--comments {}
-.col--actions  {}
 
+.details__panel,
+.details__body,
+.col,
+.col--comments,
+.comments-section {
+  min-height: 0;    /* Important for grid/flex children to allow overflow */
+}
+
+
+.col--comments {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 .details__header {
   margin-left: 30px;
    display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #e2e8f0; }
@@ -477,18 +500,19 @@ justify-content: center; }
   box-shadow: 0 6px 14px rgba(33, 150, 243, 0.3);
   transform: scale(1.05);
  }
-
+.comment-box {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f9fafb;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
 
 .comment-box textarea {
-  width: 100%;
- 
+  flex: 1;
+  min-height: 50px;
   resize: vertical;
-  border-radius: 8px;
-  padding: 10px;
-  background: #f2f4f8;
-  color: #111827;
-  border: 1px solid #e2e8f0;
-  outline: none;
 }
 .comment-box textarea:focus {
   border-color: var(--accent-2);
@@ -507,6 +531,55 @@ justify-content: center; }
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   transform: scale(1);
+  
+  white-space: nowrap;
+  height: fit-content;
+
+}.comment-list {
+  flex: 1 1 auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px;
+  min-height: 0;
+  overflow-y: auto;       /* only this area scrolls */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y:auto ;       /* scroll vertically */
+  overflow-x: hidden;
+}
+/* Optional: styled scrollbar (Chrome/Edge/Safari) */
+.comment-list::-webkit-scrollbar {
+  width: 8px;
+}
+.comment-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.comment-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.comment-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comment-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.comment-body {
+  background: #f2f4f8;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  color: var(--text);
 }
 .comment-box button:hover { 
   background: linear-gradient(135deg, #1565c0, #1e88e5);

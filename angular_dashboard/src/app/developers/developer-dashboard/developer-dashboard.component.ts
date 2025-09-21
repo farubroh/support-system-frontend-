@@ -149,29 +149,34 @@ fetchIssues() {
 }
 
  // Load comments for selected card
+// -------------------------
+// Comments (Load + Add)
+// -------------------------
+
+// Load comments for selected issue
 fetchComments(issueId: number) {
-  this.http
-    .get<{ id: number; comment: string; createdByDto: any; developerDto: any; createdAt: string }[]>(
-      `http://localhost:8085/api/comments/issue/${issueId}`
-    )
-    .subscribe({
-      next: (res) => {
-        this.comments = res.map((c) => {
-          const date = new Date(c.createdAt);
-          return {
-            author: c.createdByDto?.username ?? 'Unknown',
-            message: c.comment,
-            time: date.toLocaleString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              month: 'short',
-              day: 'numeric'
-            })
-          };
-        });
-      },
-      error: (err) => console.error('[comments/load] failed:', err),
-    });
+  this.http.get<{ id: number; comment: string; createdByDto: any; developerDto: any; createdAt: string }[]>(
+    `http://localhost:8085/api/comments/issue/${issueId}`
+  ).subscribe({
+    next: (res) => {
+      console.log('Comments loaded:', res); // Inspect the response data
+      this.comments = res.map((comment) => {
+        const date = new Date(comment.createdAt);
+        return {
+          author: comment.createdByDto?.username ?? 'Unknown',
+          message: comment.comment,
+          time: date.toLocaleString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })
+        };
+      });
+    },
+    error: (err) => console.error('[comments/load] failed:', err),
+  });
 }
 
 // Post a new comment
@@ -183,21 +188,38 @@ submitComment() {
   if (!card?.raw?.issue) return;
 
   const currentUser = this.auth.getUser();
+  const issueId = card.raw.issue.issueId;
+  const userId = currentUser?.id;
 
-  const payload = {
-    issueId: card.raw.issue.issueId,
-    userId: currentUser?.id ?? null,
-    developerId: this.getUserId(),
-    content
-  };
+  // developerId = current logged in developer
+  const developerId = this.getUserId();
 
-  this.http.post<any>('http://localhost:8085/api/comments/add', payload).subscribe({
+  // Use HttpParams like in issue-view-modal-user
+  const params = new URLSearchParams();
+  params.set('issueId', issueId.toString());
+  params.set('userId', userId?.toString() ?? '');
+  params.set('developerId', developerId ? developerId.toString() : '');
+  params.set('comment', content);
+
+  this.http.post<any>(
+    'http://localhost:8085/api/comments/add',
+    params.toString(), // send as form-encoded
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+  ).subscribe({
     next: (res) => {
       const date = new Date();
       this.comments.unshift({
         author: res?.userDto?.username ?? currentUser?.username ?? 'You',
         message: res?.content ?? content,
-        time: date.toLocaleTimeString(),
+        time: date.toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        }).toLowerCase(),
       });
       this.newComment = '';
     },
@@ -500,8 +522,8 @@ openIssue(issue: any) {
   }
 
   closeDetails() {
-    this.selectedIssue = null;
-  }
+  this.selected.set(null);   // deselect issue -> modal closes
+}
+  // close modal after success
 
-  
 }
