@@ -36,6 +36,7 @@ export class IssueViewModalUserComponent implements OnInit {
     this.showCommentSidebar = !this.showCommentSidebar;
   }
 
+  
 submitComment() {
   const content = this.newComment.trim();
   if (!content) return;
@@ -53,6 +54,8 @@ submitComment() {
   } else if (this.issue?.assignedTo?.id) {
     developerId = this.issue.assignedTo.id;
   }
+  console.log(developerId);
+  
 
   const params = new HttpParams()
     .set('issueId', issueId.toString())
@@ -101,6 +104,11 @@ loadComments() {
     next: (res) => {
       console.log('Comments loaded:', res); // Inspect the response data
 
+      //Sorting the commments based on createdAt (commenting time) in descending order
+      res.sort((a, b) => 
+        Date.parse(b.createdAt) - Date.parse(a.createdAt)
+      );
+      
       this.comments = res.map((comment) => {
         const date = new Date(comment.createdAt);
         const time = date.toLocaleString('en-US', {
@@ -114,7 +122,7 @@ loadComments() {
         })
 
         return {
-          author: comment.createdByDto?.username ?? 'Unknown', // Getting the username from createdByDto
+          author: comment.createdByDto?.role.toLowerCase() !== "user" ? 'Developer': comment.createdByDto?.username, // Getting the username from createdByDto
           message: comment.comment, // Getting the comment content
           time: time,
         };

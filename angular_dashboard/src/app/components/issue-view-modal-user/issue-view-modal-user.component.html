@@ -15,17 +15,17 @@
       <div class="issue-details">
         <div class="info-section">
           <div class="info-item">
-            <span class="label">Status:</span>
+            <span class="label">Status:&nbsp;</span>
             <span class="value pill" [ngClass]="issue.status?.toLowerCase()">{{ issue.status }}</span>
           </div>
 
           <div class="info-item">
-            <span class="label">Title:</span>
-            <div class="value">{{ issue.title }}</div>
+            <span class="label">Title:&nbsp;</span>
+            <span class="value">{{ issue.title }}</span>
           </div>
 
           <div class="info-item">
-            <span class="label">Description:</span>
+            <span class="label">Description:&nbsp;</span>
             <div class="value">{{ issue.description }}</div>
           </div>
 
@@ -43,10 +43,12 @@
             <span class="label">Attachments:</span>
             <div class="value tags">
               <div class="file-link" *ngFor="let file of (issue.files || files)">
-                <a [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file" target="_blank" rel="noopener noreferrer" title="Click to view">
+                <a [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file" target="_blank"
+                  rel="noopener noreferrer" title="Click to view">
                   📎 {{ file }}
                 </a>
-                <a [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file" download title="Download file" class="download-icon">
+                <a [href]="'http://localhost:8085/api/issues/files/' + issue.user.id + '/' + file" download
+                  title="Download file" class="download-icon">
                   ⬇️
                 </a>
               </div>
@@ -65,25 +67,30 @@
 
       <!-- Right Side: Comment Section -->
       <div class="comment-section" *ngIf="issue.status !== 'PENDING'">
-        <h4>Write your comments:</h4>
         <!-- Comment Input Box -->
-        <div class="comment-box">
+        <div class="comment-box"
+          *ngIf="issue.status !== 'PENDING' && issue.status !== 'REJECTED' && issue.status !== 'COMPLETED'">
+          <h4>Write your comments:</h4>
           <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
           <button (click)="submitComment()">Post Comment</button>
         </div>
 
-
-
+        <span
+          *ngIf="!(issue.status !== 'PENDING' && issue.status !== 'REJECTED' && issue.status !== 'COMPLETED')">Comments</span>
         <div *ngFor="let comment of comments">
           <div class="comment">
-            
-            <div class="author"> <span class="icon"><i class="fa-solid fa-user"></i></span>{{ comment.author }} <span class="time">{{ comment.time }}</span></div>
-        <div class="message">{{ comment.message }}</div>
+            <div class="author">
+              <span class="icon">
+                <i class="fa-solid fa-user"></i>
+              </span>
+              {{ comment.author }}
+              <span class="time"> {{ comment.time }} </span>
+            </div>
+            <div class="message">{{ comment.message }}</div>
           </div>
         </div>
-        
-        
       </div>
+      <span class="border"></span>
     </div>
   </div>
-</div>
+  <!-- </div> -->

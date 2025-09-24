@@ -53,9 +53,6 @@
               <div class="category-name">{{ card.raw?.issue?.category || 'Uncategorized' }}</div>
             </div>
           </div>
-
-
-
         </div>
 
         <div class="right" (click)="$event.stopPropagation()">
@@ -68,8 +65,6 @@
       <button class="add" (click)="addCard(list)">＋ Add a card</button>
     </footer>
   </section>
-
-
 </main>
 
 <!-- Details drawer -->
@@ -123,23 +118,29 @@
 
       <!-- 40%: COMMENTS -->
       <section class="col col--comments">
-        <h4>Write your comments</h4>
         
-        <div class="comments-section">
-  <!-- Comment box -->
-  <div class="comment-box">
-    <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
-    <button (click)="submitComment()">Post</button>
-  </div>
-
-  <!-- Comment list -->
-  <div class="comment-list">
-    <div class="comment" *ngFor="let c of comments">
-      <div class="comment-header">{{ c.author }} · {{ c.time }}</div>
-      <div class="comment-body">{{ c.message }}</div>
-    </div>
-  </div>
-</div>
+        <div 
+        *ngIf="s.status !== 'PENDING' && s.status !== 'REJECTED' && s.status !== 'COMPLETED'"
+        >
+          
+          <h4>
+          Write your comments</h4>
+          <div class="comments-section">
+            <!-- Comment box -->
+            <div class="comment-box">
+              <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+              <button (click)="submitComment()">Post</button>
+            </div>
+  
+            <!-- Comment list -->
+            <div class="comment-list">
+              <div class="comment" *ngFor="let c of comments">
+                <div class="comment-header">{{ c.author }} · {{ c.time }}</div>
+                <div class="comment-body">{{ c.message }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- (Optional) place a comments list here later -->
       </section>

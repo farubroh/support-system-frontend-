@@ -48,8 +48,8 @@
                 <div class="task-title">{{ issue.title | slice:0:15 }}</div>
               </div>
               <div class="task-right">
-                <div class="category-badge"
-                  [ngStyle]="{ 'background-color': getCategoryColor(issue.category), color: '#fff' }">
+                <div class="category-badge">
+                  <!-- [ngStyle]="{ 'background-color': getCategoryColor(issue.category), color: '#fff' }" -->
                   {{ issue.category || 'Uncategorized' }}
                 </div>
                 <!-- Hide created date on mobile -->
@@ -57,15 +57,18 @@
             <small>{{ issue.createdAt | date: 'short' }}</small>
           </div> -->
 
-                
+
               </div>
             </div>
             <div class="task-description">
               {{ issue.description | slice:0:70 }}<span *ngIf="issue.description?.length > 70">...</span>
             </div>
+            <button class="comment-btn" (click)="deleteIssue(issue, $event)">
+              <i class="bi bi-chat-left-dots"></i>
+            </button>
             <button *ngIf="issue.status === 'PENDING'" class="delete-btn" (click)="deleteIssue(issue, $event)">
-                  <i class="bi bi-trash"></i>
-                </button>
+              <i class="bi bi-trash"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -80,24 +83,41 @@
                 <div class="task-title">{{ issue.title }}</div>
               </div>
               <div class="task-status">
-                <span class="status-badge" [ngClass]="issue.status.toLowerCase()">
+                <span class="status-badge" [ngClass]="issue.status.toLowerCase()"
+                  [ngStyle]="{ 'background-color': getIssueStatusColor(issue.status), color: '#ffffff' }">
                   {{ issue.status }}
                 </span>
               </div>
               <div class="task-right">
-                <div class="category-badge"
-                  [ngStyle]="{ 'background-color': getCategoryColor(issue.category), color: '#fff' }">
+                <div class="category-badge">
+                  <!-- [ngStyle]="{ 'background-color': getCategoryColor(issue.category), color: '#fff' }" -->
                   {{ issue.category || 'Uncategorized' }}
                 </div>
                 <div class="task-created-date">
                   <small>{{ issue.createdAt | date: 'short' }}</small>
                 </div>
-                <div class="task-created-date">
+                <div class="comment_delete-buttons">
 
                   <!-- 🗑️ Delete button -->
-                  <button *ngIf="issue.status === 'PENDING'" class="delete-btn" (click)="deleteIssue(issue, $event)">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                   <div class="comment-slot">
+                     <button 
+                       *ngIf="(issue.status === 'PENDING' && issue.completedReason===null && issue.rejectionReason===null) || issue.status === 'INPROGRESS'" 
+                       class="comment-btn" 
+                       (click)="onComment(issue, $event)"
+                       >
+                       <!-- (click)="deleteIssue(issue, $event)" -->
+                       <i class="bi bi-chat-left-dots"></i>
+                     </button>
+                   </div>
+                   <div class="delete-slot">
+                     <button 
+                       *ngIf="issue.status === 'PENDING'" 
+                       class="delete-btn" 
+                       (click)="deleteIssue(issue, $event)"
+                     >
+                       <i class="bi bi-trash"></i>
+                     </button>
+                   </div>
                 </div>
 
               </div>

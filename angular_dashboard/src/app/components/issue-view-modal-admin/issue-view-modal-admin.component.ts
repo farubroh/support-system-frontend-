@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../authentication.service';
 
@@ -9,7 +9,7 @@ type Issue = {
   id: number;
   title: string;
   description: string;
-  status: 'PENDING'|'INPROGRESS'|'COMPLETED'|'REJECTED';
+  status: 'PENDING' | 'INPROGRESS' | 'COMPLETED' | 'REJECTED';
   user: { id: number; username?: string };
   category?: string;
   developerId?: number;
@@ -17,7 +17,7 @@ type Issue = {
   files?: string[];
   deadline?: string;
   completedReason?: string;
-  rejectionReason?: string; 
+  rejectionReason?: string;
 };
 
 @Component({
@@ -31,7 +31,7 @@ export class IssueViewModalAdminComponent implements OnInit {
   @Input() issue!: Issue;
   @Output() close = new EventEmitter<void>();
   @Output() refresh = new EventEmitter<void>();
-  
+
 
   apiBase = 'http://localhost:8085';
 
@@ -45,28 +45,34 @@ export class IssueViewModalAdminComponent implements OnInit {
   showCategoryBox = false;
   showCommentSidebar = false;
 
-  newComment = '';
-  comments: { author: string; message: string }[] = [
-    { author: 'Md. Younus Hossain Ahsan', message: 'Please check the mail address recovery issue with registrar.' },
-    { author: 'Omar Faruk', message: 'Added this card to PENDING.' }
-  ];
+  comments: { author: string; message: string }[] = []
+  // comments: { author: string; message: string }[] = [
+  //   { author: 'Md. Younus Hossain Ahsan', message: 'Please check the mail address recovery issue with registrar.' },
+  //   { author: 'Omar Faruk', message: 'Added this card to PENDING.' }
+  // ];
 
   searchQuery = '';
 
-  constructor(private http: HttpClient, private auth: AuthenticationService) {}
+  constructor(private http: HttpClient, private auth: AuthenticationService) { }
 
- 
-  ngOnInit() { 
-    console.log('Issue Data:', this.issue); 
-     console.log('Rejected Reason:', this.issue?.rejectionReason);
-    this.getCategories(); 
+
+  ngOnInit() {
+    console.log('Issue Data:', this.issue);
+    console.log('Rejected Reason:', this.issue?.rejectionReason);
+    this.getCategories();
     this.getDevelopers();
+    this.loadComments()
     console.log('Issue data:', this.issue);
     if (this.issue.status === 'REJECTED') {
-    console.log('Rejection Reason:', this.issue.rejectionReason);
+      console.log('Rejection Reason:', this.issue.rejectionReason);
+    }
   }
+
+  private authHeader() {
+    const token = this.auth.getToken(); // <-- single source of truth
+    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
   }
-  
+
   private getDevelopers() {
     this.http.get<any[]>(`${this.apiBase}/api/developers`).subscribe({
       next: (res: any[]) => {
@@ -81,8 +87,8 @@ export class IssueViewModalAdminComponent implements OnInit {
         console.error('Error fetching issue data', err)
       }
     });
-    
-  
+
+
 
   }
 
@@ -121,7 +127,7 @@ export class IssueViewModalAdminComponent implements OnInit {
       const name = (dev.username || '').toLowerCase();
       const matches = !q || name.includes(q);
       const notAssigned = (assignedId ? dev.id !== assignedId : true) &&
-                          (assignedName ? name !== assignedName : true);
+        (assignedName ? name !== assignedName : true);
       return matches && notAssigned;
     });
   }
@@ -223,25 +229,64 @@ export class IssueViewModalAdminComponent implements OnInit {
           alert('Failed to mark as completed (check token/role).');
         }
       });
-      
+
   }
 
-  submitComment() {
-    const msg = (this.newComment || '').trim();
-    if (!msg) return;
-    this.comments.unshift({ author: 'Admin', message: msg });
-    this.newComment = '';
+
+  loadComments() {
+    this.http.get<{ id: number; comment: string; createdByDto: any; developerDto: any; createdAt: string }[]>(
+      `${this.apiBase}/api/comments/issue/${this.issue.id}`,
+      { headers: this.authHeader() } // Add headers for authentication
+    ).subscribe({
+      next: (res) => {
+        console.log('Comments loaded:', res); // Inspect the response data
+
+        //Sorting the commments based on createdAt (commenting time) in descending order
+        res.sort((a, b) => 
+          Date.parse(b.createdAt) - Date.parse(a.createdAt)
+        );
+        
+        this.comments = res.map((comment) => {
+          const date = new Date(comment.createdAt);
+          const time = date.toLocaleString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            
+            
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })
+
+          return {
+            author: comment.createdByDto?.username, // Getting the username from createdByDto
+            message: comment.comment, // Getting the comment content
+            time: time,
+          };
+        });
+      },
+      error: (err) => {
+        console.error('[comments/load] failed:', err);
+      }
+    });
   }
+
+  // submitComment() {
+  //   const msg = (this.newComment || '').trim();
+  //   if (!msg) return;
+  //   this.comments.unshift({ author: 'Admin', message: msg });
+  //   this.newComment = '';
+  // }
 
   onCloseModal() { this.close.emit(); }
   // Add this in your component where the issue's rejection reason is accessed
-get rejectedReason() {
-  if (this.issue?.status === 'REJECTED') {
-    console.log('Rejection reason:', this.issue?.rejectionReason);
-    return this.issue?.rejectionReason || 'No reason provided';
+  get rejectedReason() {
+    if (this.issue?.status === 'REJECTED') {
+      console.log('Rejection reason:', this.issue?.rejectionReason);
+      return this.issue?.rejectionReason || 'No reason provided';
+    }
+    return null;
   }
-  return null;
-}
 
 
 }
