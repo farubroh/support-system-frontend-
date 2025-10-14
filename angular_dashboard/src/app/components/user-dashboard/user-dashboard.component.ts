@@ -112,6 +112,16 @@ export class DashboardComponent implements OnInit {
     return this.categoryColorMap[normalizedCategory] || '#cfd8dc';  // Fallback to default color
   }
 
+  getIssueStatusColor(status: string): string {
+    const normalizedCategory = (status || '').toLowerCase();
+    if(normalizedCategory === 'pending') return '#0000FF'
+    if(normalizedCategory === 'inprogress') return '#FFA500'
+    if(normalizedCategory === 'completed') return '#008000'
+    if(normalizedCategory === 'rejected') return '#FF0000'
+        
+    return '#0000000f';  // Fallback to default color
+  }
+
   // ========= Sorting helpers =========
   private sortByCreatedAtAsc(list: any[]): any[] {
     return [...list].sort(
@@ -166,6 +176,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         // ✅ Specific status → ascending
         this.issues = this.sortByCreatedAtAsc(Array.isArray(res) ? res : []);
+        
       },
       error: (err) => {
         console.error("Error fetching issues:", err);
@@ -193,6 +204,7 @@ export class DashboardComponent implements OnInit {
       const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
       this.http.get<any[]>(url).subscribe({
         next: (res) => {
+          console.log("Issues: ",res);
           if (res) {
             combinedIssues = combinedIssues.concat(
               res.map(issue => ({ ...issue, status }))
@@ -353,6 +365,10 @@ deleteIssue(issue: any, event: Event) {
       alert('Failed to delete issue. Please try again.');
     }
   });
+}
+
+onComment(issue: any, event: Event){
+  
 }
 
 
