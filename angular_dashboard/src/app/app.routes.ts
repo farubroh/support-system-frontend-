@@ -5,13 +5,19 @@ import { DashboardComponent } from './components/user-dashboard/user-dashboard.c
 import { CreateIssueComponent } from './components/create-issue/create-issue.component';
 import { IssueTableComponent } from './components/issue-table/issue-table.component';
 import { DeveloperDashboardComponent } from './developers/developer-dashboard/developer-dashboard.component';
-import { LoginComponent } from './components/login/login.component';
+// import { LoginComponent } from './components/login/login.component';
+
 import { AuthGuard } from './auth.guard';
 import { HomepageComponent } from './components/homepage/homepage.component';
+import { LoginPageComponent } from './components/login-page/login-page.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { SessionExpiredComponent } from './components/session-expired/session-expired.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-{ path: 'login', component: LoginComponent },
+{ path: 'login', component: LoginPageComponent },
+{ path: 'reset-password', component: ResetPasswordComponent },
+{ path: 'session-expired', component: SessionExpiredComponent },
 { path: 'home', component: HomepageComponent, canActivate: [AuthGuard] },
 { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
 { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },

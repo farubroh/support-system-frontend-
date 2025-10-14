@@ -97,7 +97,7 @@ export class AdminDashboardComponent implements OnInit {
     private http: HttpClient,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit() {
     // Initial loads
@@ -183,10 +183,10 @@ export class AdminDashboardComponent implements OnInit {
   updateCountsFromCache() {
     const norm = (s: string) => (s || '').trim().toUpperCase();
     const list = this.allIssuesCache;
-    this.pendingCount = list.filter(i => norm(i.status) === 'PENDING').length;
+    this.pendingCount    = list.filter(i => norm(i.status) === 'PENDING').length;
     this.inProgressCount = list.filter(i => norm(i.status) === 'INPROGRESS').length;
-    this.completedCount = list.filter(i => norm(i.status) === 'COMPLETED').length;
-    this.rejectedCount = list.filter(i => norm(i.status) === 'REJECTED').length;
+    this.completedCount  = list.filter(i => norm(i.status) === 'COMPLETED').length;
+    this.rejectedCount   = list.filter(i => norm(i.status) === 'REJECTED').length;
   }
 
   /** Build developer list from the cache (names with at least one issue) */
@@ -206,7 +206,7 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (list) => {
           this.categoryList = (list || []).map(c => c.categoryName);
-
+          
           // Precompute category colors once category list is loaded
           this.precomputeCategoryColors();
         },
@@ -259,61 +259,61 @@ export class AdminDashboardComponent implements OnInit {
 
   /** Table source + filtering pipeline */
   get filteredIssues(): any[] {
-    // Base list depends on activeTab
-    const baseList = this.activeTab === 'ALL' ? this.allIssuesCache : this.issues;
-    let results = [...baseList];
+  // Base list depends on activeTab
+  const baseList = this.activeTab === 'ALL' ? this.allIssuesCache : this.issues;
+  let results = [...baseList];
 
-    // Search filter
-    if (this.searchActive) {
-      const q = this.searchQuery.toLowerCase();
-      results = results.filter(issue =>
-        (issue.title && issue.title.toLowerCase().includes(q)) ||
-        (issue.category && issue.category.toLowerCase().includes(q)) ||
-        (issue.status && (issue.status + '').toLowerCase().includes(q))
-      );
-    }
-
-    // Category filter
-    if (this.selectedCategory) {
-      results = results.filter(i => i.category === this.selectedCategory);
-    }
-
-    // Developer filter
-    if (this.selectedDeveloperName) {
-      if (this.selectedDeveloperName === '__UNASSIGNED__') {
-        results = results.filter(i => !i?.developerName || !String(i.developerName).trim());
-      } else {
-        const target = String(this.selectedDeveloperName).trim();
-        results = results.filter(i => String(i?.developerName).trim() === target);
-      }
-    }
-
-    // Optional: client-side status filter (useful only for ALL view)
-    if (this.activeTab === 'ALL' && this.filterStatus) {
-      results = results.filter(i => (i.status || '').toUpperCase() === this.filterStatus);
-    }
-
-    // ✅ Sort: unassigned first, then ascending by createdAt (older first)
-    results.sort((a, b) => {
-      const aUnassigned = !a?.developerName || !String(a.developerName).trim();
-      const bUnassigned = !b?.developerName || !String(b.developerName).trim();
-      if (aUnassigned !== bUnassigned) return aUnassigned ? -1 : 1;
-
-      const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return aTime - bTime; // ascending (older first)
-    });
-
-    // Add reason to the results for completed/rejected issues
-    results = results.map(issue => {
-      if (issue.status === 'COMPLETED' || issue.status === 'REJECTED') {
-        issue.reason = issue.status === 'COMPLETED' ? issue.completedReason : issue.rejectionReason;
-      }
-      return issue;
-    });
-
-    return results;
+  // Search filter
+  if (this.searchActive) {
+    const q = this.searchQuery.toLowerCase();
+    results = results.filter(issue =>
+      (issue.title && issue.title.toLowerCase().includes(q)) ||
+      (issue.category && issue.category.toLowerCase().includes(q)) ||
+      (issue.status && (issue.status + '').toLowerCase().includes(q))
+    );
   }
+
+  // Category filter
+  if (this.selectedCategory) {
+    results = results.filter(i => i.category === this.selectedCategory);
+  }
+
+  // Developer filter
+  if (this.selectedDeveloperName) {
+    if (this.selectedDeveloperName === '__UNASSIGNED__') {
+      results = results.filter(i => !i?.developerName || !String(i.developerName).trim());
+    } else {
+      const target = String(this.selectedDeveloperName).trim();
+      results = results.filter(i => String(i?.developerName).trim() === target);
+    }
+  }
+
+  // Optional: client-side status filter (useful only for ALL view)
+  if (this.activeTab === 'ALL' && this.filterStatus) {
+    results = results.filter(i => (i.status || '').toUpperCase() === this.filterStatus);
+  }
+
+  // ✅ Sort: unassigned first, then ascending by createdAt (older first)
+  results.sort((a, b) => {
+    const aUnassigned = !a?.developerName || !String(a.developerName).trim();
+    const bUnassigned = !b?.developerName || !String(b.developerName).trim();
+    if (aUnassigned !== bUnassigned) return aUnassigned ? -1 : 1;
+
+    const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return aTime - bTime; // ascending (older first)
+  });
+
+  // Add reason to the results for completed/rejected issues
+  results = results.map(issue => {
+    if (issue.status === 'COMPLETED' || issue.status === 'REJECTED') {
+      issue.reason = issue.status === 'COMPLETED' ? issue.completedReason : issue.rejectionReason;
+    }
+    return issue;
+  });
+
+  return results;
+}
 
   /** Count issues per category — based on global cache for always-correct numbers */
   getCategoryCount(category: string): number {
@@ -341,7 +341,7 @@ export class AdminDashboardComponent implements OnInit {
     if (this.searchActive) {
       this.searchQuery = '';
       this.selectedDeveloperName = '';
-
+      
       this.filterStatus = '';
       this.searchConflictMessage = 'Clear search to view category results.';
     } else {
@@ -392,20 +392,20 @@ export class AdminDashboardComponent implements OnInit {
     this.http.post(`http://localhost:8085/api/issues/${this.selectedIssue.id}/assign`, {
       developerId: developerId
     })
-      .subscribe({
-        next: (res: any) => {
-          // Server returns { developerName, currentlyTotalTaskInHand }
-          this.selectedIssue.developerName = res?.developerName || this.selectedIssue?.developerName;
-          this.cdr.detectChanges();
+    .subscribe({
+      next: (res: any) => {
+        // Server returns { developerName, currentlyTotalTaskInHand }
+        this.selectedIssue.developerName = res?.developerName || this.selectedIssue?.developerName;
+        this.cdr.detectChanges();
 
-          // Refresh current list and global cache so counts/rows are correct
-          this.refreshIssueList();
-          this.fetchAllIssuesCache();
+        // Refresh current list and global cache so counts/rows are correct
+        this.refreshIssueList();
+        this.fetchAllIssuesCache();
 
-          this.selectedIssue = null;
-        },
-        error: () => alert('Failed to assign developer')
-      });
+        this.selectedIssue = null;
+      },
+      error: () => alert('Failed to assign developer')
+    });
   }
 
   refreshIssueList() {
@@ -444,7 +444,7 @@ export class AdminDashboardComponent implements OnInit {
 
   getCategoryColor(category: string): string {
     const normalizedCategory = (category || '').toLowerCase();
-
+    
     // Retrieve color from the precomputed mapping
     return this.categoryColorMap[normalizedCategory] || '#cfd8dc';  // Fallback to default color
   }

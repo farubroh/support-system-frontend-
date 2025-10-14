@@ -161,19 +161,15 @@
   <div *ngIf="showCommentSidebar" class="comment-sidebar">
     <h4>Comments</h4>
     <div *ngFor="let cmt of comments" class="comment">
-      <!-- <img src="/assets/images/male.jpg" class="avatar" alt="" /> -->
-       <span class="icon">
-          <i class="fa-solid fa-user"></i>
-        </span>
+      <img src="/assets/images/male.jpg" class="avatar" alt="" />
       <div class="comment-body">
         <div class="comment-meta"><strong>{{ cmt.author }}</strong></div>
         <p>{{ cmt.message }}</p>
       </div>
     </div>
-    <!-- Write a Comment -->
-    <!-- <div class="comment-box">
+    <div class="comment-box">
       <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
       <button (click)="submitComment()">Post Comment</button>
-    </div> -->
+    </div>
   </div>
 </div>

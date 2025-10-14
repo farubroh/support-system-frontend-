@@ -30,7 +30,7 @@ html, body { overflow-x: hidden; }
   border: 1px solid rgba(200, 200, 200, 0.3);
   border-radius: 18px;
   width: min(640px, 92vw);
-  height: 45vh;
+  height: 65vh;
   max-height: 88vh;
   overflow: hidden;            /* keep the card from pushing layout */
   padding: 28px;

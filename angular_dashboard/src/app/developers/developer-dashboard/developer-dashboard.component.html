@@ -53,6 +53,9 @@
               <div class="category-name">{{ card.raw?.issue?.category || 'Uncategorized' }}</div>
             </div>
           </div>
+
+
+
         </div>
 
         <div class="right" (click)="$event.stopPropagation()">
@@ -65,6 +68,8 @@
       <button class="add" (click)="addCard(list)">＋ Add a card</button>
     </footer>
   </section>
+
+
 </main>
 
 <!-- Details drawer -->
@@ -96,9 +101,16 @@
 
 
         <!-- Description -->
-        <label class="muted">Description:</label>
-        <textarea rows="4" placeholder="Description…" [value]="description()"
-          (input)="description.set(($any($event.target)).value)"></textarea>
+        <div class="row">
+          <label class="muted">Description:</label>
+          <textarea 
+            readonly
+            rows="4" 
+            placeholder="Description…" 
+            [value]="description()"
+            (input)="description.set(($any($event.target)).value)">
+          </textarea>
+        </div>
 
         <!-- Files -->
         <div class="files">
@@ -108,36 +120,47 @@
             <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
           </div>
 
-          <div class="files__list" *ngIf="selectedFiles.length > 0">
-            <a class="file-chip" *ngFor="let f of selectedFiles"
-              [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f" target="_blank"
-              rel="noopener">📎 {{ f }}</a>
+          <div class="files__list"
+            *ngIf="selectedFiles.length > 0"
+            >
+            <a class="file-chip" 
+              *ngFor="let f of selectedFiles"
+              [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f"
+              target="_blank"
+                rel="noopener noreferrer" 
+              >
+                📎 {{ f }}
+            </a>
           </div>
         </div>
       </section>
 
       <!-- 40%: COMMENTS -->
-      <section class="col col--comments">
-        
-        <div 
-        *ngIf="s.status !== 'PENDING' && s.status !== 'REJECTED' && s.status !== 'COMPLETED'"
+      <section class="col col--comments" 
+        *ngIf="!(s.status==='PENDING')"
         >
-          
-          <h4>
-          Write your comments</h4>
-          <div class="comments-section">
-            <!-- Comment box -->
-            <div class="comment-box">
-              <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
-              <button (click)="submitComment()">Post</button>
-            </div>
-  
-            <!-- Comment list -->
-            <div class="comment-list">
-              <div class="comment" *ngFor="let c of comments">
-                <div class="comment-header">{{ c.author }} · {{ c.time }}</div>
-                <div class="comment-body">{{ c.message }}</div>
+        <h4 *ngIf="s.status==='INPROGRESS'">Write your comments</h4>
+
+        <div class="comments-section">
+          <!-- Commenting box -->
+          <div 
+            class="comment-box"
+            *ngIf="s.status==='INPROGRESS'"
+            >
+            <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+            <button (click)="submitComment()">Post</button>
+          </div>
+
+          <!-- Comment list -->
+          <div class="comment-list">
+            <h4>Comments</h4>
+            <div class="comment" *ngFor="let c of comments">
+              <div class="comment-header">
+                <span class="comment-header author">{{ c.author }}</span>
+                <span class="comment-header time">{{ c.time }}</span>
+                <!-- {{ c.author }} · {{ c.time }} -->
               </div>
+              <div class="comment-body">{{ c.message }}</div>
             </div>
           </div>
         </div>
@@ -176,6 +199,7 @@
           </ng-container>
         </ng-container>
       </section>
+
     </div>
 
 

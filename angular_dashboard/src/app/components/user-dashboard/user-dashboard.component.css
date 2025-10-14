@@ -1,82 +1,255 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .dashboard-wrapper {
   display: grid;
-  grid-template-columns: 1fr 3fr;  /* Increase the size of the center section (task list) */
+  grid-template-columns: 250px 1fr;
   gap: 20px;
   padding: 20px;
   font-family: 'Segoe UI', sans-serif;
- 
-  min-height: 100vh;   /* instead of height */
-  height: auto;
-  box-sizing: border-box;
-  transition: background-color 0.3s ease;
-  overflow: visible; /* ensure child sections don’t clip scrolling */
+  height: 100vh;
+  overflow: hidden;
+  margin-top: 0;
 }
 
 .page-wrapper {
-  overflow-x: auto;  /* Allow horizontal scrolling */
+  overflow-x: auto;
 }
+
+.hamburger-menu {
+  display: none;
+}
+
+.task-item {
+  display: grid;
+  /* grid-template-columns: 1fr auto auto auto auto; */
+  grid-template-rows: 1fr auto;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 1rem;
+  padding-inline: 1.5rem;
+}
+
+.task-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-item {
+  /* Omar vai's */
+  /* border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 8px; */
+}
+
+/* Task Item Layout for Mobile */
+.task-item {
+  /* Omar vai's */
+  /* display: flex; */
+  /* flex-direction: column;  Stack items vertically */
+  /* gap: 4px;  Space between title, date, and category */
+  /* padding: 10px; */
+}
+
+.task-item:hover {
+  /* Omar vai's */
+  /* transform: translateY(-3px); Slight upward movement */
+  /* box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); Shadow effect on hover */
+}
+
+
+.task-item .task-main {
+  display: grid;
+  grid-template-columns: 1fr 7rem 25rem;
+}
+
+.task-main {
+  /* Omar vai's */
+  /* display: grid; */
+  /* grid-template-columns: 1fr auto 1fr; left | center | right */
+  /* align-items: center; */
+  /* gap: 12px; */
+}
+
+.task-item .task-main .task-left {
+  justify-self: start;
+}
+
+.task-item .task-main .task-left .task-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.task-item .task-main .task-status {
+  padding-inline: 1rem;
+  justify-self: center;
+  align-self: center;
+  margin-right: 1rem;
+}
+
+.task-item .task-main .task-status .status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-align: justify;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  justify-content: center;
+}
+
+.task-item .task-description {
+  /* background:#4ade80; */
+  display: flex;
+  flex-wrap: wrap;
+  /* max-width: 20rem;
+  white-space: nowrap;
+  text-overflow: ellipsis; */
+  /* width: calc(100% - 30rem); */
+}
+
+.task-item .task-main .task-right {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1.5rem;
+  align-items: center;
+  justify-items: start;
+}
+
+.task-item .task-main .task-right .task-created-date {
+  color: gray;
+}
+
+.task-item .task-main .task-right .comment_delete-buttons {
+  display: grid;
+  /* grid-template-columns: 1.8rem 1.8rem; */
+  grid-template-columns: 1.8rem;
+  /* grid-template-areas: "comment delete"; */
+  grid-template-areas: "delete";
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  margin-right: 2rem;
+}
+
+.task-item .task-main .task-right .comment_delete-buttons .comment-slot {
+  grid-area: comment;
+  justify-self: center;
+}
+
+.task-item .task-main .task-right .comment_delete-buttons .comment-slot .comment-btn>i {
+  /* display: block; */
+  /* vertical-align:middle;
+  opacity: 40%; */
+}
+
+.task-item .task-main .task-right .comment_delete-buttons .delete-slot {
+  grid-area: delete;
+  justify-self: center;
+}
+
+.task-item .task-main .task-right .comment_delete-buttons .comment-slot .delete-btn>i {
+  /* display: block; */
+  /* vertical-align:middle;
+  opacity: 40%; */
+}
+
+.comment_delete-buttons:has(.comment-slot):not(:has(.delete-slot)) {
+  grid-template-columns: auto 2rem;
+  /* reserve delete column space */
+}
+
+.comment_delete-buttons:has(.delete-slot):not(:has(.comment-slot)) {
+  grid-template-columns: 2rem auto;
+  /* reserve comment column space */
+}
+
+.task-item .task-description .desc-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 20rem;
+  font-size: 0.8rem;
+  color: gray;
+}
+
+
 
 /* Overlay background covering whole page */
 .overlay-bg {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.7);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(5px);
   z-index: 998;
 }
 
 .comment_delete-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* left and right slots */
-  align-items: center;
+  /* Omar vai's */
+  /* display: grid; */
+  /* grid-template-columns: 1fr 1fr; left and right slots */
+  /* align-items: center; */
 }
 
 .comment-slot {
-  justify-self: start; /* always left */
+  /* Omar vai's */
+  /* justify-self: start; always left */
 }
 
 .comment-btn,
 .delete-btn {
-  background: none;
+  /* Omar vai's */
+  /* background: none;
   border: none;
   cursor: pointer;
   font-size: 14px;
-}
-
-.comment-btn {
-  /* margin-right: auto; */
-  justify-self: start; /* always left */
+  justify-self: start; */
 }
 
 .delete-btn {
-  color: #dc2626; /* red */
-  /* margin-left: auto; */
-  justify-self: end;   /* always right */
+  /* Omar vai's */
+  /* color: #dc2626; red */
+  /* justify-self: end;   always right */
 }
 
 .delete-btn:hover {
-  color: #b91c1c;
-  /* margin-right: auto; */
+  /* Omar vai's */
+  /* color: #b91c1c; */
 }
 
 .create-modal {
   position: fixed;
-  top: 50%; left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  width: 500px; max-width: 90%;
+  width: 500px;
+  max-width: 90%;
   background: #fff;
   padding: 20px;
   border-radius: 10px;
   z-index: 999;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
+
 /* Optional slide-in animation */
 @keyframes slideIn {
   from {
     transform: translate(-50%, -60%);
     opacity: 0;
   }
+
   to {
     transform: translate(-50%, -50%);
     opacity: 1;
@@ -88,10 +261,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 123, 255, 0.15); /* Light blue translucent background */
-  backdrop-filter: blur(8px); /* Adds a blurred background effect */
+  background: rgba(0, 123, 255, 0.15);
+  /* Light blue translucent background */
+  backdrop-filter: blur(8px);
+  /* Adds a blurred background effect */
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #007bff; /* Button text color (blue) */
+  color: #007bff;
+  /* Button text color (blue) */
   font-weight: 600;
   padding: 14px 24px;
   border-radius: 16px;
@@ -110,18 +286,23 @@
 }
 
 .create-issue-button-modern:hover {
-  background: rgba(0, 123, 255, 0.25); /* Darken the background on hover */
-  color: #0056b3; /* Change text color on hover */
-  transform: translateY(-2px); /* Slight lift effect */
+  background: rgba(0, 123, 255, 0.25);
+  /* Darken the background on hover */
+  color: #0056b3;
+  /* Change text color on hover */
+  transform: translateY(-2px);
+  /* Slight lift effect */
   box-shadow: 0 12px 24px rgba(0, 123, 255, 0.4);
 }
 
 .create-issue-button-modern:hover .icon {
-  transform: rotate(90deg) scale(1.2); /* Icon rotation on hover */
+  transform: rotate(90deg) scale(1.2);
+  /* Icon rotation on hover */
 }
 
 .create-issue-button-modern:active {
-  transform: scale(0.97); /* Slight shrink effect when clicked */
+  transform: scale(0.97);
+  /* Slight shrink effect when clicked */
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.15);
 }
 
@@ -132,7 +313,8 @@
 }
 
 .create-issue-button {
-  background: linear-gradient(to right, #6366f1, #8b5cf6); /* Gradient matching your theme */
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  /* Gradient matching your theme */
   color: #fff;
   border: none;
   padding: 12px 28px;
@@ -159,34 +341,27 @@
   box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
 }
 
-
-
-.task-main {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr; /* left | center | right */
-  align-items: center;
-  gap: 12px;
-}
-
 .task-left {
-  justify-self: start;
+  /* Omar vai's */
+  /* justify-self: start; */
 }
 
 .task-title {
-  font-size: 16px;
+  /* Omar vai's */
+  /* font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #333; */
 }
 
 .task-right {
-  
-  justify-self: end;
+  /* Omar vai's */
+  /* justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: 12px;
   color: #666;
-  flex-direction: row-reverse;
+  flex-direction: row-reverse; */
 }
 
 .comments-count {
@@ -196,7 +371,8 @@
 
 
 .task-status {
-  justify-self: center;
+  /* Omar vai's */
+  /* justify-self: center; */
 }
 
 
@@ -207,21 +383,18 @@
 
 /* Left Sidebar */
 .sidebar {
- 
+  grid-column: 1;
+  height: 100%;
+  background: #fff;
   border-radius: 20px;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Optional: allow scrolling if sidebar content exceeds height */
 }
-.sidebar {
-    width: 95%; /* Ensure the sidebar takes full width in mobile view */
-    position: relative; /* Keeps the sidebar in place when scrolling */
-    padding: 10px; /* Adjust padding for mobile */
-  }
 
 .sidebar:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Hover effect on sidebar */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  /* Hover effect on sidebar */
 }
 
 .profile-section {
@@ -250,37 +423,43 @@ h2.welcome-text {
 }
 
 .profile-icon:hover {
-  transform: scale(1.1); /* Slight scaling effect on hover */
+  transform: scale(1.1);
+  /* Slight scaling effect on hover */
 }
 
 .task-section {
   padding-top: 10px;
   margin-top: 10px;
   border-top: 1px solid #e5e7eb;
-  
+
 }
 
 .note-card-modern {
   display: flex;
-  flex-direction: row;       /* Arrange child elements side-by-side */
-  align-items: center;       /* Vertically center elements */
-  gap: 56px;                 /* Space between elements */
+  flex-direction: row;
+  /* Arrange child elements side-by-side */
+  align-items: center;
+  /* Vertically center elements */
+  gap: 56px;
+  /* Space between elements */
   flex-wrap: nowrap;
-  
+
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(14px);
   border-radius: 20px;
   padding: 16px 20px;
   min-width: 240px;
   color: #111827;
-  
+
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
 
-  flex: 0 0 auto; /* For horizontal scroll container compatibility */
-  scroll-snap-align: start; /* Optional if used in scrollable row */
+  flex: 0 0 auto;
+  /* For horizontal scroll container compatibility */
+  scroll-snap-align: start;
+  /* Optional if used in scrollable row */
   margin-bottom: 10px;
 }
 
@@ -337,13 +516,11 @@ h2.welcome-text {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.3) 20%,
-    rgba(255, 255, 255, 0.1) 40%,
-    transparent 60%
-  );
+  background: linear-gradient(120deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.3) 20%,
+      rgba(255, 255, 255, 0.1) 40%,
+      transparent 60%);
   transform: rotate(25deg);
   animation: shineMove 5s linear infinite;
   pointer-events: none;
@@ -353,6 +530,7 @@ h2.welcome-text {
   0% {
     transform: rotate(25deg) translateX(-100%);
   }
+
   100% {
     transform: rotate(25deg) translateX(100%);
   }
@@ -413,28 +591,31 @@ h2.welcome-text {
 }
 
 .category-badge {
-  padding: 4px 10px;
+  /* Omar vai's */
+  /* padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   display: inline-block;
   text-transform: capitalize;
-  color: #ffff;
-  width: 150px; /* Fixed size for category */
-  text-align: center;
-  /* background-color: #111827; */
+  color: #ffff; */
+  /* width: 150px; Fixed size for category */
+  /* text-align: center;
   background-color: #0000;
   color: #111827;
   font-weight: bold;
-  font-size:small;
+  font-size:small; */
 }
+
 .category-badge:hover {
-  transform: scale(1.05);
+  /* Omar vai's */
+  /* transform: scale(1.05); */
 }
 
 .task-created-date {
-  font-size: 12px;
-  color: #888;
+  /* Omar vai's */
+  /* font-size: 12px;
+  color: #888; */
 }
 
 .profile-icon {
@@ -462,21 +643,37 @@ h2.welcome-text {
   transform: scale(1.2);
 }
 
+/* Aside Bar */
+aside {
+  width: 250px;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
 
 /* Center Section */
 .center-section {
+  grid-column: 2;
   background: #f2f4f8;
-  
-  display: flex;
-  flex-direction: column;
-  /* overflow: hidden; */
-  /* overflow: auto; */
-  overflow: visible;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  height: 100%;
+  overflow-y: auto; /* Vertical scroll */
+  overflow-x: hidden; /* Hide horizontal scroll */
+  padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  flex-grow: 1;  /* Allow the center section to grow and take up more space */
+  -webkit-overflow-scrolling: touch;
 }
-Key
+.center-section::-webkit-scrollbar {
+  width: 6px;
+}
+.center-section::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+.center-section::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
 
 .notes-container {
   padding: 20px;
@@ -500,8 +697,10 @@ Key
 }
 
 .note-card:hover {
-  transform: scale(1.05); /* Slight scaling effect on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Modern shadow effect */
+  transform: scale(1.05);
+  /* Slight scaling effect on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  /* Modern shadow effect */
 }
 
 .note-card.green {
@@ -513,44 +712,38 @@ Key
 }
 
 .task-list-section {
-  flex: 1 1 70%;
+  flex: 1;
   overflow-y: auto;
   /* max-height: calc(100vh - 150px); leave room for header/sidebar */
-  max-height: none;
-  margin-top: 20px; /* Space between sidebar and task list */
+  /* max-height: none; */
+  margin-top: 20px;
+  /* Space between sidebar and task list */
   padding: 20px;
-  overflow: visible;
+  /* overflow: visible; */
+  scrollbar-gutter: stable;
 }
+
+.task-list-section::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.task-list-section::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 0.5rem;
+}
+
+.task-list-section::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 /* .task-list-section {
     padding: 15px;
-} */
+}
 
 .task-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.task-item {
- 
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 8px;
-}
-
-  /* Task Item Layout for Mobile */
-.task-item {
-  display: flex;
-  flex-direction: column;  /* Stack items vertically */
-  gap: 4px;  /* Space between title, date, and category */
-  padding: 10px;
-}
-
-.task-item:hover {
-  transform: translateY(-3px); /* Slight upward movement */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Shadow effect on hover */
 }
 
 .task-meta {
@@ -561,37 +754,40 @@ Key
 }
 
 .status-badge {
-  /* padding: 5px 10px; */
-  padding: 5px 12px;
+  /* Omar vai's */
+/* padding: 5px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  /* text-align: center; */
   text-align: justify;
   align-items: center;
   transition: background-color 0.3s ease;
-  justify-content: center;
-}
+  justify-content: center; */
+/* } */
 
 .status-badge.PENDING {
-  background: #fef3c7;
-  color: #92400e;
+  /* Omar vai's */
+  /* background: #fef3c7;
+  color: #92400e; */
 }
 
 .status-badge.INPROGRESS {
-  background: #dbeafe;
-  color: #1e3a8a;
+  /* Omar vai's */
+  /* background: #dbeafe;
+  color: #1e3a8a; */
 }
 
 .status-badge.COMPLETED {
-  background: #dcfce7;
-  color: #166534;
+  /* Omar vai's */
+  /* background: #dcfce7;
+  color: #166534; */
 }
 
 .status-badge.REJECTED {
-  background: #fee2e2;
-  color: #991b1b;
+  /* Omar vai's */
+  /* background: #fee2e2;
+  color: #991b1b; */
 }
 
 
@@ -608,12 +804,16 @@ Key
 }
 
 .notes-header button:hover {
-  transform: rotate(45deg); /* Rotate effect on hover */
+  transform: rotate(45deg);
+  /* Rotate effect on hover */
 }
+
 .slide-in-form {
 
-  overflow-x: hidden;  /* Enable horizontal scrolling */
-  -webkit-overflow-scrolling: touch;  /* Smooth scrolling on iOS */
+  overflow-x: hidden;
+  /* Enable horizontal scrolling */
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scrolling on iOS */
   width: 100%;
   /* max-width: 100vw;   */
 
@@ -641,165 +841,399 @@ Key
   overflow-y: auto;
 }
 
-
-@media (max-width: 560px) {
-  .slide-in-form  {
-    overflow-y: auto;
-    padding-left: 40px;
-  }
-
-}
 .slide-in-form:hover {
   box-shadow: 0 32px 70px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, -50%) scale(1.01);
 }
 
-/* At tablet size, sidebar shrinks */
-@media (max-width: 1024px) {
+
+.task-description {
+  /* Omar vai's */
+  /* font-size: 13px;           smaller font */
+  /* color: rgba(0, 0, 0, 0.4); 40% visible */
+  /* line-height: 1.4; */
+}
+
+
+/* ------------------- Tablet (≤992px) ------------------- */
+@media (max-width: 992px) {
+  /* Dashboard layout: center section full width */
   .dashboard-wrapper {
-    grid-template-columns: 1fr 2fr;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    padding: 16px;
+    height: auto; /* allow vertical growth */
+  }
+
+  /* Sidebar: hidden by default, slide-in from right */
+  aside.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0; /* slide in from right */
+    left: auto; /* reset left */
+    height: 100vh;
+    width: 250px; /* fixed width */
+    transform: translateX(100%); /* hide offscreen to the right */
+    z-index: 1000;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    padding: 20px;
+    background: #fff;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.15);
+    border-radius: 0; /* optional */
+  }
+
+  /* Sidebar active state: slide in */
+  aside.sidebar.active {
+    transform: translateX(0);
+  }
+
+  /* Hamburger menu: show on tablet */
+  .hamburger-menu {
+    display: block;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1100;
+    cursor: pointer;
+  }
+  .hamburger-menu span {
+    display: block;
+    width: 28px;
+    height: 3px;
+    margin: 5px 0;
+    background-color: #333;
+    transition: all 0.3s ease;
+  }
+
+  /* Center Section */
+  .center-section {
+    flex: 1;
+    margin: 0 12px; /* small margin */
+    max-width: 100%;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    background: #f2f4f8;
+    border-radius: 12px;
+  }
+
+  /* Task List Section */
+  .task-list-section {
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 12px;
     padding: 16px;
   }
+
+  /* Task Items as grid */
   .task-item {
-    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
+    gap: 0.5rem;
+    padding: 12px 16px;
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .task-title {
+  .task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+
+  .task-item .task-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .task-left .task-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .task-main .task-right {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .task-description {
+    grid-column: 1 / -1;
+    font-size: 0.85rem;
+    color: #555;
+    margin-top: 4px;
+    max-width: 40%;
+  }
+
+  .task-description .desc-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 18rem;
+    display: block;
+  }
+
+  /* Buttons sizing */
+  .comment_delete-buttons button {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: auto;
+    height: 30px;
+  }
+
+  /* Notes cards adjustments */
+  .note-card-modern {
+    gap: 40px;
+    padding: 14px 18px;
+  }
+  .note-card-modern h4 {
     font-size: 14px;
   }
-}
-
-/* At mobile size, stack sidebar and tasks vertically */
-@media (max-width: 768px) {
-  .dashboard-wrapper {
-    /* display: block; Stack the sidebar and center section vertically */
-    display: flex;
-    flex-direction: column;
-    height: auto; /* Remove fixed height */
+  .note-card-modern .note-description {
+    font-size: 12px;
   }
 
-  .sidebar {
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    padding: 12px;
+  /* Buttons adjustments */
+  .create-issue-button,
+  .create-issue-button-modern {
+    padding: 12px 20px;
+    font-size: 14px;
   }
 
+  /* Profile text */
   h2.welcome-text {
     font-size: 18px;
   }
+}
 
-  .create-issue-button-wrapper {
-    margin-top: 20px; /* Add spacing for the button on mobile */
+
+
+/* ------------------- 📱 Mobile View (320px–640px) ------------------- */
+@media (min-width: 320px) and (max-width: 640px) {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
-  /* Optional: Adjust the task list to fit better */
- 
 
-  .task-meta {
-    font-size: 10px; /* Adjust font size for mobile */
-  }
-  
-  .task-main {
+  /* General Layout */
+  .dashboard-wrapper {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    height: auto;
+    padding: 12px;
+    gap: 12px;
+    overflow-y: auto;
   }
 
-  .task-right {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    font-size: 12px;
+  /* 🍔 Hamburger Menu — always visible */
+  .hamburger-menu {
+    display: block;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1100;
+    cursor: pointer;
+  }
+  .hamburger-menu span {
+    display: block;
+    width: 26px;
+    height: 3px;
+    background-color: #333;
+    margin: 4px 0;
+    transition: all 0.3s ease;
+  }
+
+  /* 🧭 Sidebar — hidden by default; slides in from right */
+  aside.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 50vw;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  aside.sidebar.active {
+    transform: translateX(0);
+  }
+
+  /* 🩶 Center Section */
+  .center-section {
+    flex: 1;
+    width: 100%;
+    margin: 0 auto;
+    background: #f2f4f8;
+    border-radius: 12px;
+    padding: 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 🧾 Task Item / Issue Card */
+  .task-item {
+    /* position: relative; */
+    /* display: grid; */
+    /* border: 1px solid green; */
+    /* grid-template-areas:
+      "title status"
+      "category delete"; */
+    /* grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto; */
+    /* gap: 6px; */
+    align-content: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 12px;
+    /* padding: 14px 16px; */
+    /* margin-bottom: 1rem; */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    /* border: 5px solid lime; */
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
+    min-width: 200px;
+    gap: 5rem;
+  }
+
+  .task-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+
+  .task-item .task-main {
+    max-width: 100%;
+  }
+
+  /* 🧹 Task Layout Mapping */
+  .task-left {
+    /* grid-area: title; */
+    align-self: start;
+    justify-self: start;
+    border: 5px solid green;
+    max-width:fit-content
+  }
+
+  .task-left .task-title {
+    font-weight: 600;
+    /* font-size: 14px; */
+    color: #222;
+    width: 100%;
+  }
+
+  .task-status {
+    /* grid-area: status; */
+    align-self: start;
+    justify-self: start;
+    border: 5px solid green;
+    display: flex;
+  }
+
+  .task-status .status-badge {
+    border: 5px solid green;
+    justify-content: start;
+    justify-self: start;
+    justify-items: start;
   }
 
   .category-badge {
+    grid-area: category;
+    align-self: end;
+    justify-self: start;
+    background: #e2e8f0;
+    color: #334155;
+    border-radius: 8px;
+    padding: 4px 8px;
     font-size: 11px;
-    width: auto;
-    padding: 3px 8px;
+    font-weight: 500;
+  }
+
+  /* 🗑️ Delete Button — bottom right */
+  .delete-slot {
+    grid-area: delete;
+    align-self: end;
+    justify-self: end;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .task-item:hover .delete-slot,
+  .task-item:focus-within .delete-slot {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .delete-btn {
-    align-self: flex-end;
-    margin-left: 0;
-  }
-  
-}
-@media (max-width: 720px) {
-  .dashboard-wrapper {
-    /* display: block; Stack the sidebar and center section vertically */
-    display: flex;
-    flex-direction: column;
-    height: auto; /* Remove fixed height */
+    background: #f87171;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
   }
 
-  .sidebar {
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    padding: 12px;
+  .delete-btn:hover {
+    background: #dc2626;
   }
 
-  .delete-btn{
-    background: none;
-  border: none;
-  cursor: pointer;
-  color: #dc2626; /* red */
-  margin-left: 260px;
-  font-size: 14px;
+  /* Hide Description in Mobile */
+  .task-description {
+    display: none !important;
   }
 
-  .task-main {
-    display: flex;
-    flex-direction: row; /* Stack items vertically for mobile */
-    gap: 6px;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .task-left {
-    flex-grow: 1;
-  }
-
-  .task-right {
-    display: flex;
-    flex-direction: column;  /* Stack the date and category vertically */
-    gap: 4px;  /* Space between date and category */
-    font-size: 12px;  /* Adjust font size for mobile */
-    color: #666;  /* Lighter color for secondary information */
-  }
-
-  .task-title {
-    font-size: 14px; /* Reduce title size for mobile */
-    font-weight: 600;
-    color: #333;
-    line-height: 1.4;
-  }
-
+  /* Hide Created Date */
   .task-created-date {
-    font-size: 12px;
-    color: #888;
+    display: none !important;
   }
 
-}
+  /* Hide comment buttons for mobile */
+  .comment_delete-buttons {
+    display: none !important;
+  }
 
-@media (max-width: 480px) {
+  /* Scrollbar */
+  .center-section::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .center-section::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 2px;
+  }
+
+  .center-section::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,0.3);
+  }
+
+  /* Minor Adjustments */
   h2.welcome-text {
     font-size: 16px;
   }
 
-  .slide-in-form {
-    width: 95%;
-    padding: 20px;
-    border-radius: 16px;
+  .create-issue-button-modern {
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 12px;
   }
 }
 
-.task-description {
-  font-size: 13px;           /* smaller font */
-  color: rgba(0, 0, 0, 0.4); /* 40% visible */
-  /* margin-top: 6px; */
-  line-height: 1.4;
-}
