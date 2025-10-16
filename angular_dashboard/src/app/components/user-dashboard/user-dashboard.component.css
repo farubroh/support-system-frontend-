@@ -389,12 +389,11 @@
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; /* Optional: allow scrolling if sidebar content exceeds height */
+  overflow-y: auto;
 }
 
 .sidebar:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  /* Hover effect on sidebar */
 }
 
 .profile-section {
@@ -424,24 +423,19 @@ h2.welcome-text {
 
 .profile-icon:hover {
   transform: scale(1.1);
-  /* Slight scaling effect on hover */
 }
 
 .task-section {
   padding-top: 10px;
   margin-top: 10px;
   border-top: 1px solid #e5e7eb;
-
 }
 
 .note-card-modern {
   display: flex;
   flex-direction: row;
-  /* Arrange child elements side-by-side */
   align-items: center;
-  /* Vertically center elements */
   gap: 56px;
-  /* Space between elements */
   flex-wrap: nowrap;
 
   background: rgba(255, 255, 255, 0.12);
@@ -457,9 +451,7 @@ h2.welcome-text {
   border: 1px solid rgba(255, 255, 255, 0.2);
 
   flex: 0 0 auto;
-  /* For horizontal scroll container compatibility */
   scroll-snap-align: start;
-  /* Optional if used in scrollable row */
   margin-bottom: 10px;
 }
 
@@ -537,8 +529,6 @@ h2.welcome-text {
 }
 
 
-
-
 /* Task Tabs Modern Look */
 .task-tabs {
   display: flex;
@@ -588,34 +578,6 @@ h2.welcome-text {
 
 .task-tabs button:focus {
   outline: none;
-}
-
-.category-badge {
-  /* Omar vai's */
-  /* padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-block;
-  text-transform: capitalize;
-  color: #ffff; */
-  /* width: 150px; Fixed size for category */
-  /* text-align: center;
-  background-color: #0000;
-  color: #111827;
-  font-weight: bold;
-  font-size:small; */
-}
-
-.category-badge:hover {
-  /* Omar vai's */
-  /* transform: scale(1.05); */
-}
-
-.task-created-date {
-  /* Omar vai's */
-  /* font-size: 12px;
-  color: #888; */
 }
 
 .profile-icon {
@@ -736,61 +698,6 @@ aside {
   background: #555;
 }
 
-/* .task-list-section {
-    padding: 15px;
-}
-
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.task-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: #888;
-}
-
-.status-badge {
-  /* Omar vai's */
-/* padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  text-align: justify;
-  align-items: center;
-  transition: background-color 0.3s ease;
-  justify-content: center; */
-/* } */
-
-.status-badge.PENDING {
-  /* Omar vai's */
-  /* background: #fef3c7;
-  color: #92400e; */
-}
-
-.status-badge.INPROGRESS {
-  /* Omar vai's */
-  /* background: #dbeafe;
-  color: #1e3a8a; */
-}
-
-.status-badge.COMPLETED {
-  /* Omar vai's */
-  /* background: #dcfce7;
-  color: #166534; */
-}
-
-.status-badge.REJECTED {
-  /* Omar vai's */
-  /* background: #fee2e2;
-  color: #991b1b; */
-}
-
-
 .notes-header button {
   background: #6366f1;
   color: white;
@@ -870,18 +777,18 @@ aside {
   aside.sidebar {
     position: fixed;
     top: 0;
-    right: 0; /* slide in from right */
-    left: auto; /* reset left */
+    left: 0;
+    right: auto;
     height: 100vh;
-    width: 250px; /* fixed width */
-    transform: translateX(100%); /* hide offscreen to the right */
+    width: 250px;
+    transform: translateX(-100%);
     z-index: 1000;
     overflow-y: auto;
     transition: transform 0.3s ease;
     padding: 20px;
     background: #fff;
-    box-shadow: -2px 0 12px rgba(0,0,0,0.15);
-    border-radius: 0; /* optional */
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+    border-radius: 0;
   }
 
   /* Sidebar active state: slide in */
@@ -1056,16 +963,16 @@ aside {
     transition: all 0.3s ease;
   }
 
-  /* 🧭 Sidebar — hidden by default; slides in from right */
+  /* Sidebar — hidden by default; slides in from left */
   aside.sidebar {
     position: fixed;
     top: 0;
-    right: 0;
-    width: 50vw;
+    left: 0; /* slide from left */
+    width: 60vw;
     height: 100vh;
     background: #fff;
-    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-    transform: translateX(100%);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2); /* shadow on right side */
+    transform: translateX(-100%); /* hide offscreen left */
     transition: transform 0.3s ease;
     z-index: 1000;
     overflow-y: auto;
@@ -1075,43 +982,47 @@ aside {
     transform: translateX(0);
   }
 
+
   /* 🩶 Center Section */
   .center-section {
-    flex: 1;
-    width: 100%;
-    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 275px));
+    justify-content: center;
+    gap: 1rem;
+    margin: auto;
     background: #f2f4f8;
     border-radius: 12px;
-    padding: 14px;
+    margin-top: 2rem;
+    padding-inline: 1rem;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    border: 3px solid yellow;
+    width: 90%;
+  }
+  /* Scrollbar */
+  .center-section::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .center-section::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 2px;
+  }
+
+  .center-section::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,0.3);
   }
 
   /* 🧾 Task Item / Issue Card */
   .task-item {
-    /* position: relative; */
-    /* display: grid; */
-    /* border: 1px solid green; */
-    /* grid-template-areas:
-      "title status"
-      "category delete"; */
-    /* grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto; */
-    /* gap: 6px; */
-    align-content: center;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
     justify-content: center;
     background: #fff;
-    border-radius: 12px;
-    /* padding: 14px 16px; */
-    /* margin-bottom: 1rem; */
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
-    /* border: 5px solid lime; */
-
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
-    min-width: 200px;
-    gap: 5rem;
+    height: fit-content;
   }
 
   .task-item:hover {
@@ -1120,50 +1031,67 @@ aside {
   }
 
   .task-item .task-main {
-    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas: 
+      "title status"
+      "categoryAndtime categoryAndtime";
   }
 
   /* 🧹 Task Layout Mapping */
   .task-left {
-    /* grid-area: title; */
-    align-self: start;
+    grid-area: title;
+    align-self: center;
     justify-self: start;
-    border: 5px solid green;
     max-width:fit-content
   }
 
   .task-left .task-title {
+    font-size: 1.1rem;
     font-weight: 600;
-    /* font-size: 14px; */
     color: #222;
     width: 100%;
   }
 
   .task-status {
-    /* grid-area: status; */
-    align-self: start;
-    justify-self: start;
-    border: 5px solid green;
+    grid-area: status;
+    padding: 0 !important;
+    margin: 0 !important;
     display: flex;
+    justify-content: end;
+    align-items: start;
+    /* align-self: start;
+    justify-self: start; */
+    max-width:fit-content
   }
 
   .task-status .status-badge {
-    border: 5px solid green;
-    justify-content: start;
-    justify-self: start;
-    justify-items: start;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+    align-items: start;
+    justify-content: end;
+  }
+
+  .task-right {
+    grid-area: categoryAndtime;
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0;
+    justify-content: space-between;
   }
 
   .category-badge {
-    grid-area: category;
-    align-self: end;
-    justify-self: start;
-    background: #e2e8f0;
+    font-size: 0.8rem;
+    font-weight: 500;
     color: #334155;
+    background: #e2e8f0;
     border-radius: 8px;
     padding: 4px 8px;
-    font-size: 11px;
-    font-weight: 500;
+    width: min-content;
   }
 
   /* 🗑️ Delete Button — bottom right */
@@ -1196,14 +1124,10 @@ aside {
     background: #dc2626;
   }
 
-  /* Hide Description in Mobile */
-  .task-description {
-    display: none !important;
-  }
-
   /* Hide Created Date */
   .task-created-date {
-    display: none !important;
+    font-size: 0.6rem;
+    align-self: center;
   }
 
   /* Hide comment buttons for mobile */
@@ -1211,18 +1135,9 @@ aside {
     display: none !important;
   }
 
-  /* Scrollbar */
-  .center-section::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .center-section::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 2px;
-  }
-
-  .center-section::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0,0,0,0.3);
+  /* Hide Description in Mobile */
+  .task-description {
+    display: none !important;
   }
 
   /* Minor Adjustments */

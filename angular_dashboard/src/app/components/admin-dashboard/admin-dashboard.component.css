@@ -14,7 +14,6 @@ body, html {
     
   }
 
-/* Small, attached user details popover */
 .user-popover {
   position: absolute;
   z-index: 9999;
@@ -23,7 +22,7 @@ body, html {
   background: #ffffff;
   border: 1px solid #e6e8ec;
   border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
   padding: 10px 12px 12px;
 }
 
@@ -33,6 +32,7 @@ body, html {
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 6px;
+  text-transform: capitalize;
 }
 
 .user-popover-name {
@@ -50,7 +50,10 @@ body, html {
   padding: 0 4px;
   color: #999;
 }
-.user-popover-close:hover { color: #555; }
+
+.user-popover-close:hover {
+  color: #555;
+}
 
 .user-popover-body .row {
   display: flex;
@@ -58,17 +61,26 @@ body, html {
   justify-content: space-between;
   padding: 4px 0;
   border-bottom: 1px dashed #eee;
+  height: fit-content;
 }
-.user-popover-body .row:last-child { border-bottom: none; }
+
+.user-popover-body .row:last-child {
+  border-bottom: none;
+}
 
 .user-popover-body .k {
   color: #666;
   font-size: 12px;
+  flex: 0 0 10%;
+  max-width: fit-content;
+  flex: 0 0 100%;
 }
+
 .user-popover-body .v {
   color: #111;
   font-size: 12px;
   font-weight: 600;
+  flex: 1 0 0;
 }
 
 /* Small arrow pointing to the username */

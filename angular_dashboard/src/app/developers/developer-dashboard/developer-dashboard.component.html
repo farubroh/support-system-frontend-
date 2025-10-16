@@ -33,8 +33,15 @@
         <div class="content">
           <div class="title">
 
-            {{ card.title }}
-            <span *ngIf="card.subtitle" class="tag">{{ card.subtitle }}</span>
+            <span class="title-text">
+              {{ card.title }}
+            </span>
+            <span class="tag" 
+              *ngIf="card.subtitle" 
+              (mouseenter)="showUserDetails($event, card.createdBy)"
+              (mouseleave)="closeUserDetails()">
+              {{ card.subtitle }}
+            </span>
           </div>
           <div class="meta" *ngIf="card.meta as m">
             <span *ngIf="m.views">👁 {{ m.views }}</span>
@@ -50,11 +57,12 @@
             <div class="category-details">
               <div class="category-title">{{ card.title }}</div>
               <div class="category-username">{{ card.raw?.createdBy?.username || '—' }}</div>
+
+
+
               <div class="category-name">{{ card.raw?.issue?.category || 'Uncategorized' }}</div>
             </div>
           </div>
-
-
 
         </div>
 
@@ -76,16 +84,26 @@
 <aside class="details" [class.open]="selected() !== null" (click)="closeDetails()">
   <div class="details__panel" (click)="$event.stopPropagation()">
     <header class="details__header">
-      <h3>{{ selected()?.title }}</h3>
+      <!-- <h3>{{ selected()?.title }}</h3> -->
       <button class="close" (click)="closeDetails()">✕</button>
     </header>
 
     <div class="details__body" *ngIf="selected() as s">
-      <!-- 30%: DETAILS -->
+
       <section class="col col--details">
+
+        <!-- Title -->
+        <div class="row">
+          <h4>Title:</h4>
+          <!-- <label>Title:</label> -->
+          <span class="header-title">
+            {{ s.title }}
+          </span>
+        </div>
+
         <!-- Status -->
         <div class="row">
-          <h4>Status:</h4>
+          <label>Status:</label>
           <span class="status-badge" [class.open]="s.status === 'PENDING'"
             [class.in-progress]="s.status === 'INPROGRESS'" [class.closed]="s.status === 'COMPLETED'"
             [class.on-hold]="s.status === 'REJECTED'">
@@ -96,18 +114,17 @@
         <!-- Reporter -->
         <div class="row">
           <label>Username:</label>
-          <div>{{ s.subtitle || '—' }}</div>
+          <div 
+            (mouseenter)="showUserDetails($event, s.createdBy)"
+            (mouseleave)="closeUserDetails()"
+            >{{ s.subtitle ||
+            '—' }}</div>
         </div>
 
-
         <!-- Description -->
-        <div class="row">
+        <div class="row description">
           <label class="muted">Description:</label>
-          <textarea 
-            readonly
-            rows="4" 
-            placeholder="Description…" 
-            [value]="description()"
+          <textarea readonly rows="2" placeholder="Description…" [value]="description()"
             (input)="description.set(($any($event.target)).value)">
           </textarea>
         </div>
@@ -120,39 +137,29 @@
             <span *ngIf="!loadingDetails && selectedFiles.length === 0">No files</span>
           </div>
 
-          <div class="files__list"
-            *ngIf="selectedFiles.length > 0"
-            >
-            <a class="file-chip" 
-              *ngFor="let f of selectedFiles"
-              [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f"
-              target="_blank"
-                rel="noopener noreferrer" 
-              >
-                📎 {{ f }}
+          <div class="files__list" *ngIf="selectedFiles.length > 0">
+            <a class="file-chip" *ngFor="let f of selectedFiles"
+              [href]="'http://localhost:8085/api/issues/files/' + (selectedIssuerUserId || 0) + '/' + f" target="_blank"
+              rel="noopener noreferrer">
+              📎 {{ f }}
             </a>
           </div>
+
         </div>
       </section>
 
-      <!-- 40%: COMMENTS -->
-      <section class="col col--comments" 
-        *ngIf="!(s.status==='PENDING')"
-        >
+      <section class="col col--comments" *ngIf="!(s.status==='PENDING')">
         <h4 *ngIf="s.status==='INPROGRESS'">Write your comments</h4>
 
-        <div class="comments-section">
+        <div class="comments-section" *ngIf="comments.length>0; else noCommentBlock">
           <!-- Commenting box -->
-          <div 
-            class="comment-box"
-            *ngIf="s.status==='INPROGRESS'"
-            >
+          <div class="comment-box" *ngIf="s.status==='INPROGRESS'">
             <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
             <button (click)="submitComment()">Post</button>
           </div>
 
           <!-- Comment list -->
-          <div class="comment-list">
+          <div class="comment-list" *ngIf="comments.length>0">
             <h4>Comments</h4>
             <div class="comment" *ngFor="let c of comments">
               <div class="comment-header">
@@ -165,28 +172,61 @@
           </div>
         </div>
 
+        <ng-template #noCommentBlock>
+          <div class="no-comment">
+            There is no comment.
+          </div>
+        </ng-template>
+
         <!-- (Optional) place a comments list here later -->
       </section>
 
-      <!-- 30%: ACTIONS / REASONS -->
-      <section class="col col--actions">
-        <h4>Actions</h4>
-
-        <!-- Reasons (contextual) – moved here -->
+      <section class="col col--actions" *ngIf="!(s.status==='PENDING' || s.status==='INPROGRESS')">
+        <!-- <h4>Actions</h4> -->
         <ng-container [ngSwitch]="s.status">
-          <!-- When already COMPLETED: show only completed reason -->
+          <div class="actions-body"
+            *ngIf="!(selectedIssue.completedReason || selectedIssue.rejectedReason); else reasonBlock">
+
+            <div class="row action-input" *ngSwitchCase="'COMPLETED'">
+              <label>Action:&nbsp;</label>
+              <textarea type="text" rows="1" placeholder="State a reason" [(ngModel)]="completeReason"></textarea>
+            </div>
+
+            <div class="row action-input" *ngSwitchCase="'REJECTED'">
+              <label>Action:&nbsp;</label>
+              <textarea type="text" rows="1" placeholder="State a reason" [(ngModel)]="completeReason"></textarea>
+
+            </div>
+
+            <button>Submit</button>
+          </div>
+
+
+          <ng-template #reasonBlock>
+            <div class="reason">
+
+              <p>
+                <ng-container *ngIf="completeReason">
+                  Completed Reason: {{selectedIssue.completedReason}}
+                </ng-container>
+                <ng-container *ngIf="rejectReason">
+                  Rejected Reason: {{selectedIssue.rejectedReason}}
+                </ng-container>
+              </p>
+
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- <ng-container [ngSwitch]="s.status">
           <div class="row" *ngSwitchCase="'COMPLETED'">
             <label>Completed reason:</label>
             <input type="text" [(ngModel)]="completeReason" placeholder="[optional]" />
           </div>
-
-          <!-- When already REJECTED: show only rejection reason -->
           <div class="row" *ngSwitchCase="'REJECTED'">
             <label>Rejection reason:</label>
             <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
           </div>
-
-          <!-- When PENDING/INPROGRESS: allow both (fill whichever you’ll use) -->
           <ng-container *ngSwitchDefault>
             <div class="row">
               <label>Completed reason:</label>
@@ -197,16 +237,48 @@
               <input type="text" [(ngModel)]="rejectReason" placeholder="[optional]" />
             </div>
           </ng-container>
-        </ng-container>
+        </ng-container> -->
       </section>
 
     </div>
 
 
-    <footer class="details__footer">
+    <!-- <footer class="details__footer">
       <button class="primary" (click)="completeFromDetails()">Mark Completed</button>
       <button class="primary danger" (click)="rejectFromDetails()">Reject</button>
       <button class="primary muted" (click)="closeDetails()">Close</button>
-    </footer>
+    </footer> -->
   </div>
 </aside>
+
+
+<!-- 👤 Small, attached user popover -->
+<div *ngIf="userPopoverVisible" class="user-popover" (click)="$event.stopPropagation()"
+  [ngStyle]="{ top: userPopoverY + 'px', left: userPopoverX + 'px' }">
+  <div class="user-popover-header">
+    <span class="user-popover-name">{{ userPopoverData?.username || 'User' }}</span>
+
+    <!-- <button class="user-popover-close" (click)="closeUserDetails()">×</button> -->
+  </div>
+
+  <div class="user-popover-body">
+    <div class="row">
+      <span class="k">Department:</span>
+      <span class="v">{{ userPopoverData?.department || '—' }}</span>
+    </div>
+    <div class="row">
+      <span class="k">Designation:</span>
+      <span class="v">{{ userPopoverData?.designation || '—' }}</span>
+    </div>
+    <div class="row" *ngIf="userPopoverData?.email">
+      <span class="k">Email:</span>
+      <span class="v">{{ userPopoverData?.email }}</span>
+    </div>
+    <div class="row" *ngIf="userPopoverData?.phone">
+      <span class="k">Phone:</span>
+      <span class="v">{{ userPopoverData?.phone }}</span>
+    </div>
+  </div>
+
+  <div class="user-popover-arrow"></div>
+</div>
