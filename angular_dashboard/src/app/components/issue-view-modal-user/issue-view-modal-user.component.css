@@ -16,13 +16,8 @@
   z-index: 1000;
 }
 
-.issue-card .refined {
-  border: 5px solid red;
-  display: flex;
-  flex-direction: column;
-  /* width: 60vw; */
-  /* height: 20vh; */
-  justify-content: center;
+.issue-card.refined {
+  /* justify-content: center; */
 }
 
 /* Close Button's div */

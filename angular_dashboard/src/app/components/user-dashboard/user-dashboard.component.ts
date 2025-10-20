@@ -51,24 +51,24 @@ export class DashboardComponent implements OnInit {
   categoryColorMap: { [key: string]: string } = {};
 
   statusTabs = [
-    { key: 'ALL',        label: 'All' },
-    { key: 'PENDING',    label: 'Pending' },
+    { key: 'ALL', label: 'All' },
+    { key: 'PENDING', label: 'Pending' },
     { key: 'INPROGRESS', label: 'In Progress' },
-    { key: 'COMPLETED',  label: 'Completed' },
-    { key: 'REJECTED',   label: 'Rejected' }
+    { key: 'COMPLETED', label: 'Completed' },
+    { key: 'REJECTED', label: 'Rejected' }
   ];
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private authService: AuthenticationService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.checkScreenSize();
     window.addEventListener('resize', this.checkScreenSize.bind(this));
     this.startPlusMessageLoop();
-    this.loadCategories(); 
+    this.loadCategories();
     this.user = this.authService.getUser();  // ✅ get from localStorage via service
     if (this.user) {
       // Initial load: show ALL issues combined, sorted DESC
@@ -114,11 +114,11 @@ export class DashboardComponent implements OnInit {
 
   getIssueStatusColor(status: string): string {
     const normalizedCategory = (status || '').toLowerCase();
-    if(normalizedCategory === 'pending') return '#0000FF'
-    if(normalizedCategory === 'inprogress') return '#FFA500'
-    if(normalizedCategory === 'completed') return '#008000'
-    if(normalizedCategory === 'rejected') return '#FF0000'
-        
+    if (normalizedCategory === 'pending') return '#0000FF'
+    if (normalizedCategory === 'inprogress') return '#FFA500'
+    if (normalizedCategory === 'completed') return '#008000'
+    if (normalizedCategory === 'rejected') return '#FF0000'
+
     return '#0000000f';  // Fallback to default color
   }
 
@@ -176,7 +176,7 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         // ✅ Specific status → ascending
         this.issues = this.sortByCreatedAtAsc(Array.isArray(res) ? res : []);
-        
+
       },
       error: (err) => {
         console.error("Error fetching issues:", err);
@@ -204,7 +204,7 @@ export class DashboardComponent implements OnInit {
       const url = `http://localhost:8085/api/issues/user/${this.user.id}?status=${status}`;
       this.http.get<any[]>(url).subscribe({
         next: (res) => {
-          console.log("Issues: ",res);
+          console.log("Issues: ", res);
           if (res) {
             combinedIssues = combinedIssues.concat(
               res.map(issue => ({ ...issue, status }))
@@ -233,7 +233,13 @@ export class DashboardComponent implements OnInit {
   }
 
   isSidebarOpen = false;
-  toggleSidebar() { this.isSidebarOpen = !this.isSidebarOpen; }
+  toggleSidebar() { 
+    this.isSidebarOpen = !this.isSidebarOpen; 
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen = false
+  }
 
   // Not used for selection now, but keep for styling if needed
   toggleFilterMenu() { this.isFilterOpen = !this.isFilterOpen; }
@@ -351,25 +357,30 @@ export class DashboardComponent implements OnInit {
   currentDate: string = new Date().toDateString();
 
 
-deleteIssue(issue: any, event: Event) {
-  const token = this.authService.getToken(); // from localStorage
-  this.http.delete(`http://localhost:8085/api/issues/${issue.id}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  }).subscribe({
-    next: () => {
-      this.issues = this.issues.filter(i => i.id !== issue.id);
-      alert('Issue deleted successfully.');
-    },
-    error: (err) => {
-      console.error('Error deleting issue:', err);
-      alert('Failed to delete issue. Please try again.');
-    }
-  });
-}
+  deleteIssue(issue: any, event: Event) {
+    const token = this.authService.getToken(); // from localStorage
+    this.http.delete(`http://localhost:8085/api/issues/${issue.id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.issues = this.issues.filter(i => i.id !== issue.id);
+        alert('Issue deleted successfully.');
+      },
+      error: (err) => {
+        console.error('Error deleting issue:', err);
+        alert('Failed to delete issue. Please try again.');
+      }
+    });
+  }
 
-onComment(issue: any, event: Event){
-  
-}
+  editIssue(issue: any, event: Event) {
+    const token = this.authService.getToken()
+    // Editing issue will be implemented in the future
+  }
+
+  onComment(issue: any, event: Event) {
+
+  }
 
 
 }

@@ -1,5 +1,5 @@
-<div class="modal-wrapper">
-  <div class="issue-card refined">
+<div class="modal-wrapper" (click)="onOverlayClick($event)">
+  <div class="issue-card refined" (click)="$event.stopPropagation()">
     <!-- 🔝 Header -->
     <div class="issue-header">
       <!-- <div class="header-actions"> -->

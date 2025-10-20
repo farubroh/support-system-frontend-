@@ -138,6 +138,10 @@ export class IssueViewModalUserComponent implements OnInit {
     this.close.emit();
   }
 
+  onOverlayClick(event: MouseEvent) {
+    this.onCloseModal();
+  }
+
   clickAttachmentShow(){
     this.showAttachment.show = !this.showAttachment.show
 

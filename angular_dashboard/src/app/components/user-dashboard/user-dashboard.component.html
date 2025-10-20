@@ -1,14 +1,17 @@
-<div class="dashboard-wrapper">
+<div class="dashboard-wrapper" (click)="closeSidebar()">
 
   <!-- Hamburger Menu (visible on tablet/mobile) -->
-  <div class="hamburger-menu" (click)="toggleSidebar()" [class.active]="isSidebarOpen">
+  <div class="hamburger-menu" (click)="$event.stopPropagation()" (click)="toggleSidebar()" [class.active]="isSidebarOpen">
     <span></span>
     <span></span>
     <span></span>
   </div>
 
   <!-- Left Sidebar: Tasks Filters + Notes -->
-  <aside class="sidebar" [class.active]="isSidebarOpen">
+  <aside class="sidebar" (click)="$event.stopPropagation()" [class.active]="isSidebarOpen">
+    <!-- <div class="notification">
+      <i class="bi bi-bell-fill"></i>
+    </div> -->
     <div class="profile-section">
       <div class="profile-icon"><img src="/Male.png" alt=""></div>
       <div class="profile-info">
@@ -44,11 +47,8 @@
 
 
   <!-- Center Section: Issues -->
-  <section class="center-section">
-    <div 
-      *ngFor="let issue of issues" 
-      (click)="handleView(issue)"
-      >
+  <section class="center-section" (click)="closeSidebar()">
+    <ng-container *ngFor="let issue of issues" (click)="handleView(issue)">
       <div class="task-item">
 
         <div class="task-main">
@@ -61,11 +61,8 @@
 
           <!-- Issue Status -->
           <div class="task-status">
-            <span 
-              class="status-badge" 
-              [ngClass]="issue.status.toLowerCase()"
-              [ngStyle]="{ 'background-color': getIssueStatusColor(issue.status), color: '#ffffff' }"
-              >
+            <span class="status-badge" [ngClass]="issue.status.toLowerCase()"
+              [ngStyle]="{ 'background-color': getIssueStatusColor(issue.status), color: '#ffffff' }">
               {{ issue.status }}
             </span>
           </div>
@@ -84,9 +81,16 @@
             <!-- Buttons -->
             <div class="comment_delete-buttons">
 
+              <!-- Edit button -->
+              <div class="edit-slot" *ngIf="issue.status === 'PENDING'">
+                <button class="edit-btn" (click)="editIssue(issue, $event)">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </div>
+
               <!-- Delete Button -->
               <div class="delete-slot" *ngIf="issue.status === 'PENDING'">
-                <button class="delete-btn" (click)="deleteIssue(issue, $event)"> 
+                <button class="delete-btn" (click)="deleteIssue(issue, $event)">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
@@ -97,12 +101,10 @@
         </div>
 
         <div class="task-description">
-          <!-- {{ issue.description | slice:0:75 }} -->
           <span class="desc-text">{{ issue.description }}</span>
-          <!-- <span *ngIf="issue.description?.length > 70">...</span> -->
         </div>
       </div>
-    </div>
+    </ng-container>
     <!-- </div> -->
 
 
