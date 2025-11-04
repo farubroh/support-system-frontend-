@@ -4,11 +4,10 @@ import {CommonModule} from '@angular/common';
 import {ConfigurationComponent} from '../configuration/configuration.component';
 
 @Component({
-  selector: 'app-homepage',
-  standalone: true,
-  imports: [CommonModule, ConfigurationComponent], // Import ConfigurationComponent here
-  templateUrl: './homepage.component.html',
-  styleUrls: ['./homepage.component.css']
+    selector: 'app-homepage',
+    imports: [CommonModule, ConfigurationComponent], // Import ConfigurationComponent here
+    templateUrl: './homepage.component.html',
+    styleUrls: ['./homepage.component.css']
 })
 export class HomepageComponent {
   sidebarOpen = true;

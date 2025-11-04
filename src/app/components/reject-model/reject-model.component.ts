@@ -4,11 +4,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-reject-modal',
-  standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule],
-  templateUrl: './reject-model.component.html',
-  styleUrls: ['./reject-model.component.css']
+    selector: 'app-reject-modal',
+    imports: [CommonModule, HttpClientModule, FormsModule],
+    templateUrl: './reject-model.component.html',
+    styleUrls: ['./reject-model.component.css']
 })
 export class RejectModalComponent {
   @Input() issue: any;

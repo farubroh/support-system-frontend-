@@ -7,11 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../authentication.service';
 
 @Component({
-  selector: 'app-login-page',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.css']
+    selector: 'app-login-page',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './login-page.component.html',
+    styleUrls: ['./login-page.component.css']
 })
 export class LoginPageComponent {
   // keep credentials simple; backend expects userId/password

@@ -4,11 +4,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 @Component({
-  selector: 'app-issue-card',
-  standalone: true,
-  imports: [CommonModule, DragDropModule],
-  templateUrl: './issue-card.component.html',
-  styleUrls: ['./issue-card.component.css']
+    selector: 'app-issue-card',
+    imports: [CommonModule, DragDropModule],
+    templateUrl: './issue-card.component.html',
+    styleUrls: ['./issue-card.component.css']
 })
 export class IssueCardComponent {
   @Input() issue: any;

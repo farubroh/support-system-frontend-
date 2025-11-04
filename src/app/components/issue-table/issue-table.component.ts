@@ -5,11 +5,10 @@ import { AssignModalComponent } from "../assign-model/assign-model.component";
 import { RejectModalComponent } from "../reject-model/reject-model.component";
 
 @Component({
-  selector: 'app-issue-table',
-  standalone: true,
-  imports: [CommonModule, HttpClientModule, AssignModalComponent, RejectModalComponent],
-  templateUrl: './issue-table.component.html',
-  styleUrls: ['./issue-table.component.css']
+    selector: 'app-issue-table',
+    imports: [CommonModule, HttpClientModule, AssignModalComponent, RejectModalComponent],
+    templateUrl: './issue-table.component.html',
+    styleUrls: ['./issue-table.component.css']
 })
 export class IssueTableComponent {
   @Input() issues: any[] = [];

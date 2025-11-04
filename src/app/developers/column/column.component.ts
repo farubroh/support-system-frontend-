@@ -11,11 +11,10 @@ import { CreateIssueComponent } from "../../components/create-issue/create-issue
 import { IssueViewModalUserComponent } from "../../components/issue-view-modal-user/issue-view-modal-user.component";
 
 @Component({
-  selector: 'app-column',
-  standalone: true,
-  imports: [CommonModule, DragDropModule, IssueCardComponent, CreateIssueComponent, IssueViewModalUserComponent],
-  templateUrl: './column.component.html',
-  styleUrls: ['./column.component.css']
+    selector: 'app-column',
+    imports: [CommonModule, DragDropModule, IssueCardComponent, CreateIssueComponent, IssueViewModalUserComponent],
+    templateUrl: './column.component.html',
+    styleUrls: ['./column.component.css']
 })
 export class ColumnComponent {
   @Input() status!: string;

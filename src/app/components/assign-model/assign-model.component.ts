@@ -3,11 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-assign-modal',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './assign-model.component.html',
-  styleUrls: ['./assign-model.component.css']
+    selector: 'app-assign-modal',
+    imports: [CommonModule],
+    templateUrl: './assign-model.component.html',
+    styleUrls: ['./assign-model.component.css']
 })
 export class AssignModalComponent {
   @Input() issue: any;

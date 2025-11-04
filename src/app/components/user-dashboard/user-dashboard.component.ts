@@ -11,22 +11,21 @@ import { AuthenticationService } from '../../authentication.service';
 type CategoryDto = { categoryId: number; categoryName: string };
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterModule, IssueViewModalUserComponent, CreateIssueComponent],
-  templateUrl: './user-dashboard.component.html',
-  styleUrls: ['./user-dashboard.component.css'],
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('300ms ease-in', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('200ms ease-out', style({ opacity: 0 }))
-      ])
-    ])
-  ]
+    selector: 'app-dashboard',
+    imports: [CommonModule, RouterModule, IssueViewModalUserComponent, CreateIssueComponent],
+    templateUrl: './user-dashboard.component.html',
+    styleUrls: ['./user-dashboard.component.css'],
+    animations: [
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('300ms ease-in', style({ opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-out', style({ opacity: 0 }))
+            ])
+        ])
+    ]
 })
 export class DashboardComponent implements OnInit {
   user: any;

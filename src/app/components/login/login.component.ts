@@ -6,11 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../authentication.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+    selector: 'app-login',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   credentials = { username: '', password: '', isAdmin: false };

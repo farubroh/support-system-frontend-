@@ -8,11 +8,10 @@ declare global {
 }
 
 @Component({
-  selector: 'app-configuration',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './configuration.component.html',
-  styleUrls: ['./configuration.component.css',]
+    selector: 'app-configuration',
+    imports: [CommonModule],
+    templateUrl: './configuration.component.html',
+    styleUrls: ['./configuration.component.css',]
 })
 export class ConfigurationComponent implements AfterViewInit {
   peopleList: { person: string, role: string }[] = [];

@@ -18,18 +18,17 @@ import { forkJoin } from 'rxjs';
 type CategoryDto = { categoryId: number; categoryName: string };
 
 @Component({
-  selector: 'app-admin-dashboard',
-  standalone: true,
-  templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.css'],
-  imports: [
-    IssueViewModalAdminComponent,
-    CommonModule,
-    NgCircleProgressModule,
-    SafeHtmlPipe,
-    FormsModule
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    selector: 'app-admin-dashboard',
+    templateUrl: './admin-dashboard.component.html',
+    styleUrls: ['./admin-dashboard.component.css'],
+    imports: [
+        IssueViewModalAdminComponent,
+        CommonModule,
+        NgCircleProgressModule,
+        SafeHtmlPipe,
+        FormsModule
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AdminDashboardComponent implements OnInit {
   // Data

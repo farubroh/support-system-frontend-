@@ -6,11 +6,10 @@ import { HttpClient } from '@angular/common/http';
 import { AuthenticationService } from '../../authentication.service';
 
 @Component({
-  selector: 'app-register-page',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './register-page.component.html',
-  styleUrls: ['./register-page.component.css'] // reuse login css or add new small rules
+    selector: 'app-register-page',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './register-page.component.html',
+    styleUrls: ['./register-page.component.css'] // reuse login css or add new small rules
 })
 export class RegisterPageComponent {
   // Registration payload shape — adapt to your backend RegisterPayload

@@ -4,11 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-developer-issue-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './developer-issue-modal.component.html',
-  styleUrls: ['./developer-issue-modal.component.css']
+    selector: 'app-developer-issue-modal',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './developer-issue-modal.component.html',
+    styleUrls: ['./developer-issue-modal.component.css']
 })
 export class DeveloperIssueModalComponent implements OnInit {
   @Input() issue: any;

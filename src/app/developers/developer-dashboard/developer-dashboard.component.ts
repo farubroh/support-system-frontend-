@@ -65,11 +65,10 @@ interface CategoryDto {
 
 
 @Component({
-  selector: 'app-developer-dashboard',
-  standalone: true,
-  imports: [CommonModule, DragDropModule, FormsModule],
-  templateUrl: './developer-dashboard.component.html',
-  styleUrls: ['./developer-dashboard.component.css']
+    selector: 'app-developer-dashboard',
+    imports: [CommonModule, DragDropModule, FormsModule],
+    templateUrl: './developer-dashboard.component.html',
+    styleUrls: ['./developer-dashboard.component.css']
 })
 export class DeveloperDashboardComponent implements OnInit {
   constructor(private http: HttpClient, private auth: AuthenticationService) {}

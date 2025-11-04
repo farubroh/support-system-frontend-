@@ -5,11 +5,10 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AuthenticationService } from '../../authentication.service'; // adjust path
 
 @Component({
-  selector: 'app-issue-view-modal-user',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './issue-view-modal-user.component.html',
-  styleUrls: ['./issue-view-modal-user.component.css']
+    selector: 'app-issue-view-modal-user',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './issue-view-modal-user.component.html',
+    styleUrls: ['./issue-view-modal-user.component.css']
 })
 export class IssueViewModalUserComponent implements OnInit {
   @Input() issue: any;

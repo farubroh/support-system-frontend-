@@ -7,11 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthenticationService } from '../../authentication.service';
 
 @Component({
-  selector: 'app-issue-form',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './create-issue.component.html',
-  styleUrls: ['./create-issue.component.css']
+    selector: 'app-issue-form',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './create-issue.component.html',
+    styleUrls: ['./create-issue.component.css']
 })
 export class CreateIssueComponent implements OnInit {
   @Output() issueCreated = new EventEmitter<void>();
