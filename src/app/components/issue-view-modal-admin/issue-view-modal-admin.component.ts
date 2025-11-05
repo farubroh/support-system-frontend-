@@ -22,6 +22,7 @@ type Issue = {
 
 @Component({
     selector: 'app-issue-view-modal-admin',
+    standalone: true,
     imports: [CommonModule, FormsModule], // ❌ removed HttpClientModule
     templateUrl: './issue-view-modal-admin.component.html',
     styleUrls: ['./issue-view-modal-admin.component.css']

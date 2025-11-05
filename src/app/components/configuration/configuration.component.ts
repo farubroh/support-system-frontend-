@@ -1,56 +1,55 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // ✅ fixes ngFor/ngIf
+import { CommonModule } from '@angular/common';
+
+declare const HSSelect: any; // Preline Select component
 
 declare global {
   interface Window {
-    HSSelect: any;
+    HSSelect: typeof HSSelect;
   }
 }
 
 @Component({
-    selector: 'app-configuration',
-    imports: [CommonModule],
-    templateUrl: './configuration.component.html',
-    styleUrls: ['./configuration.component.css',]
+  selector: 'app-configuration',
+  standalone: true,
+  templateUrl:'./configuration.component.html',
+  styleUrls: ['./configuration.component.css'],
+  imports: [
+       
+        CommonModule,
+       
+        
+    ],
 })
 export class ConfigurationComponent implements AfterViewInit {
+  person: string = '';
+  role: string = '';
   peopleList: { person: string, role: string }[] = [];
 
   ngAfterViewInit() {
-    // Initialize Preline dropdowns after rendering
+    // Wait for Angular to render, then initialize Preline dropdowns
     setTimeout(() => {
-      if (window.HSSelect) {
-        window.HSSelect.autoInit();
+      if (window['HSSelect']) {
+        window['HSSelect'].autoInit();
       }
-    }, 200); // Ensure it runs after Angular has initialized the component
+    }, 200);
   }
 
   addPerson() {
+    // Get selected values manually (because Preline manages hidden <select>)
     const personSelect = document.querySelector<HTMLSelectElement>('[name="person"]');
     const roleSelect = document.querySelector<HTMLSelectElement>('[name="role"]');
-
-    const selectedPerson = personSelect?.selectedOptions[0]?.textContent?.trim() || '';
-    const selectedRole = roleSelect?.selectedOptions[0]?.textContent?.trim() || '';
+    const selectedPerson = personSelect?.value || '';
+    const selectedRole = roleSelect?.value || '';
 
     if (selectedPerson && selectedRole) {
       this.peopleList.push({ person: selectedPerson, role: selectedRole });
 
       // Reset selects visually
-      personSelect!.selectedIndex = 0;
-      roleSelect!.selectedIndex = 0;
-
-      // Reinitialize the select dropdowns to reflect the changes
-      setTimeout(() => {
-        if (window.HSSelect) {
-          window.HSSelect.autoInit();
-        }
-      }, 200);
+      personSelect!.value = '';
+      roleSelect!.value = '';
+      window['HSSelect'].autoInit();
     }
-  }
-
-  editPerson(index: number) {
-    const current = this.peopleList[index];
-    alert(`Edit feature: You can edit ${current.person} - ${current.role}`);
   }
 
   removePerson(index: number) {

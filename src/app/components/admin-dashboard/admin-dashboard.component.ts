@@ -21,12 +21,13 @@ type CategoryDto = { categoryId: number; categoryName: string };
     selector: 'app-admin-dashboard',
     templateUrl: './admin-dashboard.component.html',
     styleUrls: ['./admin-dashboard.component.css'],
+    standalone: true,
     imports: [
         IssueViewModalAdminComponent,
         CommonModule,
         NgCircleProgressModule,
-        SafeHtmlPipe,
         FormsModule
+        
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
