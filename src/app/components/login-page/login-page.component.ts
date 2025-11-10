@@ -26,7 +26,7 @@ export class LoginPageComponent {
     this.error = '';
 
     // 🔒 OLD LOGIC (commented out, for reference)
-    /*
+    
     const payload = {
       userId: this.credentials.username,
       password: this.credentials.password
@@ -55,34 +55,34 @@ export class LoginPageComponent {
         this.error = '❌ Invalid Username or Password';
       }
     });
-    */
+    
 
-    // ✅ NEW LOGIC (for AUST IUMS)
-    const url = 'https://iums.aust.edu/ums-webservice-academic/supportSystem/getUserInformation';
-    const payload = {
-      loginInfo: {
-        pUserId: this.credentials.username,
-        pPassword: this.credentials.password
-      }
-    };
+    
+    // const url = 'https://iums.aust.edu/ums-webservice-academic/supportSystem/getUserInformation';
+    // const payload = {
+    //   loginInfo: {
+    //     pUserId: this.credentials.username,
+    //     pPassword: this.credentials.password
+    //   }
+    // };
 
-    // ✅ Send POST request
-    this.http.post(url, payload).subscribe({
-      next: (response: any) => {
-        console.log('IUMS Login Response:', response);
+    // // ✅ Send POST request
+    // this.http.post(url, payload).subscribe({
+    //   next: (response: any) => {
+    //     console.log('IUMS Login Response:', response);
 
-        // ✅ Check if response contains user info
-        if (response && response.userId) {
-          console.log('✅ Login successful, redirecting to home...');
-          this.router.navigate(['/home']);
-        } else {
-          this.error = '❌ Invalid Username or Password';
-        }
-      },
-      error: (err) => {
-        console.error('IUMS Login Error:', err);
-        this.error = '❌ Failed to connect or invalid credentials';
-      }
-    });
+    //     // ✅ Check if response contains user info
+    //     if (response && response.userId) {
+    //       console.log('✅ Login successful, redirecting to home...');
+    //       this.router.navigate(['/home']);
+    //     } else {
+    //       this.error = '❌ Invalid Username or Password';
+    //     }
+    //   },
+    //   error: (err) => {
+    //     console.error('IUMS Login Error:', err);
+    //     this.error = '❌ Failed to connect or invalid credentials';
+    //   }
+    // });
   }
 }

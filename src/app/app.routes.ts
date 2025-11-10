@@ -16,8 +16,8 @@ import { SessionExpiredComponent } from './components/session-expired/session-ex
 import { ConfigurationComponent } from './components/configuration/configuration.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/register', pathMatch: 'full' },
-{ path: 'login', component: LoginPageComponent },
+// { path: '', redirectTo: '/register', pathMatch: 'full' },
+{ path: '', component: LoginPageComponent },
 { path: 'register', component: RegisterPageComponent },
 { path: 'reset-password', component: ResetPasswordComponent },
 { path: 'session-expired', component: SessionExpiredComponent },
